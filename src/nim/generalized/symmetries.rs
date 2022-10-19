@@ -4,8 +4,18 @@ use super::GeneralizedNimGame;
 
 //Implements the symmetry finder for GeneralizedNimGame
 impl GeneralizedNimGame{
+
+    pub fn is_symmetric(&self) -> bool{
+        match self.find_symmetry() {
+            Some(_) => true,
+            None => false,
+        }
+    }
+
+
+
     ///Tries to find a symmetry by running a recursive algorithm
-    pub fn find_symmetry(&mut self) -> Option<Vec<u16>>{
+    pub fn find_symmetry(&self) -> Option<Vec<u16>>{
 
         //If there isn't an even amount of nodes it's impossible for every node to have a symmetry
         if self.nodes%2 != 0 {return None;}
@@ -28,7 +38,7 @@ impl GeneralizedNimGame{
 
 
 
-    fn get_sets_of_candidates(&mut self) -> Vec<Vec<u16>>{
+    fn get_sets_of_candidates(&self) -> Vec<Vec<u16>>{
         
         //key: sorted amount of 
         //value: vec of nodes that have neighbours with exactly this amount of neighbours
@@ -60,7 +70,7 @@ impl GeneralizedNimGame{
     }
 
     ///gets nodes that might be symmetric tho a given node
-    fn get_candidates(&mut self, node :u16, symmetries :&Vec<Option<u16>>, sets_of_candidates :&Vec<Vec<u16>>) -> Vec<u16>{
+    fn get_candidates(&self, node :u16, symmetries :&Vec<Option<u16>>, sets_of_candidates :&Vec<Vec<u16>>) -> Vec<u16>{
         
         let mut candidates: &Vec<u16> = &vec![];
 
@@ -107,7 +117,7 @@ impl GeneralizedNimGame{
     ///   * This can be checked by adding the symmetry (root_node <==> candidate_node) to the vec of symmetries and recursively calling the function.
     ///
     ///     
-    fn leads_to_contradiction(&mut self, symmetries :&mut Vec<Option<u16>>, sets_of_candidates :&Vec<Vec<u16>>) -> Option<Vec<u16>>{
+    fn leads_to_contradiction(&self, symmetries :&mut Vec<Option<u16>>, sets_of_candidates :&Vec<Vec<u16>>) -> Option<Vec<u16>>{
         
         //If there are none, return
         let root_node = match self.get_next_node(symmetries){
@@ -128,7 +138,7 @@ impl GeneralizedNimGame{
         let mut neighbours_of_symmetry = Vec::new();
         
         for neighbour in self.get_neighbours(root_node){
-            match symmetries[neighbour as usize]{
+            match symmetries[*neighbour as usize]{
                 Some(symmetric_neighbour) => neighbours_of_symmetry.push(symmetric_neighbour),
                 None => continue
             }

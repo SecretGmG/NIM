@@ -1,0 +1,75 @@
+use super::GeneralizedNimGame;
+
+impl GeneralizedNimGame{
+
+    pub fn calculateNimber(&self) -> u16{
+        if self.groups.len() == 0 {return 0;}
+        if self.groups.len() == 1 {return groups[0].len()}
+        if self.is_symmetric() {return 0;}
+        
+
+        let mut total_nimber = 0;
+
+        for part in self.get_split(){       
+            total_nimber ^= getNimberWithMEX(part);
+        }
+        
+        return total_nimber;
+    }
+    fn getNimberWithMEX(generalizedNimGame : GeneralizedNimGame) -> u16{
+
+
+        let childNimbers = Vec![];
+
+        for child in generalizedNimGame.get_unique_child_games() {
+            childNimbers.push(child.calculateNimber());
+        }
+
+        return mex(childNimbers);
+    }
+
+    fn mex(nums: Vec<u16>){
+        nums.sort();
+        let mut i = 0;
+        while nums[i] == i {i+=1;}
+        return i;
+    }
+
+
+    ///returns all independent parts of the GeneralizedNimGame
+    pub fn get_split(&self) -> Vec<GeneralizedNimGame>{
+        
+        let processedNodes = Vec![];
+        //List<List<int>> groups = new List<List<int>>();
+        
+        for i in 0..self.nodes
+        {
+            if !processedNodes[i]
+            {
+                let currentNodes = Vec![];
+                processedNodes[i] = true;
+                currentNodes.push(i);
+                currentGroup = Vec![];
+
+                while (currentNodes.len() != 0)
+                {
+                    currentNode = currentNodes.pop();
+                    currentGroup.Add(currentNode);
+                    for j in 0..self.neighbours[currentNode].len()
+                    {
+                        if (!processedNodes.Contains(neighbours[currentNode][j]))
+                        {
+                            processedNodes.Add(neighbours[currentNode][j]);
+                            currentNodes.Enqueue(neighbours[currentNode][j]);
+                        }
+                    }
+                }
+                parts.Add(currentGroup);
+            }
+        }
+
+        
+        return splitNims;
+
+    }
+}

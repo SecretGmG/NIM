@@ -17,7 +17,7 @@ pub struct GeneralizedNimGame{
 //Constructors and basic functions for the GeneralizedNimGame
 impl GeneralizedNimGame{
     /// gets all neighbours of a given node
-    pub fn get_neighbours(self, node :u16) -> &'static Vec<u16>{
+    pub fn get_neighbours(&self, node :u16) -> &Vec<u16>{
         return &self.neighbours[node as usize];
     }
     
