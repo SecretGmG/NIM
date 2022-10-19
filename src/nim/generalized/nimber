@@ -40,8 +40,8 @@ impl GeneralizedNimGame{
     pub fn get_split(&self) -> Vec<GeneralizedNimGame>{
         
         let processedNodes = Vec![];
-        //List<List<int>> groups = new List<List<int>>();
-        
+        let parts = Vec![];
+
         for i in 0..self.nodes
         {
             if !processedNodes[i]
@@ -51,25 +51,22 @@ impl GeneralizedNimGame{
                 currentNodes.push(i);
                 currentGroup = Vec![];
 
-                while (currentNodes.len() != 0)
+                while currentNodes.len() != 0
                 {
                     currentNode = currentNodes.pop();
-                    currentGroup.Add(currentNode);
+                    currentGroup.push(currentNode);
                     for j in 0..self.neighbours[currentNode].len()
                     {
-                        if (!processedNodes.Contains(neighbours[currentNode][j]))
+                        if (!processedNodes.has(self.neighbours[currentNode][j]))
                         {
-                            processedNodes.Add(neighbours[currentNode][j]);
-                            currentNodes.Enqueue(neighbours[currentNode][j]);
+                            processedNodes.push(self.neighbours[currentNode][j]);
+                            currentNodes.push(self.neighbours[currentNode][j]);
                         }
                     }
                 }
-                parts.Add(currentGroup);
+                parts.push(GeneralizedNimGame.new(currentGroup));
             }
         }
-
-        
-        return splitNims;
-
+        return parts;
     }
 }
