@@ -35,7 +35,6 @@ impl GeneralizedNimGame{
         return i;
     }
 
-
     ///returns all independent parts of the GeneralizedNimGame
     pub fn get_split(&self) -> Vec<GeneralizedNimGame>{
         
