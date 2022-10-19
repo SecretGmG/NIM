@@ -42,7 +42,7 @@ impl GeneralizedNimGame{
             let mut neighbours_lengths = vec![];
 
             for neighbour in self.get_neighbours(node){
-                let amount_of_neighbours_neighbours = self.get_neighbours(neighbour).len() as u16;
+                let amount_of_neighbours_neighbours = self.get_neighbours(*neighbour).len() as u16;
 
                 match neighbours_lengths.binary_search(&amount_of_neighbours_neighbours) {
                     Ok(_) => {} // element already in vector 
@@ -58,7 +58,6 @@ impl GeneralizedNimGame{
         }
         return map.values().cloned().collect();
     }
-
 
     ///gets nodes that might be symmetric tho a given node
     fn get_candidates(&mut self, node :u16, symmetries :&Vec<Option<u16>>, sets_of_candidates :&Vec<Vec<u16>>) -> Vec<u16>{

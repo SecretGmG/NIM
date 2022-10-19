@@ -1,4 +1,4 @@
-use std::{vec, collections::HashMap, fs::remove_dir};
+use std::{vec, collections::HashMap};
 
 pub mod symmetries;
 pub mod moves;
@@ -9,7 +9,7 @@ pub mod moves;
 pub struct GeneralizedNimGame{
     groups :Vec<Vec<u16>>,
     /// neighbours[i] stores all nodes neighbouring i in ascending order (deduped)
-    neighbours :Option<Vec<Vec<u16>>>,
+    neighbours :Vec<Vec<u16>>,
     ///the amount of nodes in groups <=> the biggest index
     nodes :u16
 }
@@ -17,61 +17,58 @@ pub struct GeneralizedNimGame{
 //Constructors and basic functions for the GeneralizedNimGame
 impl GeneralizedNimGame{
     /// gets all neighbours of a given node
-    pub fn get_neighbours(&mut self, node :u16) -> Vec<u16>{
-
-        match &mut self.neighbours {
-            Some(neighbours) => { neighbours[node as usize] },
-            None => { self.build_neighbours(); self.neighbours.unwrap()[node as usize] },
-            }
+    pub fn get_neighbours(self, node :u16) -> &'static Vec<u16>{
+        return &self.neighbours[node as usize];
     }
-
-    fn build_neighbours(&mut self){
-
-        self.neighbours = Some(vec![]);
-
-        for node in 0..self.nodes{
-            let mut nodes_neighbours = vec![];
-            
-            for group in &self.groups {
-                if group.contains(&node){
-                    nodes_neighbours.append(&mut group.clone());
-                }
-            }
-            //remove all nodes;
-            nodes_neighbours.retain(|val| *val != node);
-
-            nodes_neighbours.sort();
-            nodes_neighbours.dedup();
-
-            self.neighbours.unwrap().push(nodes_neighbours);
-        }
-    }
-
-
+    
     ///creates an empty GeneralizedNimGame
     pub fn empty() -> GeneralizedNimGame{
         return GeneralizedNimGame{
             groups: Vec::new(),
-            neighbours: None,
+            neighbours: Vec::new(),
             nodes: 0
         }
     }
     
     ///creates and simplifies a GeneralizedNimGame from a vec<vec<u16>>
     pub fn new(vec_of_groups :Vec<Vec<u16>>) -> GeneralizedNimGame{ 
-
+        
         let  groups= &mut vec_of_groups.clone();
 
 
         let nodes = Self::flatten_indecies_get_node_count(groups);
         Self::remove_unneccesary_data(groups);
         
+        let vec_of_groups = groups.to_vec();
+        
+        let neighbours = Self::build_neighbours(&vec_of_groups, nodes);
 
-        return GeneralizedNimGame{groups: groups.to_vec(), nodes, neighbours: None};
+        return GeneralizedNimGame{groups: vec_of_groups,nodes:  nodes,neighbours: neighbours};
     }
-
+    
+    fn build_neighbours(vec_of_groups :&Vec<Vec<u16>>, nodes: u16) -> Vec<Vec<u16>>{
+    
+        let mut neighbours = vec![];
+    
+        for node in 0..nodes{
+            let mut nodes_neighbours = vec![];
+            
+            for group in vec_of_groups {
+                if group.contains(&node){
+                    nodes_neighbours.append(&mut group.clone());
+                }
+            }
+            //remove all nodes;
+            nodes_neighbours.retain(|val| *val != node);
+            nodes_neighbours.sort();
+            nodes_neighbours.dedup();
+            neighbours.push(nodes_neighbours);
+        }
+        return neighbours;
+    }
+          
     fn remove_unneccesary_data(vec_of_groups :&mut Vec<Vec<u16>>){
-
+        
         let mut unnecessary_groups = vec![];
 
         for i in 0..vec_of_groups.len()
@@ -98,7 +95,7 @@ impl GeneralizedNimGame{
         
         let mut indecies = HashMap::new();
         let mut index: u16 = 0;
-
+        
         //generate map of new indecies
         for i in 0..vec_of_groups.len(){
             for j in 0..vec_of_groups[i].len(){
@@ -108,7 +105,7 @@ impl GeneralizedNimGame{
                 }
             }
         }
-
+        
 
         //assign new indecies
         for i in 0..vec_of_groups.len(){
@@ -119,7 +116,7 @@ impl GeneralizedNimGame{
         
         return indecies.len() as u16;
     }
-
+    
     
         //Reasigns indecies in a way that doesn't alter the data to standartisize the format
         fn assign_indecies(vec_of_groups :&mut Vec<Vec<u16>>)
@@ -137,12 +134,12 @@ impl GeneralizedNimGame{
             for (int i = 0; i < comparer.Length; i++)
             {
             }
-
+            
             //Sort a refrence Array By the comparer with ListComparer
             int[] refrences = ArrayCreator.GetIndexed(0,comparer.Length);
             Array.Sort(comparer, refrences, new ListComparer());
             refrences = Inverse(refrences);
-
+            
             //Reasign Indecies
             for (int i = 0; i < newValues.Count; i++)
             {
