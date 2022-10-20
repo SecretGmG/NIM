@@ -4,8 +4,7 @@ pub mod display;
 pub mod symmetries;
 pub mod moves;
 pub mod nimber;
-pub mod eq;
-pub mod ord;
+pub mod impls;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
@@ -151,23 +150,24 @@ impl GeneralizedNimGame{
     }
     
     
-        //Reasigns indecies in a way that doesn't alter the data to standartisize the format
-        fn assign_indecies(vec_of_groups :&mut Vec<Vec<u16>>)
+    //Reasigns indecies in a way that doesn't alter the data to standartisize the format
+    fn assign_indecies(vec_of_groups :&mut Vec<Vec<u16>>)
+    {
+    
+        /*
+        //Count Occurences
+        for (int i = 0; i < comparer.Length; i++)
         {
-            /*
-            //Count Occurences
-            for (int i = 0; i < comparer.Length; i++)
-            {
-            }
-            //Sum up All neighbours occurences
-            for (int i = 0; i < comparer.Length; i++)
-            {
-            }
-            //Repeat once
-            for (int i = 0; i < comparer.Length; i++)
-            {
-            }
-            
+        }
+        //Sum up All neighbours occurences
+        for (int i = 0; i < comparer.Length; i++)
+        {
+        }
+        //Repeat once
+        for (int i = 0; i < comparer.Length; i++)
+        {
+        }
+        
             //Sort a refrence Array By the comparer with ListComparer
             int[] refrences = ArrayCreator.GetIndexed(0,comparer.Length);
             Array.Sort(comparer, refrences, new ListComparer());
