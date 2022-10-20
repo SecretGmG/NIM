@@ -8,15 +8,17 @@ impl GeneralizedNimGame{
 
         let parts = self.get_split();
 
-        for part in parts{       
-            total_nimber ^= part.get_nimber_with_mex();
+        for part in parts{     
+            
+            let part_nimber = part.get_nimber_with_mex();
+
+            total_nimber ^= part_nimber;
         }
-        
         return total_nimber;
     }
     fn get_nimber_with_mex(&self) -> u16{
         if self.groups.len() == 0 {return 0;}
-        if self.groups.len() == 1 {return self.groups[0].len() as u16}
+        if self.groups.len() == 1 {return self.nodes as u16}
         if self.is_symmetric() {return 0;}
 
         let mut childNimbers = vec![];
@@ -50,9 +52,10 @@ impl GeneralizedNimGame{
                 let mut currentNodes = vec![];
                 
                 processedNodes.push(i); //push i to the processed nodes
+                currentNodes.push(i); //push i to the nodes to process
                 
                 for neighbour in &self.neighbours[i as usize]{
-                    currentNodes.push(*neighbour); //push i to the nodes to process
+                    currentNodes.push(*neighbour); //push neighbours of i to the nodes to process
                 }
                 
                 let mut newPart = vec![];

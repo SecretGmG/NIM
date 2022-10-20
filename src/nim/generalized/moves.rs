@@ -6,7 +6,7 @@ impl GeneralizedNimGame{
     {
         let mut childGames = vec![];
 
-        for group in &self.neighbours
+        for group in &self.groups
         {
             let mut loneNodesInGroup = vec![];
             let mut otherNodesInGroup = vec![];
@@ -61,7 +61,8 @@ impl GeneralizedNimGame{
             mask >>= 1;
         }
 
-        return self.remove_nodes(&mut nodes_to_remove).unwrap();
+        let child = self.remove_nodes(&mut nodes_to_remove).unwrap();
+        return child;
     }
     ///removes all nodes specified in the argument
     pub fn remove_nodes(&self, nodes_to_remove: &mut Vec<u16>) -> Option<GeneralizedNimGame>{
@@ -81,7 +82,10 @@ impl GeneralizedNimGame{
             }
             newGroups.push(newGroup);
         }
-        return Some(GeneralizedNimGame::new(newGroups))
+
+        let newGame = GeneralizedNimGame::new(newGroups); 
+
+        return Some(newGame);
     }
     pub fn keep_nodes(&self, nodes_to_keep: &mut Vec<u16>) -> Option<GeneralizedNimGame>{
 

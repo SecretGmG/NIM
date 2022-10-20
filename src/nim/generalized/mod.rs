@@ -72,7 +72,7 @@ impl GeneralizedNimGame{
     }
           
     fn remove_unneccesary_data(vec_of_groups :&mut Vec<Vec<u16>>){
-        
+
         for i in 0..vec_of_groups.len()
         {
             vec_of_groups[i].dedup();
@@ -98,7 +98,6 @@ impl GeneralizedNimGame{
 
             i+=1;
         }
-
     }
 
     fn contains_all(arr1 : &Vec<u16>, arr2 : &Vec<u16>) -> bool{
@@ -120,10 +119,6 @@ impl GeneralizedNimGame{
             }
         }
         let result = index1 == arr1.len();
-
-        if result {
-            print!("");
-        }
 
         return result;
     }
