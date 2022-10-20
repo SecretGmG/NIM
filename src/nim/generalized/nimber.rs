@@ -1,29 +1,29 @@
 use super::GeneralizedNimGame;
+use bitvec::*;
 
 impl GeneralizedNimGame{
 
     pub fn calculate_nimber(&self) -> u16{
-        if self.groups.len() == 0 {return 0;}
-        if self.groups.len() == 1 {return self.groups[0].len() as u16}
-        if self.is_symmetric() {return 0;}
-        
-
         let mut total_nimber = 0;
 
         let parts = self.get_split();
 
         for part in parts{       
-            total_nimber ^= Self::get_nimbers_with_mex(part);
+            total_nimber ^= part.get_nimber_with_mex();
         }
         
         return total_nimber;
     }
-    fn get_nimbers_with_mex(generalizedNimGame : GeneralizedNimGame) -> u16{
-
+    fn get_nimber_with_mex(&self) -> u16{
+        if self.groups.len() == 0 {return 0;}
+        if self.groups.len() == 1 {return self.groups[0].len() as u16}
+        if self.is_symmetric() {return 0;}
 
         let mut childNimbers = vec![];
 
-        for child in generalizedNimGame.get_unique_child_games() {
+        let unique_child_games = self.get_unique_child_games();
+
+        for child in unique_child_games {
             childNimbers.push(child.calculate_nimber());
         }
 
@@ -40,17 +40,20 @@ impl GeneralizedNimGame{
     ///returns all independent parts of the GeneralizedNimGame
     pub fn get_split(&self) -> Vec<GeneralizedNimGame>{
         
-        let mut processedNodes = vec![false; self.nodes as usize];
+        let mut processedNodes = vec![];
         let mut parts = vec![];
 
         for i in 0..self.nodes
         {
-            if !processedNodes[i as usize] //if the node is not already processed
+            if !processedNodes.contains(&i) //if the node is not already processed
             {
                 let mut currentNodes = vec![];
-                processedNodes[i as usize] = true;
                 
-                currentNodes.push(i);
+                processedNodes.push(i); //push i to the processed nodes
+                
+                for neighbour in &self.neighbours[i as usize]{
+                    currentNodes.push(*neighbour); //push i to the nodes to process
+                }
                 
                 let mut newPart = vec![];
 
@@ -59,17 +62,20 @@ impl GeneralizedNimGame{
                     let currentNode = currentNodes.pop().unwrap();
 
                     newPart.push(currentNode);
+
                     for neighbour in &self.neighbours[currentNode as usize]
                     {
                         let neighbour = *neighbour;
-                        if !processedNodes[neighbour as usize] && currentNodes.contains(&neighbour)//if the node has not already been processed and it is not already queued
-                        {
-                            processedNodes[neighbour as usize] = true;
+                        if !processedNodes.contains(&neighbour){ //if the node has not already been processed
+                            
+                            processedNodes.push(neighbour);
                             currentNodes.push(neighbour);
                         }
                     }
                 }
-                parts.push(self.keep_nodes(&mut newPart).unwrap());
+                if newPart.len() != 0{
+                    parts.push(self.keep_nodes(&mut newPart).unwrap());
+                }
             }
         }
         return parts;

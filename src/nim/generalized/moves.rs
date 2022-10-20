@@ -22,11 +22,12 @@ impl GeneralizedNimGame{
                 }
             }
 
-            
-            for number_of_lone_nodes_to_remove in 0..loneNodesInGroup.len()
+            let lone_nodes_to_remove_bound = loneNodesInGroup.len()+1;
+            for number_of_lone_nodes_to_remove in 0..lone_nodes_to_remove_bound
             {
-                if group.len() < 128 {panic!("This game is too complex!")}
-                for mask in 1..(1 << group.len())
+                if otherNodesInGroup.len() > 128 {panic!("This game is too complex!")}
+                let mask_bound = 1<<otherNodesInGroup.len();
+                for mask in 1..mask_bound
                 {
                     childGames.push(
                         self.getChild(
@@ -39,6 +40,9 @@ impl GeneralizedNimGame{
                 }
             }
         }
+
+        childGames.dedup();
+
         return childGames;
     }
 
@@ -83,7 +87,9 @@ impl GeneralizedNimGame{
 
         nodes_to_keep.sort();
 
-        if *nodes_to_keep.last().unwrap() > self.nodes {return None;}
+        if *nodes_to_keep.last().unwrap() > self.nodes {
+            return None;
+        }
         
         let mut newGroups = vec![];
 

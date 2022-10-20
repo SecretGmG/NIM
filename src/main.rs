@@ -8,7 +8,7 @@ fn main() {
     print!("{}", g);
 
 
-    g.calculate_nimber();
+    print!("{}", g.calculate_nimber());
     
     
 }

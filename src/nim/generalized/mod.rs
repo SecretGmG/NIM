@@ -4,6 +4,7 @@ pub mod display;
 pub mod symmetries;
 pub mod moves;
 pub mod nimber;
+pub mod eq;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
@@ -71,25 +72,59 @@ impl GeneralizedNimGame{
           
     fn remove_unneccesary_data(vec_of_groups :&mut Vec<Vec<u16>>){
         
-        let mut unnecessary_groups = vec![];
-
         for i in 0..vec_of_groups.len()
         {
             vec_of_groups[i].dedup();
-            for j in 0..vec_of_groups.len()
-            {
-                if i != j && i <= j && vec_of_groups[i].iter().all(|e| vec_of_groups[j].contains(e))
-                {
-                    unnecessary_groups.push(i);
-                    break;
+            vec_of_groups[i].sort();
+        }
+
+        vec_of_groups.sort_by(|a,b|a.len().cmp(&b.len()));
+
+        let mut i = 0;
+        'outer: while i+1<vec_of_groups.len() {
+            if vec_of_groups[i].len() == 0 {
+                vec_of_groups.remove(i);
+                continue;
+            }
+
+            for j in (i+1)..vec_of_groups.len(){
+                
+                if Self::contains_all(&vec_of_groups[i], &vec_of_groups[j]) {
+                    vec_of_groups.remove(i);
+                    continue 'outer;
                 }
             }
+
+            i+=1;
         }
+
+    }
+
+    fn contains_all(arr1 : &Vec<u16>, arr2 : &Vec<u16>) -> bool{
         
-        //I can simply pop because the unnecessary_groups are sorted in ascending order
-        while unnecessary_groups.len() != 0{
-            vec_of_groups.remove(unnecessary_groups.pop().unwrap());
+        let mut index1 = 0;
+        let mut index2 = 0;
+        while index1<arr1.len() && index2<arr2.len() {
+            
+            if arr1[index1] < arr2[index2]{
+                break;
+            }
+
+            if arr1[index1] == arr2[index2]{
+                index1+=1;
+                index2+=1;
+            }
+            else{
+                index2+=1;
+            }
         }
+        let result = index1 == arr1.len();
+
+        if result {
+            print!("");
+        }
+
+        return result;
     }
     
 
