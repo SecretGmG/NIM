@@ -23,6 +23,7 @@ impl GeneralizedNimGame{
 
             for number_of_lone_nodes_to_remove in 0..loneNodesInGroup.len()
             {
+                if group.len() < 128 {panic!("This game is too complex!")}
                 for mask in 1..(1 << group.len())
                 {
                     childGames.push(
@@ -40,7 +41,6 @@ impl GeneralizedNimGame{
     }
 
     fn getChild(&self, loneNodesInGroup :&Vec<u16>, nodesWithNeighboursInGroup :&Vec<u16>, numberOfLoneNodesToRemove: u16, mask :u128) -> GeneralizedNimGame{
-
         let mut nodesToRemove = vec![];
         for i in 0..numberOfLoneNodesToRemove{
             nodesToRemove.push(loneNodesInGroup[i as usize]);
