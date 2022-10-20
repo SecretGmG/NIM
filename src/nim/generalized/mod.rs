@@ -5,10 +5,11 @@ pub mod symmetries;
 pub mod moves;
 pub mod nimber;
 pub mod eq;
+pub mod ord;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
-#[derive(Debug)]
+#[derive(Debug,Eq)]
 pub struct GeneralizedNimGame{
     groups :Vec<Vec<u16>>,
     /// neighbours[i] stores all nodes neighbouring i in ascending order (deduped)

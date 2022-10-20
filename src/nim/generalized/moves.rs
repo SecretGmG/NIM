@@ -41,8 +41,8 @@ impl GeneralizedNimGame{
             }
         }
 
+        childGames.sort_by(Self::cmp);
         childGames.dedup();
-
         return childGames;
     }
 
