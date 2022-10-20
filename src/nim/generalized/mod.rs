@@ -1,15 +1,33 @@
 use std::{vec, collections::HashMap};
+use bitvec::prelude::*;
 
 pub mod symmetries;
 pub mod moves;
+pub mod nimber;
+
+#[derive(Debug)]
+struct Nodes{
+    connected_nodes :bitVec;
+}
+impl Nodes{
+    fn count(&self) -> u8{
+        return self.connected_nodes.count_ones() as u8;
+    }
+
+    fn keep(&self, mask :u128) -> Nodes{
+        let new_connected_nodes=self.connected_nodes & mask;
+        return Nodes{connected_nodes: new_connected_nodes}
+    }
+}
+
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
 #[derive(Debug)]
 pub struct GeneralizedNimGame{
-    groups :Vec<Vec<u16>>,
+    groups :Vec<Nodes>,
     /// neighbours[i] stores all nodes neighbouring i in ascending order (deduped)
-    neighbours :Vec<Vec<u16>>,
+    neighbours :Vec<Nodes>,
     ///the amount of nodes in groups <=> the biggest index
     nodes :u16
 }

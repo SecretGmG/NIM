@@ -55,10 +55,10 @@ impl GeneralizedNimGame{
             mask >>= 1;
         }
 
-        return self.make_move_and_clone(&mut nodesToRemove).unwrap();
+        return self.remove_nodes(&mut nodesToRemove).unwrap();
     }
 
-    pub fn make_move_and_clone(&self, _move: &mut Vec<u16>) -> Option<GeneralizedNimGame>{
+    pub fn remove_nodes(&self, _move: &mut Vec<u16>) -> Option<GeneralizedNimGame>{
 
         _move.sort();
 
@@ -70,6 +70,25 @@ impl GeneralizedNimGame{
             let mut newGroup = vec![];
             for node in group{
                 if _move.binary_search(&node).is_err(){ //if it is not in the nodes to remove
+                    newGroup.push(*node);
+                }
+            }
+            newGroups.push(newGroup);
+        }
+        return Some(GeneralizedNimGame::new(newGroups))
+    }
+    pub fn keep_nodes(&self, _move: &mut Vec<u16>) -> Option<GeneralizedNimGame>{
+
+        _move.sort();
+
+        if *_move.last().unwrap() > self.nodes {return None;}
+        
+        let mut newGroups = vec![];
+
+        for group in &self.groups{
+            let mut newGroup = vec![];
+            for node in group{
+                if _move.binary_search(&node).is_ok(){ //if it is in the nodes to keep
                     newGroup.push(*node);
                 }
             }

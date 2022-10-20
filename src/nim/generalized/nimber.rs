@@ -2,68 +2,72 @@ use super::GeneralizedNimGame;
 
 impl GeneralizedNimGame{
 
-    pub fn calculateNimber(&self) -> u16{
+    pub fn calculate_nimber(&self) -> u16{
         if self.groups.len() == 0 {return 0;}
-        if self.groups.len() == 1 {return groups[0].len()}
+        if self.groups.len() == 1 {return self.groups[0].len() as u16}
         if self.is_symmetric() {return 0;}
         
 
         let mut total_nimber = 0;
 
         for part in self.get_split(){       
-            total_nimber ^= getNimberWithMEX(part);
+            total_nimber ^= Self::get_nimbers_with_mex(part);
         }
         
         return total_nimber;
     }
-    fn getNimberWithMEX(generalizedNimGame : GeneralizedNimGame) -> u16{
+    fn get_nimbers_with_mex(generalizedNimGame : GeneralizedNimGame) -> u16{
 
 
-        let childNimbers = Vec![];
+        let mut childNimbers = vec![];
 
         for child in generalizedNimGame.get_unique_child_games() {
-            childNimbers.push(child.calculateNimber());
+            childNimbers.push(child.calculate_nimber());
         }
 
-        return mex(childNimbers);
+        return Self::mex(&mut childNimbers);
     }
 
-    fn mex(nums: Vec<u16>){
+    fn mex(nums: &mut Vec<u16>) -> u16{
         nums.sort();
-        let mut i = 0;
-        while nums[i] == i {i+=1;}
+        let mut i: u16 = 0;
+        while nums.binary_search(&i).is_ok() {i+=1;}
         return i;
     }
 
     ///returns all independent parts of the GeneralizedNimGame
     pub fn get_split(&self) -> Vec<GeneralizedNimGame>{
         
-        let processedNodes = Vec![];
-        let parts = Vec![];
+        let mut processedNodes = vec![false; self.nodes as usize];
+        let mut parts = vec![];
 
         for i in 0..self.nodes
         {
-            if !processedNodes[i]
+            if !processedNodes[i as usize] //if the node is not already processed
             {
-                let currentNodes = Vec![];
-                processedNodes[i] = true;
+                let mut currentNodes = vec![];
+                processedNodes[i as usize] = true;
+                
                 currentNodes.push(i);
-                currentGroup = Vec![];
+                
+                let mut newPart = vec![];
 
-                while currentNodes.len() != 0
+                while currentNodes.len() != 0 //while there are nodes to process
                 {
-                    currentNode = currentNodes.pop();
-                    currentGroup.push(currentNode);
-                    for j in 0..self.neighbours[currentNode].len()
+                    let currentNode = currentNodes.pop().unwrap();
+
+                    newPart.push(currentNode);
+                    for neighbour in &self.neighbours[currentNode as usize]
                     {
-                        if (!processedNodes.has(self.neighbours[currentNode][j]))
+                        let neighbour = *neighbour;
+                        if !processedNodes[neighbour as usize] && currentNodes.contains(&neighbour)//if the node has not already been processed and it is not already queued
                         {
-                            processedNodes.push(self.neighbours[currentNode][j]);
-                            currentNodes.push(self.neighbours[currentNode][j]);
+                            processedNodes[neighbour as usize] = true;
+                            currentNodes.push(neighbour);
                         }
                     }
                 }
-                parts.push(GeneralizedNimGame.new(currentGroup));
+                parts.push(self.keep_nodes(&mut newPart).unwrap());
             }
         }
         return parts;
