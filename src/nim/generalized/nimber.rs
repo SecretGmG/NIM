@@ -1,35 +1,78 @@
+use std::collections::{hash_map, HashMap};
+
+use crate::nim;
+
 use super::GeneralizedNimGame;
-use bitvec::*;
+
+pub struct DataBase{
+    map :Option<HashMap<GeneralizedNimGame, u16>>
+}
+
+impl DataBase{
+
+    pub fn get(&self, g: &GeneralizedNimGame) -> Option<u16>{
+        match &self.map{
+            Some(map) => map.get(g).copied(),
+            None => None,
+        }
+    }
+    pub fn set(&mut self, g: &GeneralizedNimGame, nimber: u16){
+        if self.is_none() {self.generate();}
+
+        let map = self.map.as_mut().unwrap();
+        map.insert(g.clone(), nimber);
+    }
+    pub fn none() -> DataBase{
+        return DataBase{map: None};
+    }
+    pub fn generate(&mut self){
+        self.map = Some(HashMap::new());
+    }
+    pub fn is_none(&self) -> bool{
+        return self.map.is_none();
+    }
+}
+
 
 impl GeneralizedNimGame{
 
-    pub fn calculate_nimber(&self) -> u16{
-        let mut total_nimber = 0;
+    pub fn calculate_nimber(&self, prev_seen :&mut DataBase) -> u16{
+        let mut total_nimber = 0;    
 
         let parts = self.get_split();
 
         for part in parts{     
             
-            let part_nimber = part.get_nimber_with_mex();
+            let part_nimber = part.get_nimber_with_mex(prev_seen);
 
             total_nimber ^= part_nimber;
         }
         return total_nimber;
     }
-    fn get_nimber_with_mex(&self) -> u16{
+
+    fn get_nimber_with_mex(&self, prev_seen :&mut DataBase) -> u16{
         if self.groups.len() == 0 {return 0;}
         if self.groups.len() == 1 {return self.nodes as u16}
+        
+        if let Some(nimber) = prev_seen.get(self){return nimber;}
+
         if self.is_symmetric() {return 0;}
+
+
 
         let mut childNimbers = vec![];
 
         let unique_child_games = self.get_unique_child_games();
 
         for child in unique_child_games {
-            childNimbers.push(child.calculate_nimber());
+            childNimbers.push(child.calculate_nimber(prev_seen));
         }
 
-        return Self::mex(&mut childNimbers);
+        let nimber = Self::mex(&mut childNimbers); 
+
+        prev_seen.set(self, nimber);
+
+        return nimber;
     }
 
     fn mex(nums: &mut Vec<u16>) -> u16{
