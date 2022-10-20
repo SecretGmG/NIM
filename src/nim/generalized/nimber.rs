@@ -1,5 +1,6 @@
 use super::GeneralizedNimGame;
 
+
 impl GeneralizedNimGame{
 
     pub fn calculate_nimber(&self) -> u16{
@@ -10,7 +11,9 @@ impl GeneralizedNimGame{
 
         let mut total_nimber = 0;
 
-        for part in self.get_split(){       
+        let parts = self.get_split();
+
+        for part in parts{       
             total_nimber ^= Self::get_nimbers_with_mex(part);
         }
         

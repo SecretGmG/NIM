@@ -1,7 +1,9 @@
 use std::{vec, collections::HashMap};
 
+pub mod display;
 pub mod symmetries;
 pub mod moves;
+pub mod nimber;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game

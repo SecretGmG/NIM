@@ -5,7 +5,10 @@ fn main() {
 
     let g = Pit::empty_rect(3, 2).get_generalized();
 
+    print!("{}", g);
 
+
+    g.calculate_nimber();
     
     
 }
