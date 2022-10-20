@@ -1,6 +1,5 @@
 use super::GeneralizedNimGame;
 
-
 impl GeneralizedNimGame{
 
     pub fn calculate_nimber(&self) -> u16{
