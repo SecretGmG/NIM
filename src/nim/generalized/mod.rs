@@ -25,7 +25,6 @@ impl GeneralizedNimGame{
     }
     
     ///creates an empty GeneralizedNimGame
-    #[allow(dead_code)]
     pub fn empty() -> GeneralizedNimGame{
         return GeneralizedNimGame{
             groups: Vec::new(),
