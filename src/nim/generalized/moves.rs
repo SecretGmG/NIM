@@ -6,8 +6,17 @@ impl GeneralizedNimGame{
     {
         let mut child_games = vec![];
 
+        let mut processed_groups = vec![];
+
+
         for group in &self.groups
         {
+
+            //if self.group_is_symmetric_to_any(group, &processed_groups){continue;}
+
+
+            processed_groups.push(group);
+
             let mut lone_nodes_in_group = vec![];
             let mut other_nodes_in_group = vec![];
 
@@ -44,6 +53,51 @@ impl GeneralizedNimGame{
         child_games.sort_by(Self::cmp);
         child_games.dedup();
         return child_games;
+    }
+
+    fn group_is_symmetric_to_any(&self, group :&Vec<u16>, processed_groups :&Vec<&Vec<u16>>) -> bool{
+        for processed in processed_groups{
+            if self.group_is_symmetric(group, processed){
+                return true;
+            }
+        }
+        return false;
+    }
+    fn group_is_symmetric(&self, group :&Vec<u16>, other :&Vec<u16>) -> bool{
+        if group.len() != other.len() {return false;}
+
+        for i in 0..group.len(){
+
+            let node1 = group[i];
+            let node2 = other[i];
+
+            let neighbours1 = &self.neighbours[node1 as usize];
+            let neighbours2 = &self.neighbours[node2 as usize];
+
+            if !Self::have_the_same_neighbours(node1, node2, neighbours1, neighbours2) {return false;}
+            
+        }
+        return true;
+    }
+    fn have_the_same_neighbours(node1 :u16, node2 :u16, neighbours1 :&Vec<u16>, neighbours2 :&Vec<u16>) -> bool{
+        if neighbours1.len() != neighbours2.len() {return false;}
+
+        for i in 0..neighbours1.len(){
+            if neighbours1[i] == neighbours2[i] ||
+                (
+                    neighbours1[i] == node2 &&
+                    neighbours2[i] == node1
+                )            
+            {}
+            else{
+                return false;
+            }
+
+
+        }
+
+
+        return true;
     }
 
     fn get_child(&self, lone_nodes_in_group :&Vec<u16>, other_nodes_in_group :&Vec<u16>, nr_of_lone_nodes_to_remove: u16, mask :u128) -> GeneralizedNimGame{

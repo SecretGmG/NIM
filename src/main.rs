@@ -11,11 +11,29 @@ fn main() {
 
     let now = Instant::now();
 
-    test_i_games(1, 6, 3, (0,1,0),(1,0));   
+    print_moves(Pit::empty_rect(5, 5).get_generalized());
+    //test_i_games(1, 3, 5, (0,1,0),(1,0));   
 
     println!("{:?}", now.elapsed());
 
 }
+
+fn print_moves(g: GeneralizedNimGame){
+
+    let moves = g.get_unique_child_games();
+
+    for child in moves{
+
+        println!("{}",child);
+
+
+    }
+
+
+}
+
+
+
 
 fn test_generalized_nim_game(vec_of_groups : Vec<Vec<u16>>){
 

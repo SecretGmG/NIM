@@ -144,6 +144,7 @@ impl GeneralizedNimGame{
                 }
             }
         }
+
         return parts;
     }
 }
