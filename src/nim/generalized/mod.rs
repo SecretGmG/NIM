@@ -1,4 +1,4 @@
-use std::{vec, collections::HashMap, ops::Index, cmp::Ordering};
+use std::{vec, collections::HashMap, cmp::Ordering};
 
 pub mod display;
 pub mod symmetries;
@@ -25,6 +25,7 @@ impl GeneralizedNimGame{
     }
     
     ///creates an empty GeneralizedNimGame
+    #[allow(dead_code)]
     pub fn empty() -> GeneralizedNimGame{
         return GeneralizedNimGame{
             groups: Vec::new(),
@@ -169,26 +170,26 @@ impl GeneralizedNimGame{
                 comparer[*node as usize] += 1;
             }
         }
-        let mut betterComparer = vec![0; nodes as usize];
+        let mut better_comparer = vec![0; nodes as usize];
         for i in 0..comparer.len(){
-            betterComparer[i] = comparer[i]*nodes as u64;
+            better_comparer[i] = comparer[i]*nodes as u64;
             for j in 0..neighbours[i].len(){
-                betterComparer[i] += comparer[neighbours[i][j] as usize];
+                better_comparer[i] += comparer[neighbours[i][j] as usize];
             }
         }
         
         
-        (comparer, betterComparer) = (betterComparer, comparer);
+        (comparer, better_comparer) = (better_comparer, comparer);
 
         for i in 0..comparer.len(){
-            betterComparer[i] = comparer[i]*nodes as u64;
+            better_comparer[i] = comparer[i]*nodes as u64;
             for j in 0..neighbours[i].len(){
-                betterComparer[i] += comparer[neighbours[i][j] as usize];
+                better_comparer[i] += comparer[neighbours[i][j] as usize];
             }
         }
 
         let mut refrence = Self::ascending_vec_u16(nodes);
-        refrence.sort_by_key(|v| betterComparer[*v as usize]);
+        refrence.sort_by_key(|v| better_comparer[*v as usize]);
 
         let permutation = Self::get_permutation(refrence);
 

@@ -15,7 +15,7 @@ fn main() {
 
 }
 
-
+#[allow(dead_code)]
 fn test_generalized_nim_game(vec_of_groups : Vec<Vec<u16>>){
 
     let s = "------------------";
