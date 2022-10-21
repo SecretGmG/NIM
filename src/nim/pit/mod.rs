@@ -56,7 +56,6 @@ impl Pit{
     }
 
     pub fn get_generalized(&self) -> GeneralizedNimGame{
-
         let mut list_of_groups = vec![];
 
         

@@ -49,6 +49,11 @@ impl Clone for GeneralizedNimGame{
 }
 impl core::hash::Hash for GeneralizedNimGame{
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.groups.hash(state);
+        self.nodes.hash(state);
+        for i in 0..self.nodes{
+            for node in &self.neighbours[i as usize]{
+                (*node).hash(state);
+            }
+        }
     }
 }

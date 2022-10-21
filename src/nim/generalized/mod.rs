@@ -1,4 +1,4 @@
-use std::{vec, collections::HashMap};
+use std::{vec, collections::HashMap, ops::Index, cmp::Ordering};
 
 pub mod display;
 pub mod symmetries;
@@ -34,23 +34,21 @@ impl GeneralizedNimGame{
     }
     
     ///creates and simplifies a GeneralizedNimGame from a vec<vec<u16>>
-    pub fn new(vec_of_groups :Vec<Vec<u16>>) -> GeneralizedNimGame{ 
+    pub fn new(vec_of_groups :Vec<Vec<u16>>) -> GeneralizedNimGame{         
+        let mut groups = vec_of_groups;
         
-        let  groups= &mut vec_of_groups.clone();
 
-
-        let nodes = Self::flatten_indecies_get_node_count(groups);
-        Self::remove_unneccesary_data(groups);
+        let nodes = Self::flatten_indecies_get_node_count(&mut groups);
         
-        let vec_of_groups = groups.to_vec();
-        
-        let neighbours = Self::build_neighbours(&vec_of_groups, nodes);
+        Self::remove_unneccesary_data(&mut groups);
+                
+        let mut neighbours = Self::build_neighbours(&groups, nodes);
 
-        return GeneralizedNimGame{groups: vec_of_groups,nodes:  nodes,neighbours: neighbours};
+        Self::assign_indecies(&mut groups, &mut neighbours, nodes);
+        return GeneralizedNimGame{groups: groups,nodes:  nodes,neighbours: neighbours};
     }
     
     fn build_neighbours(vec_of_groups :&Vec<Vec<u16>>, nodes: u16) -> Vec<Vec<u16>>{
-    
         let mut neighbours = vec![];
     
         for node in 0..nodes{
@@ -61,17 +59,17 @@ impl GeneralizedNimGame{
                     nodes_neighbours.append(&mut group.clone());
                 }
             }
-            //remove all nodes;
-            nodes_neighbours.retain(|val| *val != node);
             nodes_neighbours.sort();
             nodes_neighbours.dedup();
+
+            nodes_neighbours.remove(nodes_neighbours.binary_search(&node).ok().unwrap());
+
             neighbours.push(nodes_neighbours);
         }
         return neighbours;
     }
           
     fn remove_unneccesary_data(vec_of_groups :&mut Vec<Vec<u16>>){
-
         for i in 0..vec_of_groups.len()
         {
             vec_of_groups[i].dedup();
@@ -124,70 +122,128 @@ impl GeneralizedNimGame{
     
 
     fn flatten_indecies_get_node_count(vec_of_groups :&mut Vec<Vec<u16>>) -> u16{
-        
-        let mut indecies = HashMap::new();
-        let mut index: u16 = 0;
+
+        let mut indecies = vec![];
         
         //generate map of new indecies
         for i in 0..vec_of_groups.len(){
             for j in 0..vec_of_groups[i].len(){
-                if !indecies.contains_key(&vec_of_groups[i][j]) {
-                    indecies.insert(vec_of_groups[i][j], index);
-                    index += 1;
-                }
+
+                let index = vec_of_groups[i][j]; 
+                indecies.push(index);
             }
         }
         
+        indecies.sort();
+        indecies.dedup();
+
+        let nodes = indecies.len();
+        
+        let mut map :HashMap<u16, u16> = HashMap::new();
+
+        for i in 0..indecies.len(){
+            map.insert(indecies[i], i as u16);
+        }
 
         //assign new indecies
         for i in 0..vec_of_groups.len(){
             for j in 0..vec_of_groups[i].len(){
-                vec_of_groups[i][j] = *indecies.get(&vec_of_groups[i][j]).unwrap();
+
+
+                vec_of_groups[i][j] = map[&vec_of_groups[i][j]];
             }
         }
         
-        return indecies.len() as u16;
+        return nodes as  u16;
     }
     
     
     //Reasigns indecies in a way that doesn't alter the data to standartisize the format
-    fn assign_indecies(vec_of_groups :&mut Vec<Vec<u16>>)
+    fn assign_indecies(vec_of_groups :&mut Vec<Vec<u16>>, neighbours :&mut Vec<Vec<u16>>, nodes :u16)
     {
-    
-        /*
         //Count Occurences
-        for (int i = 0; i < comparer.Length; i++)
+        let mut comparer: Vec<u64> = vec![0; nodes as usize];
+        for i in 0..vec_of_groups.len()
         {
+            for node in &vec_of_groups[i]{
+                comparer[*node as usize] += 1;
+            }
         }
-        //Sum up All neighbours occurences
-        for (int i = 0; i < comparer.Length; i++)
-        {
-        }
-        //Repeat once
-        for (int i = 0; i < comparer.Length; i++)
-        {
+        let mut betterComparer = vec![0; nodes as usize];
+        for i in 0..comparer.len(){
+            betterComparer[i] = comparer[i]*nodes as u64;
+            for j in 0..neighbours[i].len(){
+                betterComparer[i] += comparer[neighbours[i][j] as usize];
+            }
         }
         
-            //Sort a refrence Array By the comparer with ListComparer
-            int[] refrences = ArrayCreator.GetIndexed(0,comparer.Length);
-            Array.Sort(comparer, refrences, new ListComparer());
-            refrences = Inverse(refrences);
-            
-            //Reasign Indecies
-            for (int i = 0; i < newValues.Count; i++)
-            {
-                for (int j = 0; j < newValues[i].Count; j++)
-                {
-                    newValues[i][j] = refrences[newValues[i][j]];
-                }
-                newValues[i].Sort();
-            }
+        
+        (comparer, betterComparer) = (betterComparer, comparer);
 
-            newValues.Sort(new ListComparer());
-            Values = Array.ConvertAll(newValues.ToArray(), (v) => v.ToArray());
-        }*/
-        todo!();
+        for i in 0..comparer.len(){
+            betterComparer[i] = comparer[i]*nodes as u64;
+            for j in 0..neighbours[i].len(){
+                betterComparer[i] += comparer[neighbours[i][j] as usize];
+            }
+        }
+
+        let mut refrence = Self::ascending_vec_u16(nodes);
+        refrence.sort_by_key(|v| betterComparer[*v as usize]);
+
+        let permutation = Self::get_permutation(refrence);
+
+
+        for i in 0..vec_of_groups.len(){
+            for j in 0..vec_of_groups[i].len(){
+                vec_of_groups[i][j] = permutation[vec_of_groups[i][j] as usize];
+            }
+            vec_of_groups[i].sort();
+        }
+        vec_of_groups.sort_by(Self::group_comparer);
+        for i in 0..nodes{
+            for j in 0..neighbours[i as usize].len(){
+                neighbours[i as usize][j] = permutation[neighbours[i as usize][j] as usize];
+            }
+            neighbours[i as usize].sort();
+        }
     }
+
+    fn get_permutation(refrences :Vec<u16>) -> Vec<u16>{
+        
+        let mut perm = vec![0;refrences.len()];
+        
+        for i in 0..refrences.len(){
+            perm[refrences[i] as usize] = i as u16;
+        }
+        return perm;
+    }
+
+    fn group_comparer(vec1 :&Vec<u16>, vec2 :&Vec<u16> ) -> Ordering{
+        
+        match vec1.len().cmp(&vec2.len()){
+            Ordering::Less => return Ordering::Less,
+            Ordering::Equal => (),
+            Ordering::Greater => return Ordering::Greater,
+        }
+
+        for i in 0..vec1.len(){
+            match vec1[i].cmp(&vec2[i]){
+                Ordering::Less => return Ordering::Less,
+                Ordering::Equal => (),
+                Ordering::Greater => return Ordering::Greater,
+            }
+        }
+
+        return Ordering::Equal;
+    }
+    fn ascending_vec_u16(len :u16) -> Vec<u16>{
+        let mut r = vec![];
+        for i in 0..len{
+            r.push(i);
+        }
+        return r;
+    }
+
 }
 
 
