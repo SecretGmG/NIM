@@ -5,6 +5,7 @@ pub mod symmetries;
 pub mod moves;
 pub mod nimber;
 pub mod impls;
+pub mod dataBase;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
