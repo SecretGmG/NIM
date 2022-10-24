@@ -1,5 +1,5 @@
 use super::GeneralizedNimGame;
-use super::DataBase;
+use super::dataBase::DataBase;
 
 
 

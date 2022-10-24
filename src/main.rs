@@ -3,7 +3,7 @@
 mod nim;
 use std::time::Instant;
 
-use crate::nim::generalized::{GeneralizedNimGame, nimber::DataBase};
+use crate::nim::generalized::{GeneralizedNimGame, dataBase::DataBase};
 use nim::{pit::Pit};
 
 
@@ -11,7 +11,7 @@ fn main() {
 
     let now = Instant::now();
 
-    println!("{}", Pit::empty_rect(4,5).get_generalized().calculate_nimber(&mut DataBase::none()));
+    println!("{}", Pit::empty_rect(4,5).get_generalized().calculate_nimber(&mut DataBase::empty()));
 
     println!("{:?}", now.elapsed());
 
@@ -61,7 +61,7 @@ fn test_i_games(i: u16, x: u8, y: u8, cell_type_distribution: (u32,u32,u32), wal
         let new_pit = Pit::random_rect(cell_type_distribution, wall_type_distribution, x, y);
 
         println!("{}", new_pit);
-        let mut data_base = DataBase::none();
+        let mut data_base = DataBase::empty();
         println!("Nimber: {}", new_pit.get_generalized().calculate_nimber(&mut data_base));
         println!("---------------------------");
 
