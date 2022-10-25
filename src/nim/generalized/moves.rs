@@ -5,54 +5,58 @@ impl GeneralizedNimGame{
     pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> 
     {
         let mut child_games = vec![];
-
         let mut processed_groups = vec![];
-
 
         for group in &self.groups
         {
-
             //if self.group_is_symmetric_to_any(group, &processed_groups){continue;}
-
-
             processed_groups.push(group);
 
-            let mut lone_nodes_in_group = vec![];
-            let mut other_nodes_in_group = vec![];
-
-            //collecting the lone nodes and other nodes
-            for node in group{
-                let node = *node;
-                if self.neighbours[node as usize].len() == 0{
-                    lone_nodes_in_group.push(node);
-                }
-                else{
-                    other_nodes_in_group.push(node);
-                }
-            }
-
-            let lone_nodes_to_remove_bound = lone_nodes_in_group.len()+1;
-            for number_of_lone_nodes_to_remove in 0..lone_nodes_to_remove_bound
-            {
-                if other_nodes_in_group.len() > 128 {panic!("This game is too complex!")}
-                let mask_bound = 1<<other_nodes_in_group.len();
-                for mask in 1..mask_bound
-                {
-                    child_games.push(
-                        self.get_child(
-                            &lone_nodes_in_group, 
-                            &other_nodes_in_group,
-                            number_of_lone_nodes_to_remove as u16,
-                            mask
-                            )
-                        );
-                }
-            }
+            let (lone_nodes, other_nodes) = self.collect_lone_nodes_and_other_nodes(group);
+            self.append_moves_of_group(lone_nodes, other_nodes, &mut child_games);
         }
 
         child_games.sort_by(Self::cmp);
         child_games.dedup();
+
         return child_games;
+    }
+
+    fn append_moves_of_group(&self, lone_nodes: Vec<u16>, other_nodes: Vec<u16>, child_games: &mut Vec<GeneralizedNimGame>) {
+        
+        if other_nodes.len() > 128 {panic!("This game is too complex!")}
+        
+        for lone_nodes_to_remove in 0..(lone_nodes.len()+1)
+        {
+            let mask_bound = 1<<other_nodes.len();
+            let start_value = if lone_nodes_to_remove == 0 {1} else {0};
+            for mask in start_value..mask_bound
+            {
+                child_games.push(
+                    self.get_child(
+                        &lone_nodes, 
+                        &other_nodes,
+                        lone_nodes_to_remove as u16,
+                        mask
+                        )
+                    );
+            }
+        }
+    }
+    fn collect_lone_nodes_and_other_nodes(&self, group :&Vec<u16>) -> (Vec<u16>, Vec<u16>){
+        let mut lone_nodes_in_group = vec![];
+        let mut other_nodes_in_group = vec![];
+
+        for node in group{
+            let node = *node;
+            if self.neighbours[node as usize].len() == 0{
+                lone_nodes_in_group.push(node);
+            }
+            else{
+                other_nodes_in_group.push(node);
+            }
+        }
+        return (lone_nodes_in_group, other_nodes_in_group)
     }
 
     fn group_is_symmetric_to_any(&self, group :&Vec<u16>, processed_groups :&Vec<&Vec<u16>>) -> bool{
@@ -82,39 +86,33 @@ impl GeneralizedNimGame{
     fn have_the_same_neighbours(node1 :u16, node2 :u16, neighbours1 :&Vec<u16>, neighbours2 :&Vec<u16>) -> bool{
         if neighbours1.len() != neighbours2.len() {return false;}
 
-        for i in 0..neighbours1.len(){
-            if neighbours1[i] == neighbours2[i] ||
-                (
-                    neighbours1[i] == node2 &&
-                    neighbours2[i] == node1
-                )            
-            {}
-            else{
-                return false;
-            }
+        let mut i = 0;
+        let mut j = 0;
+        while i<neighbours1.len() && j<neighbours2.len() {
+            if neighbours1[i] == node2 {i+=1;continue;}
+            if neighbours2[j] == node1 {j+=1;continue;}
 
-
+            if neighbours1[i] != neighbours2[j] {return false;}
+            i+=1;
+            j+=1;
         }
 
 
         return true;
     }
 
-    fn get_child(&self, lone_nodes_in_group :&Vec<u16>, other_nodes_in_group :&Vec<u16>, nr_of_lone_nodes_to_remove: u16, mask :u128) -> GeneralizedNimGame{
+    fn get_child(&self, lone_nodes :&Vec<u16>, other_nodes :&Vec<u16>, lone_nodes_to_remove: u16, mask :u128) -> GeneralizedNimGame{
         let mut nodes_to_remove = vec![];
-        for i in 0..nr_of_lone_nodes_to_remove{
-            nodes_to_remove.push(lone_nodes_in_group[i as usize]);
+        for i in 0..lone_nodes_to_remove{
+            nodes_to_remove.push(lone_nodes[i as usize]);
         }
-
         let mut mask = mask;
-
-        for i in 0..other_nodes_in_group.len(){
+        for i in 0..other_nodes.len(){
             if mask %2 == 1{
-                nodes_to_remove.push(other_nodes_in_group[i]);
+                nodes_to_remove.push(other_nodes[i]);
             }
             mask >>= 1;
         }
-
         let child = self.remove_nodes(&mut nodes_to_remove).unwrap();
         return child;
     }
@@ -123,7 +121,10 @@ impl GeneralizedNimGame{
 
         nodes_to_remove.sort();
 
-        if *nodes_to_remove.last().unwrap() > self.nodes {return None;}
+        if *nodes_to_remove.last().unwrap_or(&u16::MAX) > self.nodes 
+        {
+            return None;
+        }
         
         let mut new_groups = vec![];
 

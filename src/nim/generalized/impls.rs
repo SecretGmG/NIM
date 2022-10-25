@@ -1,3 +1,5 @@
+use std::{hash::Hash, collections::hash_map::DefaultHasher};
+
 use super::GeneralizedNimGame;
 
 impl GeneralizedNimGame{
@@ -33,6 +35,8 @@ impl PartialEq for GeneralizedNimGame{
 }
 fn groups_eq(a: &Vec<Vec<u16>>, b: &Vec<Vec<u16>>) -> bool{
     if a.len() != b.len() {return false;}
+    let h = &mut DefaultHasher::new();
+    if a.hash(h) != b.hash(h) {return false;}
     for i in 0..a.len(){
         if a[i].len() != b[i].len() {return false;}
  
@@ -49,6 +53,8 @@ impl Clone for GeneralizedNimGame{
 }
 impl core::hash::Hash for GeneralizedNimGame{
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        
+        //return self.groups.hash(state); <- this is slower
         self.nodes.hash(state);
         for i in 0..self.nodes{
             for node in &self.neighbours[i as usize]{

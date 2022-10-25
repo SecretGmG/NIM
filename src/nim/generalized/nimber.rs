@@ -1,5 +1,5 @@
 use super::GeneralizedNimGame;
-use super::dataBase::DataBase;
+use super::data_base::DataBase;
 
 
 
@@ -29,8 +29,12 @@ impl GeneralizedNimGame{
         
         if let Some(nimber) = prev_seen.get(self){return nimber;}
 
-        if self.is_symmetric() {return 0;}
-
+        
+        if self.is_symmetric() {
+            prev_seen.set(self, 0);
+            return 0;
+        }
+        
 
 
         let mut child_nimbers = vec![];

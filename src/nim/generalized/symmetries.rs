@@ -73,11 +73,10 @@ impl GeneralizedNimGame{
     fn get_candidates(&self, node :u16, symmetries :&Vec<Option<u16>>, sets_of_candidates :&Vec<Vec<u16>>) -> Vec<u16>{
         
         let mut candidates: &Vec<u16> = &vec![];
-
         //get the set of candidates in wich the node is
-        for set_of_candidates in sets_of_candidates{
-            if set_of_candidates.contains(&node){
-                candidates = set_of_candidates;
+        for sets_of_candidates in sets_of_candidates{
+            if sets_of_candidates.contains(&node){
+                candidates = sets_of_candidates;
                 break;
             }
         }
@@ -89,12 +88,13 @@ impl GeneralizedNimGame{
         let mut final_candidates = vec![];
 
         for i in 0..candidates.len(){
-            if candidates[i] == node || symmetries.contains(&Some(candidates[i])) || self.get_neighbours(node).contains(&candidates[i]) {continue;}
+            if candidates[i] == node {continue;}
+            if symmetries.binary_search(&Some(candidates[i])).is_ok() {continue;}
+            if self.get_neighbours(node).binary_search(&candidates[i]).is_ok() {continue;}
             final_candidates.push(candidates[i]);
         }
 
-
-        return final_candidates.clone();
+        return final_candidates;
     }
 
     ///gets the first node in no symmetry
@@ -125,14 +125,11 @@ impl GeneralizedNimGame{
             Some(node) => node
         };
 
-
         //get nodes that might be symmetric to the root_node
         let candidates = self.get_candidates(root_node, symmetries, sets_of_candidates);
         
         //no symmetry candidates for the node means the start symmetry leads to a contradiction
-        if candidates.len() == 0 {
-            return None
-        }
+        if candidates.len() == 0 {return None}
         
         //a list of all nodes that must be a neighbour of the candidate for the candidate not to be a contradiction
         let mut neighbours_of_symmetry = Vec::new();

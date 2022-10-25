@@ -14,8 +14,11 @@ impl DataBase{
     pub fn set(&mut self, g: &GeneralizedNimGame, nimber: u16) -> Option<u16>{
         self.map.insert(g.clone(), nimber)
     }
-    pub fn empty() -> DataBase{
+    pub fn new() -> DataBase{
         return DataBase{map: HashMap::new()};
+    }
+    pub fn len(&self) -> usize{
+        return self.map.len();
     }
 }
 impl Display for DataBase{
