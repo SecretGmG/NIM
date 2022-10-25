@@ -1,5 +1,3 @@
-use std::{vec, collections::HashMap, cmp::{Ordering, min}};
-
 pub mod display;
 pub mod symmetries;
 pub mod moves;
@@ -10,7 +8,7 @@ pub mod new;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
-#[derive(Debug,Eq)]
+#[derive(Eq)]
 pub struct GeneralizedNimGame{
     groups :Vec<Vec<u16>>,
     /// neighbours[i] stores all nodes neighbouring i in ascending order (deduped)
@@ -25,8 +23,4 @@ impl GeneralizedNimGame{
     pub fn get_neighbours(&self, node :u16) -> &Vec<u16>{
         return &self.neighbours[node as usize];
     }
-    
-
 }
-
-

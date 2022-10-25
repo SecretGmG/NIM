@@ -5,7 +5,6 @@ use std::{collections::HashMap, fmt::Display};
 pub struct DataBase{
     map : HashMap<GeneralizedNimGame, u16>
 }
-
 impl DataBase{
 
     pub fn get(&self, g: &GeneralizedNimGame) -> Option<u16>{

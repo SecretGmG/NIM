@@ -1,4 +1,4 @@
-use std::{hash::Hash, collections::hash_map::DefaultHasher};
+use std::{hash::Hash, collections::hash_map::DefaultHasher, fmt::Debug};
 
 use super::GeneralizedNimGame;
 
@@ -61,5 +61,10 @@ impl core::hash::Hash for GeneralizedNimGame{
                 (*node).hash(state);
             }
         }
+    }
+}
+impl Debug for GeneralizedNimGame{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("GeneralizedNimGame").field("groups", &self.groups).finish()
     }
 }
