@@ -1,16 +1,9 @@
 use std::collections::HashMap;
 
-use super::GeneralizedNimGame;
+use super::ClosedGeneralizedNimGame;
 
 //Implements the symmetry finder for GeneralizedNimGame
-impl GeneralizedNimGame {
-    pub fn is_symmetric(&self) -> bool {
-        match self.find_symmetry() {
-            Some(_) => true,
-            None => false,
-        }
-    }
-
+impl ClosedGeneralizedNimGame {
     ///Tries to find a symmetry by running a recursive algorithm
     pub fn find_symmetry(&self) -> Option<Vec<u16>> {
         //If there isn't an even amount of nodes it's impossible for every node to have a symmetry
@@ -183,7 +176,6 @@ impl GeneralizedNimGame {
         }
         return None;
     }
-
     ///flattenes a vec<Option<u16>> to a Option<Vec<u16>>
     fn flatten_vec(symmetries: &Vec<Option<u16>>) -> Option<Vec<u16>> {
         let mut result = vec![];

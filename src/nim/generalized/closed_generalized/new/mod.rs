@@ -1,28 +1,25 @@
-use super::GeneralizedNimGame;
-
 mod flatten;
-mod remove_unnecessary;
 mod neighbours;
+mod remove_unnecessary;
 mod sort;
 
-
-
+use super::ClosedGeneralizedNimGame;
 use flatten::flatten_and_get_node_count;
-use remove_unnecessary::remove_unnecessary_data;
 use neighbours::generate_all_neighbours;
+use remove_unnecessary::remove_unnecessary_data;
 use sort::sort;
 
-impl GeneralizedNimGame {
+impl ClosedGeneralizedNimGame {
     ///creates an empty GeneralizedNimGame
-    pub fn empty() -> GeneralizedNimGame {
-        return GeneralizedNimGame {
+    pub fn empty() -> ClosedGeneralizedNimGame {
+        return ClosedGeneralizedNimGame {
             groups: Vec::new(),
             neighbours: Vec::new(),
             nodes: 0,
         };
     }
     ///creates and simplifies a GeneralizedNimGame from a vec<vec<u16>>
-    pub fn new(groups: Vec<Vec<u16>>) -> GeneralizedNimGame {
+    pub fn new(groups: Vec<Vec<u16>>) -> ClosedGeneralizedNimGame {
         let mut groups = groups; //make mutable
 
         let nodes = flatten_and_get_node_count(&mut groups);
@@ -33,7 +30,7 @@ impl GeneralizedNimGame {
 
         sort(&mut groups, &mut neighbours, nodes);
 
-        return GeneralizedNimGame {
+        return ClosedGeneralizedNimGame {
             groups: groups,
             nodes: nodes,
             neighbours: neighbours,

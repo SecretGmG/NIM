@@ -1,25 +1,23 @@
-use super::GeneralizedNimGame;
+use crate::nim::generalized::GeneralizedNimGame;
+
+use super::ClosedGeneralizedNimGame;
 
 //implements the generation of moves;
-impl GeneralizedNimGame {
+impl ClosedGeneralizedNimGame {
     pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
         let mut child_games = vec![];
         let mut processed_groups = vec![];
 
         for group in &self.groups {
-            //if self.group_is_symmetric_to_any(group, &processed_groups){continue;}
             processed_groups.push(group);
-
             let (lone_nodes, other_nodes) = self.collect_lone_nodes_and_other_nodes(group);
             self.append_moves_of_group(lone_nodes, other_nodes, &mut child_games);
         }
-
-        child_games.sort_by(Self::cmp);
+        child_games.sort();
         child_games.dedup();
 
         return child_games;
     }
-
     fn append_moves_of_group(
         &self,
         lone_nodes: Vec<u16>,
@@ -138,11 +136,11 @@ impl GeneralizedNimGame {
             }
             mask >>= 1;
         }
-        let child = self.remove_nodes(&mut nodes_to_remove).unwrap();
+        let child = self.make_move_unchecked(&mut nodes_to_remove).unwrap();
         return child;
     }
     ///removes all nodes specified in the argument
-    pub fn remove_nodes(&self, nodes_to_remove: &mut Vec<u16>) -> Option<GeneralizedNimGame> {
+    pub fn make_move_unchecked(&self, nodes_to_remove: &mut Vec<u16>) -> Option<GeneralizedNimGame> {
         nodes_to_remove.sort();
 
         if *nodes_to_remove.last().unwrap_or(&u16::MAX) > self.nodes {
@@ -166,7 +164,7 @@ impl GeneralizedNimGame {
 
         return Some(new_game);
     }
-    pub fn keep_nodes(&self, nodes_to_keep: &mut Vec<u16>) -> Option<GeneralizedNimGame> {
+    pub fn keep_nodes(&self, nodes_to_keep: &mut Vec<u16>) -> Option<ClosedGeneralizedNimGame> {
         nodes_to_keep.sort();
 
         if *nodes_to_keep.last().unwrap() > self.nodes {
@@ -185,6 +183,6 @@ impl GeneralizedNimGame {
             }
             new_groups.push(new_group);
         }
-        return Some(GeneralizedNimGame::new(new_groups));
+        return Some(ClosedGeneralizedNimGame::new(new_groups));
     }
 }

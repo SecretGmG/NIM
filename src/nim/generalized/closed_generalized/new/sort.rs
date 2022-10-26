@@ -1,6 +1,7 @@
 use std::cmp::{Ordering, min};
 
 pub fn sort(groups: &mut Vec<Vec<u16>>, neighbours: &mut Vec<Vec<u16>>, nodes: u16) {
+    
     let permutation = generate_permutation(neighbours, nodes);
 
     for i in 0..groups.len() {
@@ -17,27 +18,46 @@ pub fn sort(groups: &mut Vec<Vec<u16>>, neighbours: &mut Vec<Vec<u16>>, nodes: u
         neighbours[i as usize].sort();
     }
 }
+fn generate_permutation2(neighbours: &mut Vec<Vec<u16>>, nodes: u16) -> Vec<u16>{
 
-fn node_comparer(node1: u16, node2: u16, neighbours: &mut Vec<Vec<u16>>) -> Ordering {
-    match neighbours[node1 as usize]
-        .len()
-        .cmp(&neighbours[node2 as usize].len())
-    {
-        Ordering::Less => return Ordering::Less,
-        Ordering::Greater => return Ordering::Greater,
-        Ordering::Equal => (),
-    }
+    let mut refrences = ascending_vec_u16(nodes);
 
-    for i in 0..neighbours[node1 as usize].len() {
-        match neighbours[node1 as usize][i].cmp(&neighbours[node2 as usize][i]) {
-            Ordering::Less => return Ordering::Less,
-            Ordering::Greater => return Ordering::Greater,
-            Ordering::Equal => (),
-        }
-    }
-    return Ordering::Equal;
+    refrences.sort_by(|a,b| node_comparer(*a,*b, neighbours, nodes, 4));
+
+    let permutation = get_permutation(refrences);
+    return permutation;
 }
 
+
+fn node_comparer(a: u16, b: u16, neighbours: &mut Vec<Vec<u16>>, nodes: u16, depth: u16) -> Ordering{
+
+    let mut comparer: Vec<Vec<u16>> = vec![];
+
+
+    return Ordering::Equal;
+
+    //return node_with_eq_nr_of_neighbours_comparer(a,b,neighbours,nodes,depth);
+}
+fn node_with_eq_nr_of_neighbours_comparer(a: u16, b: u16, neighbours: &mut Vec<Vec<u16>>, nodes: u16, depth: u16) -> Ordering{
+    todo!();
+    
+}
+
+
+
+
+
+
+
+
+fn generate_permutation(neighbours: &mut Vec<Vec<u16>>, nodes: u16) -> Vec<u16> {
+    //generate a comparer according to numbers of neighbours
+    let comparer = &mut get_comparer(neighbours, nodes);
+    let mut refrences = ascending_vec_u16(nodes);
+    refrences.sort_by_key(|v| comparer[*v as usize]);
+    let permutation = get_permutation(refrences);
+    return permutation;
+}
 ///gets a comparer initialized with the nr of neighbours of each node
 fn get_comparer(neighbours: &mut Vec<Vec<u16>>, nodes: u16) -> Vec<u128> {
     let mut comparer = vec![0; nodes as usize];
@@ -88,7 +108,6 @@ fn differentiate_groups_in_comparer(
     }
     return better_comparer;
 }
-
 ///calculates the inverse permutation of a given input permutation
 ///undefined behaviour if the input is not a permutation
 fn get_permutation(refrences: Vec<u16>) -> Vec<u16> {
@@ -129,11 +148,4 @@ fn ascending_vec_u16(len: u16) -> Vec<u16> {
     }
     return r;
 }
-fn generate_permutation(neighbours: &mut Vec<Vec<u16>>, nodes: u16) -> Vec<u16> {
-    //generate a comparer according to numbers of neighbours
-    let comparer = &mut get_comparer(neighbours, nodes);
-    let mut refrences = ascending_vec_u16(nodes);
-    refrences.sort_by_key(|v| comparer[*v as usize]);
-    let permutation = get_permutation(refrences);
-    return permutation;
-}
+
