@@ -1,3 +1,5 @@
+use crate::nim::vec_ops;
+
 use super::data_base::DataBase;
 
 pub mod child_games;
@@ -43,22 +45,11 @@ impl ClosedGeneralizedNimGame {
     fn calculate_nimber(&self, prev_seen: &mut DataBase) -> u16 {
         let unique_child_games = self.get_unique_child_games();
         let nimbers: &mut Vec<u16> = &mut unique_child_games.into_iter().map(|g|g.get_nimber(prev_seen)).collect();
-        return mex( nimbers);
+        let nimber = vec_ops::mex(nimbers);
 
+        prev_seen.set(self, nimber);
+
+        return nimber;
     }
 }
-fn mex(nums: &mut Vec<u16>) -> u16 {
-    nums.sort();
-    let mut r: u16 = 0;
-    let mut i = 0;
-    while i < nums.len() {
-        if r < nums[i] { //r is the smallest not in the list
-            break;
-        } 
-        if r == nums[i] { //r is in the list
-            r += 1;
-        } 
-        i += 1;
-    }
-    return r;
-}
+

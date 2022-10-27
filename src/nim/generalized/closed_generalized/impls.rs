@@ -35,15 +35,12 @@ impl Eq for ClosedGeneralizedNimGame{
 }
 impl PartialEq for ClosedGeneralizedNimGame {
     fn eq(&self, other: &Self) -> bool {
+        if self.nodes != other.nodes {return false;}
         groups_eq(&self.groups, &other.groups)
     }
 }
 fn groups_eq(a: &Vec<Vec<u16>>, b: &Vec<Vec<u16>>) -> bool {
     if a.len() != b.len() {
-        return false;
-    }
-    let h = &mut DefaultHasher::new();
-    if a.hash(h) != b.hash(h) {
         return false;
     }
     for i in 0..a.len() {
@@ -70,13 +67,7 @@ impl Clone for ClosedGeneralizedNimGame {
 }
 impl core::hash::Hash for ClosedGeneralizedNimGame {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        //return self.groups.hash(state); <- this is slower
-        self.nodes.hash(state);
-        for i in 0..self.nodes {
-            for node in &self.neighbours[i as usize] {
-                (*node).hash(state);
-            }
-        }
+        return self.groups.hash(state);
     }
 }
 impl Debug for ClosedGeneralizedNimGame {

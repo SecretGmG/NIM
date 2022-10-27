@@ -3,24 +3,34 @@
 mod nim;
 use std::time::Instant;
 
-use crate::nim::generalized::{data_base::DataBase, GeneralizedNimGame};
 use nim::pit::Pit;
 
+use crate::nim::generalized::data_base::DataBase;
+
+
 fn main() {
-    run_basic_test();
+
+    test_pit_game(Pit::empty_rect(5, 5));
+
 }
 
-fn run_basic_test() {
-    let now = Instant::now();
+fn test_pit_game(pit :Pit){
+    let starting_test = Instant::now();
+
     let data_base = &mut DataBase::new();
-    println!(
-        "{}",
-        Pit::empty_rect(3, 4)
-            .get_generalized()
-            .get_nimber(data_base)
-    );
-    println!("{:?}", now.elapsed());
-    println!("{}", data_base.len())
-}
+    println!("{}", pit);
 
+    let generalized = pit.get_generalized();
+    
+    println!("{}", generalized);
+
+    let nimber =generalized.get_nimber(data_base);
+
+    println!("nimber: {}", nimber);
+
+    println!("{:?}", starting_test.elapsed());
+    println!("{}", data_base.len());
+
+    //println!("{}", data_base);
+}
 

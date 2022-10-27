@@ -30,10 +30,11 @@ impl Display for DataBase{
 
             let (g, nimber) = key_value_pair;
 
-            str.push_str(&g.to_string());
             str.push_str("\nnimber:");
             str.push_str(&nimber.to_string());
-            str.push_str("\n----------------------")
+            str.push('\n');
+            str.push_str(&g.to_string());
+            str.push_str("\n----------------------\n")
         }
 
         write!(f, "{}", str)

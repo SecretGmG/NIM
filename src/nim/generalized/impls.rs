@@ -1,4 +1,4 @@
-use std::cmp::Ordering;
+use std::{cmp::Ordering, fmt::{Display, Debug}, ptr::write_volatile};
 
 use super::GeneralizedNimGame;
 
@@ -39,7 +39,7 @@ impl PartialEq for GeneralizedNimGame{
     }
 }
 fn vec_comparer<T: Ord>(vec1: &Vec<T>, vec2: &Vec<T>) -> Ordering {
-    if vec1.len() == vec2.len() {
+    if vec1.len() != vec2.len() {
         return vec1.len().cmp(&vec2.len());
     }
 
@@ -51,4 +51,18 @@ fn vec_comparer<T: Ord>(vec1: &Vec<T>, vec2: &Vec<T>) -> Ordering {
         }
     }
     return Ordering::Equal;
+}
+impl Display for GeneralizedNimGame{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "\n-----Generalized-Nim-Game-----\n")?;
+        for closed in &self.parts{
+            write!(f, "{}", closed)?;
+        }
+        Ok(())
+    }
+}
+impl Debug for GeneralizedNimGame{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
+    }
 }
