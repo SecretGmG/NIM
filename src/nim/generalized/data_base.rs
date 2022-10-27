@@ -1,16 +1,16 @@
-use super::GeneralizedNimGame;
 use std::{collections::HashMap, fmt::Display};
+use super::closed_generalized::ClosedGeneralizedNimGame;
 
 
 pub struct DataBase{
-    map : HashMap<GeneralizedNimGame, u16>
+    map : HashMap<ClosedGeneralizedNimGame, u16>
 }
 impl DataBase{
 
-    pub fn get(&self, g: &GeneralizedNimGame) -> Option<u16>{
+    pub fn get(&self, g: &ClosedGeneralizedNimGame) -> Option<u16>{
         self.map.get(g).copied()
     }
-    pub fn set(&mut self, g: &GeneralizedNimGame, nimber: u16) -> Option<u16>{
+    pub fn set(&mut self, g: &ClosedGeneralizedNimGame, nimber: u16) -> Option<u16>{
         self.map.insert(g.clone(), nimber)
     }
     pub fn new() -> DataBase{
@@ -30,10 +30,11 @@ impl Display for DataBase{
 
             let (g, nimber) = key_value_pair;
 
-            str.push_str(&g.to_string());
             str.push_str("\nnimber:");
             str.push_str(&nimber.to_string());
-            str.push_str("\n----------------------")
+            str.push('\n');
+            str.push_str(&g.to_string());
+            str.push_str("\n----------------------\n")
         }
 
         write!(f, "{}", str)

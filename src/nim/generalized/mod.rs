@@ -1,26 +1,77 @@
-pub mod display;
-pub mod symmetries;
-pub mod moves;
-pub mod nimber;
-pub mod impls;
+pub mod closed_generalized;
 pub mod data_base;
-pub mod new;
+mod impls;
+use super::vec_ops::{self, contains_any_sorted};
+use closed_generalized::ClosedGeneralizedNimGame;
+use data_base::DataBase;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
-#[derive(Eq)]
-pub struct GeneralizedNimGame{
-    groups :Vec<Vec<u16>>,
-    /// neighbours[i] stores all nodes neighbouring i in ascending order (deduped)
-    neighbours :Vec<Vec<u16>>,
-    ///the amount of nodes in groups <=> the biggest index
-    nodes :u16
+pub struct GeneralizedNimGame {
+    parts: Vec<ClosedGeneralizedNimGame>,
 }
+impl GeneralizedNimGame {
+    pub fn new(groups: Vec<Vec<u16>>) -> GeneralizedNimGame {
+        let closed_groups = split(groups);
 
-//Constructors and basic functions for the GeneralizedNimGame
-impl GeneralizedNimGame{
-    /// gets all neighbours of a given node
-    pub fn get_neighbours(&self, node :u16) -> &Vec<u16>{
-        return &self.neighbours[node as usize];
+        let mut parts: Vec<ClosedGeneralizedNimGame> = closed_groups
+            .into_iter()
+            .map(ClosedGeneralizedNimGame::new)
+            .collect();
+
+        parts.sort();
+        vec_ops::remove_pairs_sorted(&mut parts);
+
+        return GeneralizedNimGame { parts };
     }
+    pub fn get_nimber(&self, prev_seen: &mut DataBase) -> u16 {
+        if self.parts.len() == 0 {
+            return 0;
+        }
+
+        let mut nimber = 0;
+
+        for closed in &self.parts {
+            nimber ^= closed.get_nimber(prev_seen);
+        }
+
+        return nimber;
+    }
+    pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
+        todo!();
+    }
+}
+fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
+
+    let mut groups = groups;
+    let mut parts = vec![];
+
+    for i in 0..groups.len() {
+        groups[i].sort();
+        groups[i].dedup();
+    }
+
+    while groups.len() != 0 {
+        let mut nodes_in_current_group = groups.swap_remove(0);
+        let mut new_part = vec![nodes_in_current_group.clone()];
+
+        let mut prev_len = 0;
+        while nodes_in_current_group.len() != prev_len {
+            let mut i = 0;
+            prev_len = nodes_in_current_group.len();
+            while i < groups.len() {
+                if contains_any_sorted(&groups[i], &nodes_in_current_group)
+                {
+                    nodes_in_current_group.append(&mut vec_ops::sorted_without(&groups[i], &nodes_in_current_group));
+                    nodes_in_current_group.sort();
+                    new_part.push(groups.remove(i));
+                }
+                else{
+                    i += 1;
+                }
+            }
+        }
+        if new_part[0].len() != 0 {parts.push(new_part);}
+    }
+    return parts;
 }

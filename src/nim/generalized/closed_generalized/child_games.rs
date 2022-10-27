@@ -1,25 +1,24 @@
-use super::GeneralizedNimGame;
+use std::vec;
+
+use crate::nim::{generalized::GeneralizedNimGame, vec_ops};
+
+use super::ClosedGeneralizedNimGame;
 
 //implements the generation of moves;
-impl GeneralizedNimGame {
+impl ClosedGeneralizedNimGame {
     pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
         let mut child_games = vec![];
-        let mut processed_groups = vec![];
 
         for group in &self.groups {
-            //if self.group_is_symmetric_to_any(group, &processed_groups){continue;}
-            processed_groups.push(group);
-
             let (lone_nodes, other_nodes) = self.collect_lone_nodes_and_other_nodes(group);
+
             self.append_moves_of_group(lone_nodes, other_nodes, &mut child_games);
         }
-
-        child_games.sort_by(Self::cmp);
+        child_games.sort();
         child_games.dedup();
 
         return child_games;
     }
-
     fn append_moves_of_group(
         &self,
         lone_nodes: Vec<u16>,
@@ -34,12 +33,12 @@ impl GeneralizedNimGame {
             let mask_bound = 1 << other_nodes.len();
             let start_value = if lone_nodes_to_remove == 0 { 1 } else { 0 };
             for mask in start_value..mask_bound {
-                child_games.push(self.get_child(
-                    &lone_nodes,
-                    &other_nodes,
-                    lone_nodes_to_remove as u16,
-                    mask,
-                ));
+                let child_game =
+                    self.get_child(&lone_nodes, &other_nodes, lone_nodes_to_remove as u16, mask);
+
+
+
+                child_games.push(child_game);
             }
         }
     }
@@ -138,53 +137,22 @@ impl GeneralizedNimGame {
             }
             mask >>= 1;
         }
-        let child = self.remove_nodes(&mut nodes_to_remove).unwrap();
+        let child = self.make_move_unchecked(&mut nodes_to_remove);
+
         return child;
     }
     ///removes all nodes specified in the argument
-    pub fn remove_nodes(&self, nodes_to_remove: &mut Vec<u16>) -> Option<GeneralizedNimGame> {
+    pub fn make_move_unchecked(&self, nodes_to_remove: &mut Vec<u16>) -> GeneralizedNimGame {
         nodes_to_remove.sort();
-
-        if *nodes_to_remove.last().unwrap_or(&u16::MAX) > self.nodes {
-            return None;
-        }
 
         let mut new_groups = vec![];
 
         for group in &self.groups {
-            let mut new_group = vec![];
-            for node in group {
-                if nodes_to_remove.binary_search(&node).is_err() {
-                    //if it is not in the nodes to remove
-                    new_group.push(*node);
-                }
-            }
-            new_groups.push(new_group);
+            new_groups.push(vec_ops::sorted_without(group, nodes_to_remove));
         }
 
         let new_game = GeneralizedNimGame::new(new_groups);
 
-        return Some(new_game);
-    }
-    pub fn keep_nodes(&self, nodes_to_keep: &mut Vec<u16>) -> Option<GeneralizedNimGame> {
-        nodes_to_keep.sort();
-
-        if *nodes_to_keep.last().unwrap() > self.nodes {
-            return None;
-        }
-
-        let mut new_groups = vec![];
-
-        for group in &self.groups {
-            let mut new_group = vec![];
-            for node in group {
-                if nodes_to_keep.binary_search(&node).is_ok() {
-                    //if it is in the nodes to keep
-                    new_group.push(*node);
-                }
-            }
-            new_groups.push(new_group);
-        }
-        return Some(GeneralizedNimGame::new(new_groups));
+        return new_game;
     }
 }
