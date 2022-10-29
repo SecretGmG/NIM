@@ -20,6 +20,7 @@ impl GeneralizedNimGame {
             .collect();
 
         parts.sort();
+        
         vec_ops::remove_pairs_sorted(&mut parts);
 
         return GeneralizedNimGame { parts };

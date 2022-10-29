@@ -9,24 +9,22 @@ pub mod symmetries;
 
 pub struct ClosedGeneralizedNimGame {
     groups: Vec<Vec<u16>>,
-    /// neighbours[i] stores all nodes neighbouring i in ascending order (deduped)
-    neighbours: Vec<Vec<u16>>,
+    /// neighbours[i] stores all groups containing i
+    group_indecies: Vec<Vec<u16>>,
     ///the amount of nodes in groups <=> the biggest index
     nodes: u16,
 }
 
 //Constructors and basic functions for the GeneralizedNimGame
 impl ClosedGeneralizedNimGame {
-    /// gets all neighbours of a given node
-    pub fn get_neighbours(&self, node: u16) -> &Vec<u16> {
-        return &self.neighbours[node as usize];
-    }
+    /*
     pub fn is_symmetric(&self ) -> bool {
         match self.find_symmetry() {
             Some(_) => true,
             None => false,
         }
     }
+    */
     pub fn get_nimber(&self, prev_seen: &mut DataBase) -> u16 {
         if self.groups.len() == 0 {
             return 0;

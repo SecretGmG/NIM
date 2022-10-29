@@ -1,10 +1,12 @@
 use std::{cmp::Ordering, fmt::{Display, Debug}, ptr::write_volatile};
 
+use crate::nim::vec_ops;
+
 use super::GeneralizedNimGame;
 
 impl Ord for GeneralizedNimGame {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        return vec_comparer(&self.parts, &other.parts);
+        return vec_ops::compare_sorted(&self.parts, &other.parts);
     }
 
     fn max(self, other: Self) -> Self
@@ -37,20 +39,6 @@ impl PartialEq for GeneralizedNimGame{
         }
         return true;
     }
-}
-fn vec_comparer<T: Ord>(vec1: &Vec<T>, vec2: &Vec<T>) -> Ordering {
-    if vec1.len() != vec2.len() {
-        return vec1.len().cmp(&vec2.len());
-    }
-
-    for i in 0..vec1.len() {
-        match vec1[i].cmp(&vec2[i]) {
-            Ordering::Less => return Ordering::Less,
-            Ordering::Greater => return Ordering::Greater,
-            Ordering::Equal => (),
-        }
-    }
-    return Ordering::Equal;
 }
 impl Display for GeneralizedNimGame{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

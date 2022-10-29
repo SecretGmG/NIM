@@ -1,28 +1,12 @@
 use std::{collections::hash_map::DefaultHasher, fmt::Debug, hash::Hash};
 use std::fmt;
+use crate::nim::vec_ops;
+
 use super::ClosedGeneralizedNimGame;
 
 impl Ord for ClosedGeneralizedNimGame {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        if self.groups.len() != other.groups.len() {
-            return self.groups.len().cmp(&other.groups.len());
-        }
-        for i in 0..self.groups.len() {
-            match self.groups[i].len().cmp(&other.groups[i].len()) {
-                std::cmp::Ordering::Less => return std::cmp::Ordering::Less,
-                std::cmp::Ordering::Greater => return std::cmp::Ordering::Greater,
-                std::cmp::Ordering::Equal => {
-                    for j in 0..self.groups[i].len() {
-                        match self.groups[i][j].cmp(&other.groups[i][j]) {
-                            std::cmp::Ordering::Less => return std::cmp::Ordering::Less,
-                            std::cmp::Ordering::Greater => return std::cmp::Ordering::Greater,
-                            std::cmp::Ordering::Equal => (),
-                        }
-                    }
-                }
-            }
-        }
-        return std::cmp::Ordering::Equal;
+        return vec_ops::compare_sorted1(&self.groups, &other.groups);
     }
 }
 impl PartialOrd for ClosedGeneralizedNimGame{
@@ -60,7 +44,7 @@ impl Clone for ClosedGeneralizedNimGame {
     fn clone(&self) -> Self {
         Self {
             groups: self.groups.clone(),
-            neighbours: self.neighbours.clone(),
+            group_indecies: self.group_indecies.clone(),
             nodes: self.nodes.clone(),
         }
     }

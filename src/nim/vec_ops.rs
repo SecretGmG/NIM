@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 pub fn contains_any_sorted(a: &Vec<u16>, b: &Vec<u16>) -> bool{
     let mut i = 0;
     let mut j = 0;
@@ -69,4 +71,80 @@ pub fn remove_pairs_sorted<T: Eq>(vec: &mut Vec<T>){
             i-=1;
         }
     }
+}
+
+pub fn compare_sorted2<T:Ord>(vec1: &Vec<Vec<Vec<T>>>, vec2: &Vec<Vec<Vec<T>>>) -> Ordering{
+
+    match vec1.len().cmp(&vec2.len()){
+        Ordering::Less => return Ordering::Less,
+        Ordering::Greater => return Ordering::Greater,
+        Ordering::Equal => (),
+    }
+
+    for i in 0..vec1.len(){
+
+        match vec1[i].len().cmp(&vec2[i].len()){
+            Ordering::Less => return Ordering::Less,
+            Ordering::Greater => return Ordering::Greater,
+            Ordering::Equal => (),
+        }        
+    }
+
+    for i in 0..vec1.len(){
+
+        match compare_sorted1(&vec1[i], &vec2[i]){
+            Ordering::Less => return Ordering::Less,
+            Ordering::Greater => return Ordering::Greater,
+            Ordering::Equal => (),
+        }        
+    }
+    return Ordering::Equal;
+}
+
+pub fn compare_sorted1<T:Ord>(vec1: &Vec<Vec<T>>, vec2: &Vec<Vec<T>>) -> Ordering{
+
+    match vec1.len().cmp(&vec2.len()){
+        Ordering::Less => return Ordering::Less,
+        Ordering::Greater => return Ordering::Greater,
+        Ordering::Equal => (),
+    }
+
+    for i in 0..vec1.len(){
+
+        match vec1[i].len().cmp(&vec2[i].len()){
+            Ordering::Less => return Ordering::Less,
+            Ordering::Greater => return Ordering::Greater,
+            Ordering::Equal => (),
+        }        
+    }
+
+    for i in 0..vec1.len(){
+
+        match compare_sorted(&vec1[i], &vec2[i]){
+            Ordering::Less => return Ordering::Less,
+            Ordering::Greater => return Ordering::Greater,
+            Ordering::Equal => (),
+        }        
+    }
+    return Ordering::Equal;
+}
+
+pub fn compare_sorted<T:Ord>(vec1: &Vec<T>, vec2: &Vec<T>) -> Ordering{
+
+    match vec1.len().cmp(&vec2.len()){
+        Ordering::Less => return Ordering::Less,
+        Ordering::Greater => return Ordering::Greater,
+        Ordering::Equal => (),
+    }
+
+    for i in 0..vec1.len(){
+
+        match vec1[i].cmp(&vec2[i]){
+            Ordering::Less => return Ordering::Less,
+            Ordering::Greater => return Ordering::Greater,
+            Ordering::Equal => (),
+        }        
+    }
+
+    return Ordering::Equal;
 }

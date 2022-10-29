@@ -9,7 +9,11 @@ impl ClosedGeneralizedNimGame {
     pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
         let mut child_games = vec![];
 
+        let mut processed_groups:Vec<&Vec<u16>> = vec![];
+
         for group in &self.groups {
+            processed_groups.push(group);
+
             let (lone_nodes, other_nodes) = self.collect_lone_nodes_and_other_nodes(group);
 
             self.append_moves_of_group(lone_nodes, other_nodes, &mut child_games);
@@ -36,8 +40,6 @@ impl ClosedGeneralizedNimGame {
                 let child_game =
                     self.get_child(&lone_nodes, &other_nodes, lone_nodes_to_remove as u16, mask);
 
-
-
                 child_games.push(child_game);
             }
         }
@@ -48,75 +50,13 @@ impl ClosedGeneralizedNimGame {
 
         for node in group {
             let node = *node;
-            if self.neighbours[node as usize].len() == 0 {
+            if self.group_indecies[node as usize].len() == 0 {
                 lone_nodes_in_group.push(node);
             } else {
                 other_nodes_in_group.push(node);
             }
         }
         return (lone_nodes_in_group, other_nodes_in_group);
-    }
-
-    fn group_is_symmetric_to_any(
-        &self,
-        group: &Vec<u16>,
-        processed_groups: &Vec<&Vec<u16>>,
-    ) -> bool {
-        for processed in processed_groups {
-            if self.group_is_symmetric(group, processed) {
-                return true;
-            }
-        }
-        return false;
-    }
-    fn group_is_symmetric(&self, group: &Vec<u16>, other: &Vec<u16>) -> bool {
-        if group.len() != other.len() {
-            return false;
-        }
-
-        for i in 0..group.len() {
-            let node1 = group[i];
-            let node2 = other[i];
-
-            let neighbours1 = &self.neighbours[node1 as usize];
-            let neighbours2 = &self.neighbours[node2 as usize];
-
-            if !Self::have_the_same_neighbours(node1, node2, neighbours1, neighbours2) {
-                return false;
-            }
-        }
-        return true;
-    }
-    fn have_the_same_neighbours(
-        node1: u16,
-        node2: u16,
-        neighbours1: &Vec<u16>,
-        neighbours2: &Vec<u16>,
-    ) -> bool {
-        if neighbours1.len() != neighbours2.len() {
-            return false;
-        }
-
-        let mut i = 0;
-        let mut j = 0;
-        while i < neighbours1.len() && j < neighbours2.len() {
-            if neighbours1[i] == node2 {
-                i += 1;
-                continue;
-            }
-            if neighbours2[j] == node1 {
-                j += 1;
-                continue;
-            }
-
-            if neighbours1[i] != neighbours2[j] {
-                return false;
-            }
-            i += 1;
-            j += 1;
-        }
-
-        return true;
     }
 
     fn get_child(
