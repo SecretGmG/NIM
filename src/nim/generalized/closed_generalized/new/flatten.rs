@@ -26,7 +26,7 @@ fn get_indecies(groups: &Vec<Vec<u16>>) -> Vec<u16> {
             indecies.push(index);
         }
     }
-    indecies.sort();
+    indecies.sort_unstable();
     indecies.dedup();
     return indecies;
 }
@@ -51,7 +51,7 @@ fn reassign_indecies(groups: &mut Vec<Vec<u16>>, map: &HashMap<u16, u16>) {
 }
 fn remove_unnecessary_data(groups: &mut Vec<Vec<u16>>) {
     for i in 0..groups.len() {
-        groups[i].sort();
+        groups[i].sort_unstable();
         groups[i].dedup();
     }
 

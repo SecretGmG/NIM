@@ -1,4 +1,4 @@
-use std::{collections::hash_map::DefaultHasher, fmt::Debug, hash::Hash};
+use std::fmt::Debug;
 use std::fmt;
 use crate::nim::vec_ops;
 

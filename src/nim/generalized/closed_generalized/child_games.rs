@@ -18,7 +18,7 @@ impl ClosedGeneralizedNimGame {
 
             self.append_moves_of_group(lone_nodes, other_nodes, &mut child_games);
         }
-        child_games.sort();
+        child_games.sort_unstable();
         child_games.dedup();
 
         return child_games;
@@ -83,7 +83,7 @@ impl ClosedGeneralizedNimGame {
     }
     ///removes all nodes specified in the argument
     pub fn make_move_unchecked(&self, nodes_to_remove: &mut Vec<u16>) -> GeneralizedNimGame {
-        nodes_to_remove.sort();
+        nodes_to_remove.sort_unstable();
 
         let mut new_groups = vec![];
 

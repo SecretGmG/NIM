@@ -1,6 +1,7 @@
 pub mod closed_generalized;
 pub mod data_base;
 mod impls;
+pub mod constructor;
 use super::vec_ops::{self, contains_any_sorted};
 use closed_generalized::ClosedGeneralizedNimGame;
 use data_base::DataBase;
@@ -19,7 +20,7 @@ impl GeneralizedNimGame {
             .map(ClosedGeneralizedNimGame::new)
             .collect();
 
-        parts.sort();
+        parts.sort_unstable();
         
         vec_ops::remove_pairs_sorted(&mut parts);
 
@@ -41,14 +42,22 @@ impl GeneralizedNimGame {
     pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
         todo!();
     }
+    pub fn get_parts(&self) -> &Vec<ClosedGeneralizedNimGame>{
+        return &self.parts;
+    }
+    pub fn as_closed(&self) -> Result<&ClosedGeneralizedNimGame,&ClosedGeneralizedNimGame>{
+        if self.parts.len() == 1 {return Ok(&self.parts[0])};
+        return Err(&self.parts[0]);
+    }
 }
+
 fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
 
     let mut groups = groups;
     let mut parts = vec![];
 
     for i in 0..groups.len() {
-        groups[i].sort();
+        groups[i].sort_unstable();
         groups[i].dedup();
     }
 
@@ -64,7 +73,7 @@ fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
                 if contains_any_sorted(&groups[i], &nodes_in_current_group)
                 {
                     nodes_in_current_group.append(&mut vec_ops::sorted_without(&groups[i], &nodes_in_current_group));
-                    nodes_in_current_group.sort();
+                    nodes_in_current_group.sort_unstable();
                     new_part.push(groups.remove(i));
                 }
                 else{
