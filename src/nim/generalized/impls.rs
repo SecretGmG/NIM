@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, fmt::{Display, Debug}, ptr::write_volatile};
+use std::{cmp::Ordering, fmt::{Display, Debug}};
 
 use crate::nim::vec_ops;
 

@@ -25,14 +25,22 @@ impl ClosedGeneralizedNimGame {
         }
     }
     */
-    pub fn get_nimber(&self, prev_seen: &mut DataBase) -> u16 {
+
+    pub fn get_easy_nimber(&self) -> Option<u16>{
         if self.groups.len() == 0 {
-            return 0;
+            return Some(0);
         }
         if self.groups.len() == 1 {
-            return self.nodes as u16;
+            return Some(self.nodes as u16);
         }
+        return None;
+    }
 
+    pub fn get_nimber(&self, prev_seen: &mut DataBase) -> u16 {
+        
+        if let Some(nimber) = self.get_easy_nimber(){
+            return nimber;
+        }
         if let Some(nimber) = prev_seen.get(self) {
             return nimber;
         }

@@ -76,18 +76,7 @@ fn get_permutation(refrences: Vec<u16>) -> Vec<u16> {
     }
     return perm;
 }
-/// generates a vec filled with u16s in ascending order
-/// # Examples
-/// ```
-/// assert_eq!(ascending_vec_u16(6), [0,1,2,3,4,5]);
-/// ```
-fn ascending_vec_u16(len: u16) -> Vec<u16> {
-    let mut r = vec![];
-    for i in 0..len {
-        r.push(i);
-    }
-    return r;
-}
+
 ///gets a vec with each index storing all the groups that contain the node with that index
 pub fn get_group_indecies(groups: &Vec<Vec<u16>>, nodes: u16) -> Vec<Vec<u16>>{
 

@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 rand = "0.7.0" # Or a newer version
+queues = "1.0.2"

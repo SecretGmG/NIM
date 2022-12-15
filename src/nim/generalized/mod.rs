@@ -2,6 +2,7 @@ pub mod closed_generalized;
 pub mod data_base;
 mod impls;
 pub mod constructor;
+mod evaluator;
 use super::vec_ops::{self, contains_any_sorted};
 use closed_generalized::ClosedGeneralizedNimGame;
 use data_base::DataBase;

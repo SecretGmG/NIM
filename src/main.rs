@@ -2,7 +2,7 @@
 
 mod nim;
 use std::{time::Instant, fs::File, io::Write};
-use nim::{pit::{Pit}, pit_reconstructor, generalized::constructor};
+use nim::{pit::Pit, generalized::constructor};
 
 use crate::nim::{generalized::{data_base::DataBase}, pit_reconstructor::try_reconstruct};
 

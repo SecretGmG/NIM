@@ -43,6 +43,18 @@ pub fn sorted_without(vec1: &Vec<u16>, vec2: &Vec<u16>) -> Vec<u16> {
     }
     return r;
 }
+/// generates a vec filled with u16s in ascending order
+/// # Examples
+/// ```
+/// assert_eq!(ascending_vec_u16(6), [0,1,2,3,4,5]);
+/// ```
+pub fn ascending_vec_u16(len: u16) -> Vec<u16> {
+    let mut r = vec![];
+    for i in 0..len {
+        r.push(i);
+    }
+    return r;
+}
 ///minimal excluded
 ///calculates the smallest number not in the list
 pub fn mex(nums: &mut Vec<u16>) -> u16 {
