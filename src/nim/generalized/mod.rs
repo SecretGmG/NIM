@@ -28,17 +28,18 @@ impl GeneralizedNimGame {
 
         return GeneralizedNimGame { parts };
     }
-
-    pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
-        todo!();
-    }
     pub fn get_parts(&self) -> &Vec<ClosedGeneralizedNimGame>{
         return &self.parts;
+    }
+    /*
+    pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
+        todo!();
     }
     pub fn as_closed(&self) -> Result<&ClosedGeneralizedNimGame,&ClosedGeneralizedNimGame>{
         if self.parts.len() == 1 {return Ok(&self.parts[0])};
         return Err(&self.parts[0]);
     }
+    */
 }
 
 fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {

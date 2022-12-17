@@ -10,5 +10,5 @@ pub enum Wall {
     Wall,
 }
 pub type CellWalls = (Cell, Wall, Wall);
-pub const On: CellWalls = (Cell::On, Wall::None, Wall::None);
-pub const Off: CellWalls = (Cell::Off, Wall::None, Wall::None);
+pub const ON: CellWalls = (Cell::On, Wall::None, Wall::None);
+pub const OFF: CellWalls = (Cell::Off, Wall::None, Wall::None);

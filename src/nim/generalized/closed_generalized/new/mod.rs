@@ -8,6 +8,7 @@ use sort::sort;
 use sort::get_group_indecies;
 
 impl ClosedGeneralizedNimGame {
+    #[allow(dead_code)]
     ///creates an empty GeneralizedNimGame
     pub fn empty() -> ClosedGeneralizedNimGame {
         return ClosedGeneralizedNimGame {

@@ -1,5 +1,3 @@
-
-use crate::nim::{generalized::closed_generalized::ClosedGeneralizedNimGame};
 use super::{*, cell::CellWalls};
 
 impl Pit {
@@ -13,6 +11,7 @@ impl Pit {
             y: y,
         };
     }
+    #[allow(dead_code)]
     pub fn empty() -> Pit {
         return Pit {
             board: Vec::new(),
@@ -20,6 +19,7 @@ impl Pit {
             y: 0,
         };
     }
+    #[allow(dead_code)]
     pub fn empty_rect(x: u8, y: u8) -> Pit {
         return Pit {
             board: vec![vec![(Cell::On, Wall::None, Wall::None); y as usize]; x as usize],
@@ -27,6 +27,7 @@ impl Pit {
             y: y,
         };
     }
+    #[allow(dead_code, non_snake_case)] //the L is supposed to be uppercase
     pub fn empty_L_shape(x: u8, y: u8) -> Pit {
         let mut board = vec![];
         board.push(vec![(Cell::On, Wall::None, Wall::None); y as usize]);
@@ -41,6 +42,7 @@ impl Pit {
 
         return pit;
     }
+    #[allow(dead_code)]
     pub fn random_rect(
         cell_type_distribution: (u32, u32),
         wall_type_distribution: (u32, u32),

@@ -1,7 +1,5 @@
 use crate::{nim::generalized::{closed_generalized::ClosedGeneralizedNimGame, GeneralizedNimGame}, vec_ops};
 
-use super::Evaluator;
-
 pub (super) struct Entry {
     pub game: ClosedGeneralizedNimGame,
     pub child_games: Option<Vec<Vec<usize>>>,

@@ -11,7 +11,7 @@ pub fn try_reconstruct(g: &ClosedGeneralizedNimGame) -> Option<Pit> {
 
     let (h_groups, v_groups) = get_v_h_groups(g, &other_nodes)?;
 
-    let mut board = vec![vec![cell::On; h_groups.len()]; v_groups.len()];
+    let mut board = vec![vec![cell::ON; h_groups.len()]; v_groups.len()];
 
     set_connected_nodes(other_nodes, &v_groups, &h_groups, g, &mut board);
 
@@ -40,17 +40,17 @@ fn append_lone_nodes(
 }
 
 fn append_collumn(board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>, index: usize) {
-    let mut new_collumn = vec![cell::Off; board[0].len()];
-    new_collumn[index] = cell::On;
+    let mut new_collumn = vec![cell::OFF; board[0].len()];
+    new_collumn[index] = cell::ON;
     board.push(new_collumn);
 }
 
 fn append_row(board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>, index: usize) {
     for i in 0..board.len() {
         if i == index {
-            board[i].push(cell::On);
+            board[i].push(cell::ON);
         } else {
-            board[i].push(cell::Off);
+            board[i].push(cell::OFF);
         }
     }
 }
@@ -64,7 +64,7 @@ fn set_connected_nodes(
 ) {
     for node in other_nodes {
         let (x, y) = get_indecies(v_groups, h_groups, g, node);
-        board[x][y] = cell::On;
+        board[x][y] = cell::ON;
     }
 }
 
@@ -112,7 +112,7 @@ fn get_lone_and_other_nodes(g: &ClosedGeneralizedNimGame) -> Option<(Vec<u16>, V
 
 fn try_get_basic_case(g: &ClosedGeneralizedNimGame) -> Option<Option<Pit>> {
     if g.get_groups().len() == 1 {
-        let board = vec![vec![cell::On; g.get_node_count() as usize]];
+        let board = vec![vec![cell::ON; g.get_node_count() as usize]];
 
         return Some(Some(Pit::new(board)));
     }

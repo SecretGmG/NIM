@@ -35,7 +35,7 @@ fn time_old_eval(g: &GeneralizedNimGame){
 
     println!("{:?}", starting_test.elapsed());
 }
-
+#[allow(dead_code)]
 fn print_triangle_nimbers(max :u16) {
     let mut db = DataBase::new();
     for i in 0..max{
@@ -43,6 +43,7 @@ fn print_triangle_nimbers(max :u16) {
         println!("{}:{}", i,db.get_nimber(&g));
     }
 }
+#[allow(dead_code)]
 fn make_and_write_data_base(p:Pit){
 
     let mut db = DataBase::new();
@@ -54,6 +55,7 @@ fn make_and_write_data_base(p:Pit){
     f.write_all(latex_repr.as_bytes()).expect("Unable to write data");
 
 }
+#[allow(dead_code)]
 fn test_reconstruction(pit: Pit){
     println!("{}", pit);
     let g = pit.get_generalized();
@@ -63,7 +65,7 @@ fn test_reconstruction(pit: Pit){
     let reconstructed = try_reconstruct(c).unwrap();
     println!("{}", reconstructed);
 }
-
+#[allow(dead_code)]
 fn get_latex_data_base(pit: Pit) -> String{
     let mut db = DataBase::new();
     db.get_nimber(&pit.get_generalized());
@@ -73,6 +75,7 @@ fn get_latex_data_base(pit: Pit) -> String{
     return db.get_latex_repr();
 
 }
+#[allow(dead_code)]
 fn test_pit_game(pit :Pit){
     let starting_test = Instant::now();
 

@@ -1,7 +1,7 @@
 use crate::vec_ops;
 
 use super::generalized::{closed_generalized::ClosedGeneralizedNimGame, GeneralizedNimGame};
-use std::{collections::HashMap, io::BufRead};
+use std::collections::HashMap;
 mod entry;
 use entry::Entry;
 

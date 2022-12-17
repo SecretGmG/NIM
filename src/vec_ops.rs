@@ -25,6 +25,7 @@ pub fn contains_any_sorted(a: &Vec<u16>, b: &Vec<u16>) -> bool {
     }
     return false;
 }
+#[allow(dead_code)]
 pub fn insert_sorted_deduped<T: Ord>(vec: &mut Vec<T>, val: T) -> Result<usize, usize> {
     match vec.binary_search(&val) {
         Ok(index) => return Err(index),
@@ -98,7 +99,7 @@ pub fn remove_pairs_sorted<T: Eq>(vec: &mut Vec<T>) {
         }
     }
 }
-
+#[allow(dead_code)]
 pub fn compare_sorted2<T: Ord>(vec1: &Vec<Vec<Vec<T>>>, vec2: &Vec<Vec<Vec<T>>>) -> Ordering {
     match vec1.len().cmp(&vec2.len()) {
         Ordering::Less => return Ordering::Less,
@@ -148,7 +149,6 @@ pub fn compare_sorted1<T: Ord>(vec1: &Vec<Vec<T>>, vec2: &Vec<Vec<T>>) -> Orderi
     }
     return Ordering::Equal;
 }
-
 
 pub fn compare_sorted<T: Ord>(vec1: &Vec<T>, vec2: &Vec<T>) -> Ordering {
     match vec1.len().cmp(&vec2.len()) {

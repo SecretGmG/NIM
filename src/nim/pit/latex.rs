@@ -1,4 +1,4 @@
-use super::{Pit, cell::{Cell, CellWalls}, cell::Wall};
+use super::{Pit, cell::{Cell, CellWalls}};
 
 
 impl Pit{

@@ -1,7 +1,7 @@
+/*
 use std::collections::HashMap;
 
 use super::ClosedGeneralizedNimGame;
-/*
 //Implements the symmetry finder for GeneralizedNimGame
 impl ClosedGeneralizedNimGame {
     ///Tries to find a symmetry by running a recursive algorithm

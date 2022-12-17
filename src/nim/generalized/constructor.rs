@@ -6,7 +6,7 @@ pub fn unit() -> ClosedGeneralizedNimGame{
     return ClosedGeneralizedNimGame::new(vec![vec![0]]);
 }
 
-
+#[allow(dead_code)]
 pub fn rect(x: u16, y: u16) -> GeneralizedNimGame{
     let mut groups = vec![];
     for i in 0..x{
@@ -25,6 +25,7 @@ pub fn rect(x: u16, y: u16) -> GeneralizedNimGame{
     }
     return GeneralizedNimGame::new(groups);
 }
+#[allow(dead_code)]
 pub fn triangle(l: u16) -> GeneralizedNimGame{
     let mut groups = vec![];
     for i in 0..l{
@@ -51,6 +52,7 @@ pub fn triangle(l: u16) -> GeneralizedNimGame{
     }
     return GeneralizedNimGame::new(groups);
 }
+#[allow(dead_code)]
 pub fn hyper_cube(dim: u16, l: u16) -> GeneralizedNimGame{
     let mut g = unit();
     for _ in 0..dim{
@@ -58,6 +60,7 @@ pub fn hyper_cube(dim: u16, l: u16) -> GeneralizedNimGame{
     }
     return g.into_generalized();
 }
+#[allow(dead_code)]
 pub fn hyper_tetrahedron(dim: u16) -> GeneralizedNimGame{
     let mut g = unit();
     for _ in 0..dim{
