@@ -1,11 +1,8 @@
 pub mod closed_generalized;
-pub mod data_base;
 mod impls;
 pub mod constructor;
-mod evaluator;
-use super::vec_ops::{self, contains_any_sorted};
+use crate::vec_ops::{self, contains_any_sorted};
 use closed_generalized::ClosedGeneralizedNimGame;
-use data_base::DataBase;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
@@ -16,30 +13,22 @@ impl GeneralizedNimGame {
     pub fn new(groups: Vec<Vec<u16>>) -> GeneralizedNimGame {
         let closed_groups = split(groups);
 
-        let mut parts: Vec<ClosedGeneralizedNimGame> = closed_groups
+        let parts: Vec<ClosedGeneralizedNimGame> = closed_groups
             .into_iter()
             .map(ClosedGeneralizedNimGame::new)
             .collect();
 
+        return Self::from_closed(parts);
+    }
+    pub fn from_closed(parts: Vec<ClosedGeneralizedNimGame>) -> GeneralizedNimGame{
+        let mut parts = parts;
         parts.sort_unstable();
         
         vec_ops::remove_pairs_sorted(&mut parts);
 
         return GeneralizedNimGame { parts };
     }
-    pub fn get_nimber(&self, prev_seen: &mut DataBase) -> u16 {
-        if self.parts.len() == 0 {
-            return 0;
-        }
 
-        let mut nimber = 0;
-
-        for closed in &self.parts {
-            nimber ^= closed.get_nimber(prev_seen);
-        }
-
-        return nimber;
-    }
     pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
         todo!();
     }

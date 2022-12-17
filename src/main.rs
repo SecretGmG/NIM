@@ -1,34 +1,57 @@
 //#![allow(dead_code)]
 
 mod nim;
+mod vec_ops;
 use std::{time::Instant, fs::File, io::Write};
 use nim::{pit::Pit, generalized::constructor};
+use nim::evaluator::Evaluator;
 
-use crate::nim::{generalized::{data_base::DataBase}, pit_reconstructor::try_reconstruct};
+use crate::nim::evaluator_db::DataBase;
+use crate::nim::generalized::GeneralizedNimGame;
+use crate::nim::pit_reconstructor::try_reconstruct;
 
 fn main() {
-    //println!("{}", get_latex_data_base(Pit::empty_rect(3,3)));
-    let h_cube = constructor::hyper_cube(3, 3);
-    println!("{}", h_cube);
-    println!("nimber: {}", h_cube.get_nimber(&mut DataBase::new()));
+    time_both_eval(&constructor::rect(2, 8));
+}
+
+fn time_both_eval(g: &GeneralizedNimGame){
+    println!("{}",g);
+    println!("old:");
+    time_old_eval(g);
+    println!("new:");
+    time_new_eval(g);
+}
+
+fn time_new_eval(g: &GeneralizedNimGame){
+    let starting_test = Instant::now();
+    let mut eval = Evaluator::new();
+    println!("{}", eval.calc_nimber(&g));
+    println!("{:?}", starting_test.elapsed());
+}
+fn time_old_eval(g: &GeneralizedNimGame){
+    let starting_test = Instant::now();
+    let mut db = DataBase::new();
+    println!("{}", db.get_nimber(g));
+
+    println!("{:?}", starting_test.elapsed());
 }
 
 fn print_triangle_nimbers(max :u16) {
     let mut db = DataBase::new();
     for i in 0..max{
         let g = nim::generalized::constructor::triangle(i);
-        println!("{}:{}", i,g.get_nimber(&mut db));
+        println!("{}:{}", i,db.get_nimber(&g));
     }
 }
 fn make_and_write_data_base(p:Pit){
 
     let mut db = DataBase::new();
 
-    p.get_generalized().get_nimber(&mut db);
+    db.get_nimber(&p.get_generalized());
 
-    let data = &*db.get_latex_repr();
+    let latex_repr = &*db.get_latex_repr();
     let mut f = File::create("db.tex").expect("Unable to create file");
-    f.write_all(data.as_bytes()).expect("Unable to write data");
+    f.write_all(latex_repr.as_bytes()).expect("Unable to write data");
 
 }
 fn test_reconstruction(pit: Pit){
@@ -42,30 +65,30 @@ fn test_reconstruction(pit: Pit){
 }
 
 fn get_latex_data_base(pit: Pit) -> String{
-    let mut data_base = DataBase::new();
-    pit.get_generalized().get_nimber(&mut data_base);
+    let mut db = DataBase::new();
+    db.get_nimber(&pit.get_generalized());
     
-    println!("{}", data_base);
+    println!("{}", db);
 
-    return data_base.get_latex_repr();
+    return db.get_latex_repr();
 
 }
 fn test_pit_game(pit :Pit){
     let starting_test = Instant::now();
 
-    let data_base = &mut DataBase::new();
+    let db = &mut DataBase::new();
     println!("{}", pit);
 
-    let generalized = pit.get_generalized();
+    let g = pit.get_generalized();
     
-    println!("{}", generalized);
+    println!("{}", g);
 
-    let nimber =generalized.get_nimber(data_base);
+    let nimber = db.get_nimber(&g);
 
     println!("nimber: {}", nimber);
 
     println!("{:?}", starting_test.elapsed());
-    println!("{}", data_base.len());
+    println!("{}", db.len());
 
     //println!("{}", data_base);
 }

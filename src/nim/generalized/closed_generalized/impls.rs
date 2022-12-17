@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use std::fmt;
-use crate::nim::vec_ops;
+use crate::vec_ops;
 
 use super::ClosedGeneralizedNimGame;
 

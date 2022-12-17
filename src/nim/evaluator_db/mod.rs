@@ -1,14 +1,47 @@
 use std::{collections::HashMap, fmt::Display, cmp::Ordering};
-use crate::nim::{pit::Pit, pit_reconstructor::try_reconstruct};
+use crate::{nim::{pit_reconstructor::try_reconstruct}, vec_ops};
 
-use super::closed_generalized::ClosedGeneralizedNimGame;
+use super::generalized::{closed_generalized::ClosedGeneralizedNimGame, GeneralizedNimGame};
+
 
 
 pub struct DataBase{
     map : HashMap<ClosedGeneralizedNimGame, u16>
 }
 impl DataBase{
+    fn calculate_nimber(&mut self, game: &ClosedGeneralizedNimGame) -> u16 {
+        let unique_child_games = game.get_unique_child_games();
+        let nimbers: &mut Vec<u16> = &mut unique_child_games.into_iter().map(|g|self.get_nimber(&g)).collect();
+        let nimber = vec_ops::mex(nimbers);
+        self.set(game, nimber);
+        return nimber;
+    }
 
+    pub fn get_nimber_of_closed(&mut self, game: &ClosedGeneralizedNimGame) -> u16 {
+        
+        if let Some(nimber) = game.get_easy_nimber(){
+            return nimber;
+        }
+        if let Some(nimber) = self.get(game) {
+            return nimber;
+        }
+
+        return self.calculate_nimber(game);
+    }
+
+    pub fn get_nimber(&mut self, game: &GeneralizedNimGame) -> u16 {
+        if game.get_parts().len() == 0 {
+            return 0;
+        }
+
+        let mut nimber = 0;
+
+        for closed in game.get_parts() {
+            nimber ^= self.get_nimber_of_closed(closed);
+        }
+
+        return nimber;
+    }
     pub fn get(&self, g: &ClosedGeneralizedNimGame) -> Option<u16>{
         self.map.get(g).copied()
     }

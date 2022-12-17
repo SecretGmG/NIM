@@ -1,6 +1,6 @@
 use std::vec;
-
-use crate::nim::{generalized::GeneralizedNimGame, vec_ops};
+use crate::vec_ops;
+use crate::nim::generalized::GeneralizedNimGame;
 
 use super::ClosedGeneralizedNimGame;
 

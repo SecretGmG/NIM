@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::nim::vec_ops;
+use crate::vec_ops::{self, ascending_vec_u16};
 
 pub fn sort(groups: &mut Vec<Vec<u16>>, nodes: u16){
     //here is a lot of potential for speed increase
