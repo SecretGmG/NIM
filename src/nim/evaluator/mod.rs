@@ -31,27 +31,20 @@ where
         }
     }
     ///calculates the nimber of an impartial game
-    pub fn calc_nimber(&mut self, g: &Whole) -> u16 {
-        return self.calc_nimber_bounded(g, u16::max_value()).unwrap();
+    pub fn get_nimber_of_whole(&mut self, g: &Whole) -> u16 {
+        return self
+            .get_nimber_of_whole_bounded(g, u16::max_value())
+            .unwrap();
     }
     #[allow(dead_code)]
     ///calculates the nimber of an impartial game but stoppes if the evaluator
     ///is certain that the nimber of the game is above the bound
-    pub fn calc_nimber_bounded(&mut self, g: &Whole, bound: u16) -> Option<u16> {
+    pub fn get_nimber_of_whole_bounded(&mut self, g: &Whole, bound: u16) -> Option<u16> {
         let parts_indices = self.create_indecies_of(g);
-        let mut modifier = 0;
-        if parts_indices.len() == 0 {
-            return Some(0);
-        }
-        for i in 0..(parts_indices.len() - 1) {
-            modifier ^= self.get_nimber_bounded(parts_indices[i], u16::MAX).unwrap();
-        }
-        return Some(
-            self.get_nimber_bounded(*parts_indices.last().unwrap(), modifier ^ bound)? ^ modifier,
-        );
+        return self.get_nimber_of_indices_bounded(&parts_indices, bound);
     }
     ///gets bounded nimber given an index
-    fn get_nimber_bounded(&mut self, index: usize, bound: u16) -> Option<u16> {
+    fn get_nimber_of_index_bounded(&mut self, index: usize, bound: u16) -> Option<u16> {
         //test if there is a child game for which child_nimber < nimber
         loop {
             let entry = self.get(index); //reborrow the entry
@@ -73,6 +66,23 @@ where
             }
         }
     }
+    fn get_nimber_of_indices_bounded(&mut self, indices: &Vec<usize>, nimber: u16) -> Option<u16> {
+        let mut modifier = 0;
+
+        if indices.len() == 0 {
+            return Some(0);
+        }
+        //accumulate all the nimbers of the first (n-1) parts
+        for part_index in 0..(indices.len() - 1) {
+            modifier ^= self
+                .get_nimber_of_index_bounded(indices[part_index], u16::MAX)
+                .unwrap();
+        }
+        //index of the last part of the current child game
+        let last_part = indices.last().unwrap();
+        //if the last part has the _nimber == nimber xor modifier
+        self.get_nimber_of_index_bounded(*last_part, nimber ^ modifier)
+    }
 
     ///checks if self.get(index) has a leaf with a given nimber
     fn has_leaf_with_nimber(&mut self, index: usize, nimber: u16) -> bool {
@@ -84,7 +94,19 @@ where
             self.set_nimber(index, 0);
             return nimber == 0;
         }
-        
+
+        for leaf_indices in self.get(index).get_leaf_indices().clone() {
+            match self.get_nimber_of_indices_bounded(&leaf_indices, nimber) {
+                Some(leaf_nimber) => {
+                    self.remove_nimber(index, leaf_nimber);
+                    if leaf_nimber == nimber {return true}
+                }
+                None => continue,
+            }
+        }
+
+        return false;
+        /*
         for leaf_index in 0..leaf_count
         {
             let mut modifier = 0;
@@ -105,7 +127,7 @@ where
 
                 let part = entry.get_leaf_indices()[leaf_index][part_index];
 
-                modifier ^= self.get_nimber_bounded(part, u16::MAX).unwrap();
+                modifier ^= self.get_nimber_of_index_bounded(part, u16::MAX).unwrap();
             }
             //index of the last part of the current child game
             let entry = self.get(index); //reborrow
@@ -113,7 +135,7 @@ where
                 .last()
                 .unwrap();
             //if the last part has the _nimber == nimber xor modifier
-            if let Some(_nimber) = self.get_nimber_bounded(*last_part, nimber ^ modifier) {
+            if let Some(_nimber) = self.get_nimber_of_index_bounded(*last_part, nimber ^ modifier) {
                 self.remove_nimber(index, _nimber ^ modifier);
                 if nimber == _nimber ^ modifier {
                     return true;
@@ -125,6 +147,7 @@ where
         }
         //no child was found that has the nimber
         return false;
+        */
     }
     fn set_nimber(&mut self, index: usize, nimber: u16) {
         self.get_mut(index).possible_nimbers = vec![nimber];

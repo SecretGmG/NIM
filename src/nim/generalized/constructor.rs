@@ -14,6 +14,8 @@ impl Constructor {
     pub fn unit() -> Constructor {
         return Constructor::new(vec![vec![0]]);
     }
+    
+    #[allow(dead_code)]
     pub fn rand(
         node_count: u16,
         group_count: u16,
@@ -27,18 +29,6 @@ impl Constructor {
             }
         }
         return Constructor::new(groups);
-    }
-    pub fn hyper_cube_like(node_count: f32, dim: f32) -> Constructor {
-        let size = node_count.powf(1.0 / dim);
-        let node_count = node_count.round() as u16;
-        let group_count = (dim * size).round() as u16;
-
-        Self::rand(
-            node_count,
-            group_count,
-            dim.floor() as u16,
-            dim.ceil() as u16 + 1,
-        )
     }
     
     #[allow(dead_code)]
@@ -65,12 +55,15 @@ impl Constructor {
         }
         return Constructor::new(groups);
     }
+    #[allow(dead_code)]
     pub fn rect(x: u16, y: u16) -> Constructor {
         Self::hyper_cuboid(vec![x, y])
     }
+    #[allow(dead_code)]
     pub fn hyper_cube(dim: u16, l: u16) -> Constructor {
         Self::hyper_cuboid(vec![l; dim as usize])
     }
+    #[allow(dead_code)]
     pub fn hyper_cuboid(lengths: Vec<u16>) -> Constructor {
         let mut g = Self::unit();
         for length in lengths {
@@ -89,7 +82,8 @@ impl Constructor {
     pub fn build(self) -> GeneralizedNimGame{
         return self.g;
     }
-    pub fn add_connection_to_all(mut self) -> Constructor {
+    #[allow(dead_code)]
+    pub fn add_connection_to_all(self) -> Constructor {
         return self.fully_connect(&Self::unit().build());
     }
     pub fn fully_connect(mut self, g:&GeneralizedNimGame) -> Constructor {
@@ -106,7 +100,8 @@ impl Constructor {
         self.g = GeneralizedNimGame::new(new_groups);
         return self;
     }
-    pub fn combine(mut self, g: GeneralizedNimGame) -> Constructor{
+    #[allow(dead_code)]
+    pub fn combine(self, g: GeneralizedNimGame) -> Constructor{
         let mut new_groups = self.g.get_groups();
         let node_count = self.g.get_node_count();
         for group in g.get_groups() {

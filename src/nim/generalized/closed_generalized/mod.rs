@@ -25,6 +25,7 @@ impl ClosedGeneralizedNimGame {
         }
         return None;
     }
+    #[allow(dead_code)]
     pub fn into_generalized(self) -> GeneralizedNimGame{
         return GeneralizedNimGame{parts: vec![self]}
     }

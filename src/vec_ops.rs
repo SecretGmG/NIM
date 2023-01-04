@@ -1,15 +1,5 @@
 use std::cmp::Ordering;
 
-pub fn sort_vec_of_vecs<T>(vec: &mut Vec<Vec<T>>)
-where
-    T : Ord
-{
-    for i in 0..(vec.len()){
-        vec[i].sort();
-    }
-    vec.sort_by(|vec1, vec2| compare_sorted(vec1, vec2));
-}
-
 pub fn contains_any_sorted(a: &Vec<u16>, b: &Vec<u16>) -> bool {
     let mut i = 0;
     let mut j = 0;

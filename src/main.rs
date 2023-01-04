@@ -29,7 +29,7 @@ where
 {
     println!("Generic Evaluator, no bounds");
     let starting_test = Instant::now();
-    println!("{}", eval.calc_nimber(&g));
+    println!("{}", eval.get_nimber_of_whole(&g));
     println!("{:?}", starting_test.elapsed());
 }
 

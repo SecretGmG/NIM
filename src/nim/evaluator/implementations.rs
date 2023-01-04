@@ -1,3 +1,5 @@
+#[warn(clippy::todo)]
+///
 use crate::nim::generalized::{closed_generalized::ClosedGeneralizedNimGame, GeneralizedNimGame};
 
 use super::impartial::{Impartial, ImpartialPart};
