@@ -1,98 +1,98 @@
-use crate::vec_ops;
-
-use super::generalized::{closed_generalized::ClosedGeneralizedNimGame, GeneralizedNimGame};
-use std::collections::HashMap;
 mod entry;
+pub mod impartial;
+mod implementations;
 use entry::Entry;
+use impartial::*;
+use std::{collections::HashMap, marker::PhantomData};
 
-pub struct Evaluator {
-    data: Vec<Entry>,
-    indecies: HashMap<ClosedGeneralizedNimGame, usize>,
+/// Evaluates an impartial game
+/// The generic arguments specify
+/// a generalized version and a smaller part of a generalized impartial game
+pub struct Evaluator<Part, Whole>
+where
+    Part: ImpartialPart<Part, Whole>,
+    Whole: Impartial<Part, Whole>,
+{
+    data: Vec<Entry<Part, Whole>>,
+    indecies: HashMap<Part, usize>,
+    phantom: PhantomData<Whole>,
 }
-impl Evaluator {
-    pub fn new() -> Evaluator {
+
+impl<Part, Whole> Evaluator<Part, Whole>
+where
+    Part: ImpartialPart<Part, Whole>,
+    Whole: Impartial<Part, Whole>,
+{
+    pub fn new() -> Evaluator<Part, Whole> {
         Evaluator {
+            phantom: PhantomData,
             data: vec![],
             indecies: HashMap::new(),
         }
     }
-
-    pub fn calc_nimber(&mut self, g: &GeneralizedNimGame) -> u16 {
-        let parts_indices = self.create_indecies_of(&g);
-        let mut nimber = 0;
-        for part_index in parts_indices {
-            nimber ^= self.get_nimber(part_index);
-        }
-        return nimber;
+    ///calculates the nimber of an impartial game
+    pub fn calc_nimber(&mut self, g: &Whole) -> u16 {
+        return self.calc_nimber_bounded(g, u16::max_value()).unwrap();
     }
+    #[allow(dead_code)]
+    ///calculates the nimber of an impartial game but stoppes if the evaluator
+    ///is certain that the nimber of the game is above the bound
+    pub fn calc_nimber_bounded(&mut self, g: &Whole, bound: u16) -> Option<u16> {
+        let parts_indices = self.create_indecies_of(g);
+        let mut modifier = 0;
+        if parts_indices.len() == 0 {
+            return Some(0);
+        }
+        for i in 0..(parts_indices.len() - 1) {
+            modifier ^= self.get_nimber_bounded(parts_indices[i], u16::MAX).unwrap();
+        }
+        return Some(
+            self.get_nimber_bounded(*parts_indices.last().unwrap(), modifier ^ bound)? ^ modifier,
+        );
+    }
+    ///gets bounded nimber given an index
+    fn get_nimber_bounded(&mut self, index: usize, bound: u16) -> Option<u16> {
+        //test if there is a child game for which child_nimber < nimber
+        loop {
+            let entry = self.get(index); //reborrow the entry
 
-    fn get_nimber(&mut self, index: usize) -> u16 {
-        self.generate_child_entries(index);
-        let nimber = loop {
-            let entry = self.get_mut(index); //reborrow
-            if entry.possible_nimbers.len() == 0 {
-                unreachable!();
-            }
-            let possible_nimber = entry.possible_nimbers[0];
+            //if there is only one possible nimber left, return it
             if entry.possible_nimbers.len() == 1 {
-                break possible_nimber;
+                return Some(entry.possible_nimbers[0]);
             }
-            if self.is_nimber(index, possible_nimber) {
-                break possible_nimber;
+            let smallest_possible_nimber = *entry.possible_nimbers.first().unwrap();
+            //if the nimber of self.get(index) definitly is bigger than the bound return
+            if smallest_possible_nimber > bound {
+                return None;
             }
-        };
-        return nimber;
-    }
-    ///changes the possible nibers!
-    fn is_nimber(&mut self, index: usize, nimber: u16) -> bool {
-        let entry = self.get(index);
-        if entry.possible_nimbers.binary_search(&nimber).is_err() {
-            return false;
-        }
-
-        //test if there is a child game with every child_nimber < nimber
-        loop{
-            let entry = self.get(index); //reborrow
-            let nimber_to_test = *entry.possible_nimbers.first().unwrap();
-
-            //if the smallest nimber in possible nimber is > the nimber
-            if nimber_to_test > nimber{
-                return false;
+            //if the self.get(index) has no child with the smallest_possible_nimber if self.get(index)
+            //then self.get(index) must have the nimber smallest_possible_nimber
+            if !self.has_leaf_with_nimber(index, smallest_possible_nimber) {
+                self.set_nimber(index, smallest_possible_nimber);
+                return Some(smallest_possible_nimber);
             }
-            if self.has_child_with_nimber(index, nimber_to_test){
-                self.remove_nimber(index, nimber_to_test);
-            }
-            else{
-                self.set_nimber(index, nimber_to_test);
-                return nimber_to_test == nimber;
-            }
-        };
-    }
-    fn set_nimber(&mut self, index: usize, nimber: u16){
-        self.get_mut(index).possible_nimbers = vec![nimber];
-    }
-    fn remove_nimber(&mut self, index: usize, nimber: u16){
-        let entry = self.get_mut(index);
-        match entry.possible_nimbers.binary_search(&nimber) {
-            Ok(i) => _ = entry.possible_nimbers.remove(i),
-            Err(_) => (),
         }
     }
-    ///does not change the possible nimbers!
-    fn has_child_with_nimber(&mut self, index: usize, nimber: u16) -> bool {
-        self.generate_child_entries(index);
 
-        let child_count = self.get(index).child_games.as_ref().unwrap().len();
-        //if the node has no childs return zero;
-        if child_count == 0 {
-            return nimber != 0;
+    ///checks if self.get(index) has a leaf with a given nimber
+    fn has_leaf_with_nimber(&mut self, index: usize, nimber: u16) -> bool {
+        self.generate_leaf_entries(index);
+
+        let leaf_count = self.get(index).get_leaf_count();
+        //if the node has no leafs return;
+        if leaf_count == 0 {
+            self.set_nimber(index, 0);
+            return nimber == 0;
         }
-        for child_index in 0..child_count {
-            let mut modifier = nimber;
+        
+        for leaf_index in 0..leaf_count
+        {
+            let mut modifier = 0;
 
             let entry = self.get(index); //borrow
-            let part_count = entry.child_games.as_ref().unwrap()[child_index].len();
+            let part_count = entry.get_leaf_indices()[leaf_index].len();
             if part_count == 0 {
+                self.remove_nimber(index, 0);
                 if nimber == 0 {
                     return true;
                 } else {
@@ -102,66 +102,88 @@ impl Evaluator {
             //accumulate all the nimbers of the first (n-1) parts
             for part_index in 0..(part_count - 1) {
                 let entry = self.get(index); //reborrow
-                let part = entry.child_games.as_ref().unwrap()[child_index][part_index];
-                modifier ^= self.get_nimber(part);
+
+                let part = entry.get_leaf_indices()[leaf_index][part_index];
+
+                modifier ^= self.get_nimber_bounded(part, u16::MAX).unwrap();
             }
             //index of the last part of the current child game
             let entry = self.get(index); //reborrow
-            let last = entry.child_games.as_ref().unwrap()[child_index]
+            let last_part = entry.get_leaf_indices()[leaf_index]
                 .last()
                 .unwrap();
-            //if the last part is the modifier there is a child with the nimber
-            if self.is_nimber(*last, modifier) {
-                return true;
+            //if the last part has the _nimber == nimber xor modifier
+            if let Some(_nimber) = self.get_nimber_bounded(*last_part, nimber ^ modifier) {
+                self.remove_nimber(index, _nimber ^ modifier);
+                if nimber == _nimber ^ modifier {
+                    return true;
+                }
+                else{
+                    continue;
+                }
             }
         }
         //no child was found that has the nimber
         return false;
     }
-
-    fn generate_child_entries(&mut self, index: usize) {
+    fn set_nimber(&mut self, index: usize, nimber: u16) {
+        self.get_mut(index).possible_nimbers = vec![nimber];
+    }
+    fn remove_nimber(&mut self, index: usize, nimber: u16) {
         let entry = self.get_mut(index);
-        if entry.child_games.is_some() {
+        if entry.possible_nimbers[0] > nimber {
             return;
         }
-        let child_games = entry.get_child_games();
+        match entry.possible_nimbers.binary_search(&nimber) {
+            Ok(i) => _ = entry.possible_nimbers.remove(i),
+            Err(_) => (),
+        }
+    }
 
-        let mut child_indices: Vec<Vec<usize>> = child_games
+    fn generate_leaf_entries(&mut self, index: usize) {
+        let entry = self.get_mut(index);
+        if entry.leaf_indices.is_some() {
+            return;
+        }
+        let mut child_games = entry.get_child_games();
+        //sort by child_count, node_count
+        child_games.sort_by(|a, b| a.get_max_nimber().cmp(&b.get_max_nimber()));
+        child_games.sort_by(|a, b| a.get_parts().len().cmp(&b.get_parts().len()));
+
+        let child_indices: Vec<Vec<usize>> = child_games
             .into_iter()
             .map(|child| self.create_indecies_of(&child))
             .collect();
         let entry = &mut self.data[index]; //reborrow
-                                           //sort by child_count, node_count
-        vec_ops::sort_vec_of_vecs(&mut child_indices);
-        entry.child_games = Some(child_indices);
+        entry.set_child_indices(child_indices);
     }
 
     //------------------Getters and setter---------------------------------//
 
-    pub fn create_indecies_of(&mut self, g: &GeneralizedNimGame) -> Vec<usize> {
+    pub fn create_indecies_of(&mut self, g: &Whole) -> Vec<usize> {
         g.get_parts()
             .iter()
             .map(|part| self.create_index_of(part))
             .collect()
     }
 
-    pub fn create_index_of(&mut self, g: &ClosedGeneralizedNimGame) -> usize {
+    pub fn create_index_of(&mut self, g: &Part) -> usize {
         if let Some(index) = self.index_of(g) {
             return index;
         } else {
             return self.add_game(g.clone());
         }
     }
-    pub fn index_of(&self, g: &ClosedGeneralizedNimGame) -> Option<usize> {
+    pub fn index_of(&self, g: &Part) -> Option<usize> {
         return self.indecies.get(g).copied();
     }
-    fn get_mut(&mut self, index: usize) -> &mut Entry {
+    fn get_mut(&mut self, index: usize) -> &mut Entry<Part, Whole> {
         return &mut self.data[index];
     }
-    fn get(&self, index: usize) -> &Entry {
+    fn get(&self, index: usize) -> &Entry<Part, Whole> {
         return &self.data[index];
     }
-    pub fn add_game(&mut self, game: ClosedGeneralizedNimGame) -> usize {
+    pub fn add_game(&mut self, game: Part) -> usize {
         let entry = Entry::new(game.clone());
         let index = self.data.len();
         self.indecies.insert(game, index);

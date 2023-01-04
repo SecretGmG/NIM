@@ -16,15 +16,6 @@ pub struct ClosedGeneralizedNimGame {
 
 //Constructors and basic functions for the GeneralizedNimGame
 impl ClosedGeneralizedNimGame {
-    /*
-    pub fn is_symmetric(&self ) -> bool {
-        match self.find_symmetry() {
-            Some(_) => true,
-            None => false,
-        }
-    }
-    */
-
     pub fn get_easy_nimber(&self) -> Option<u16>{
         if self.groups.len() == 0 {
             return Some(0);

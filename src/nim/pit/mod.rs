@@ -4,6 +4,7 @@ mod display;
 pub mod new;
 pub mod latex;
 pub mod cell;
+pub mod reconstruct;
 use self::cell::{Cell, Wall, CellWalls};
 
 use super::generalized::GeneralizedNimGame;
@@ -57,8 +58,6 @@ impl Pit {
             }
             Self::add_group_to_list_of_groups(&mut list_of_groups, &mut current_group);
         }
-
-        println!("{:?}", list_of_groups);
 
         return GeneralizedNimGame::new(list_of_groups);
     }

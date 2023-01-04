@@ -1,23 +1,23 @@
-use super::{
-    generalized::closed_generalized::ClosedGeneralizedNimGame,
-    pit::{cell, Pit},
-};
+use crate::nim::generalized::closed_generalized::ClosedGeneralizedNimGame;
+use super::{Pit, cell};
 
-pub fn try_reconstruct(g: &ClosedGeneralizedNimGame) -> Option<Pit> {
-    if let Some(value) = try_get_basic_case(g) {
-        return value;
+impl Pit {
+    pub fn try_reconstruct(g: &ClosedGeneralizedNimGame) -> Option<Pit> {
+        if let Some(value) = try_get_basic_case(g) {
+            return value;
+        }
+        let (lone_nodes, other_nodes) = get_lone_and_other_nodes(g)?;
+
+        let (h_groups, v_groups) = get_v_h_groups(g, &other_nodes)?;
+
+        let mut board = vec![vec![cell::ON; h_groups.len()]; v_groups.len()];
+
+        set_connected_nodes(other_nodes, &v_groups, &h_groups, g, &mut board);
+
+        append_lone_nodes(lone_nodes, g, v_groups, &mut board, h_groups);
+
+        return Some(Pit::new(board));
     }
-    let (lone_nodes, other_nodes) = get_lone_and_other_nodes(g)?;
-
-    let (h_groups, v_groups) = get_v_h_groups(g, &other_nodes)?;
-
-    let mut board = vec![vec![cell::ON; h_groups.len()]; v_groups.len()];
-
-    set_connected_nodes(other_nodes, &v_groups, &h_groups, g, &mut board);
-
-    append_lone_nodes(lone_nodes, g, v_groups, &mut board, h_groups);
-
-    return Some(Pit::new(board));
 }
 
 fn append_lone_nodes(

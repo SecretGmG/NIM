@@ -1,4 +1,4 @@
-use super::{*, cell::CellWalls};
+use super::{cell::CellWalls, *};
 
 impl Pit {
     pub fn new(board: Vec<Vec<CellWalls>>) -> Pit {
@@ -43,6 +43,7 @@ impl Pit {
         return pit;
     }
     #[allow(dead_code)]
+    ///cell_type_distrs(off, on) wall_type_distr(none, some)
     pub fn random_rect(
         cell_type_distribution: (u32, u32),
         wall_type_distribution: (u32, u32),
@@ -56,7 +57,11 @@ impl Pit {
             for j in 0..y {
                 let (off, on) = cell_type_distribution;
                 let rand_int = rng.gen_range(0, off + on);
-                let cell = if rand_int < off { cell::Cell::On } else { cell::Cell::Off };
+                let cell = if rand_int < off {
+                    cell::Cell::Off
+                } else {
+                    cell::Cell::On
+                };
 
                 let (none, some) = wall_type_distribution;
                 let rand_int = rng.gen_range(0, none + some);
@@ -85,5 +90,3 @@ impl Pit {
         };
     }
 }
-
-

@@ -1,6 +1,6 @@
 pub mod closed_generalized;
-mod impls;
 pub mod constructor;
+mod impls;
 use crate::vec_ops::{self, contains_any_sorted};
 use closed_generalized::ClosedGeneralizedNimGame;
 
@@ -20,16 +20,34 @@ impl GeneralizedNimGame {
 
         return Self::from_closed(parts);
     }
-    pub fn from_closed(parts: Vec<ClosedGeneralizedNimGame>) -> GeneralizedNimGame{
+    pub fn from_closed(parts: Vec<ClosedGeneralizedNimGame>) -> GeneralizedNimGame {
         let mut parts = parts;
         parts.sort_unstable();
-        
+
         vec_ops::remove_pairs_sorted(&mut parts);
 
         return GeneralizedNimGame { parts };
     }
-    pub fn get_parts(&self) -> &Vec<ClosedGeneralizedNimGame>{
+    pub fn get_parts(&self) -> &Vec<ClosedGeneralizedNimGame> {
         return &self.parts;
+    }
+    pub fn get_node_count(&self) -> u16 {
+        self.parts.iter().map(|p| p.get_node_count()).sum()
+    }
+    pub fn get_groups(&self) -> Vec<Vec<u16>>{
+        let mut offset = 0;
+        let mut groups = vec![];
+        for part in &self.parts{
+            let mut new_group = part.get_groups().clone();
+            for i in 0..new_group.len() {
+                for j in 0..new_group[i].len(){
+                    new_group[i][j] += offset;
+                }
+            }
+            offset += part.get_node_count();
+            groups.append(&mut new_group);
+        }
+        return groups;
     }
     /*
     pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
@@ -43,7 +61,6 @@ impl GeneralizedNimGame {
 }
 
 fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
-
     let mut groups = groups;
     let mut parts = vec![];
 
@@ -61,18 +78,21 @@ fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
             let mut i = 0;
             prev_len = nodes_in_current_group.len();
             while i < groups.len() {
-                if contains_any_sorted(&groups[i], &nodes_in_current_group)
-                {
-                    nodes_in_current_group.append(&mut vec_ops::sorted_without(&groups[i], &nodes_in_current_group));
+                if contains_any_sorted(&groups[i], &nodes_in_current_group) {
+                    nodes_in_current_group.append(&mut vec_ops::sorted_without(
+                        &groups[i],
+                        &nodes_in_current_group,
+                    ));
                     nodes_in_current_group.sort_unstable();
                     new_part.push(groups.remove(i));
-                }
-                else{
+                } else {
                     i += 1;
                 }
             }
         }
-        if new_part[0].len() != 0 {parts.push(new_part);}
+        if new_part[0].len() != 0 {
+            parts.push(new_part);
+        }
     }
     return parts;
 }
