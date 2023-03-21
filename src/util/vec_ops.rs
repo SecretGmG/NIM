@@ -1,5 +1,7 @@
 use std::cmp::Ordering;
 
+
+///retures true if a and b share any elements
 pub fn contains_any_sorted(a: &Vec<u16>, b: &Vec<u16>) -> bool {
     let mut i = 0;
     let mut j = 0;
@@ -78,7 +80,8 @@ pub fn mex(nums: &mut Vec<u16>) -> u16 {
     return r;
 }
 ///similiar to dedup
-///removes both of the values if they are equal
+///but removes both of the values if they are equal
+///only works on sorted arrays
 pub fn remove_pairs_sorted<T: Eq>(vec: &mut Vec<T>) {
     let mut i = vec.len();
     while i > 1 {
@@ -142,6 +145,7 @@ pub fn compare_sorted1<T: Ord>(vec1: &Vec<Vec<T>>, vec2: &Vec<Vec<T>>) -> Orderi
     return Ordering::Equal;
 }
 
+///compares two sorted arrays, first by length, then by their elements
 pub fn compare_sorted<T: Ord>(vec1: &Vec<T>, vec2: &Vec<T>) -> Ordering {
     match vec1.len().cmp(&vec2.len()) {
         Ordering::Less => return Ordering::Less,

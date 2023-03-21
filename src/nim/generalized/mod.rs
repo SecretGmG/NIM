@@ -1,7 +1,7 @@
 pub mod closed_generalized;
 pub mod constructor;
 mod impls;
-use crate::vec_ops::{self, contains_any_sorted};
+use crate::util::vec_ops::{self, contains_any_sorted};
 use closed_generalized::ClosedGeneralizedNimGame;
 
 ///A generalized version of any impartial "taking game"

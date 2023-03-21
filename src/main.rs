@@ -1,7 +1,7 @@
 //#![allow(dead_code)]
 
 mod nim;
-mod vec_ops;
+mod util;
 use crate::nim::evaluator::impartial::{Impartial, ImpartialPart};
 use crate::nim::evaluator_db::DataBase;
 use crate::nim::generalized::GeneralizedNimGame;

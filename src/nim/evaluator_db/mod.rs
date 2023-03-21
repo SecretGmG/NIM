@@ -2,7 +2,7 @@ use super::{
     generalized::{closed_generalized::ClosedGeneralizedNimGame, GeneralizedNimGame},
     pit::Pit,
 };
-use crate::vec_ops;
+use crate::util::vec_ops;
 use std::{cmp::Ordering, collections::HashMap, fmt::Display};
 
 pub struct DataBase {

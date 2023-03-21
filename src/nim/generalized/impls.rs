@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, fmt::{Display, Debug}};
 
-use crate::vec_ops;
+use crate::util::vec_ops;
 
 use super::GeneralizedNimGame;
 

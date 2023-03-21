@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use super::impartial::*;
-use crate::vec_ops;
+use crate::util::vec_ops;
 
 #[derive(Debug)]
 pub(super) struct Entry<T, C>
