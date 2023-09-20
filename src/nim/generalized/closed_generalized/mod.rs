@@ -1,11 +1,13 @@
+use evaluator::Impartial;
+
 use super::GeneralizedNimGame;
 
 
 pub mod child_games;
-pub mod impls;
 pub mod new;
 pub mod symmetries;
 
+#[derive(Hash, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct ClosedGeneralizedNimGame {
     groups: Vec<Vec<u16>>,
     /// neighbours[i] stores all groups containing i
@@ -33,4 +35,3 @@ impl ClosedGeneralizedNimGame {
     pub fn get_group_indecies(&self) -> &Vec<Vec<u16>>{&self.group_indecies}
     pub fn get_node_count(&self) -> u16{self.nodes}
 }
-

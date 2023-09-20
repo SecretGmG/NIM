@@ -1,56 +1,27 @@
-use std::{cmp::Ordering, fmt::{Display, Debug}};
-
-use crate::util::vec_ops;
 
 use super::GeneralizedNimGame;
 
-impl Ord for GeneralizedNimGame {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        return vec_ops::compare_sorted(&self.parts, &other.parts);
+impl evaluator::Impartial<GeneralizedNimGame> for GeneralizedNimGame{
+    fn get_parts(self) -> Vec<GeneralizedNimGame> {
+        self.parts.into_iter().map(|part| Self::from_closed(vec![part])).collect()
     }
 
-    fn max(self, other: Self) -> Self
-    where
-        Self: Sized,
-    {
-        std::cmp::max_by(self, other, Ord::cmp)
+    fn get_max_nimber(&self) -> u16 {
+        self.parts.iter().map(|part| part.get_node_count()).sum()
     }
 
-    fn min(self, other: Self) -> Self
-    where
-        Self: Sized,
-    {
-        std::cmp::min_by(self, other, Ord::cmp)
-    }
-}
-impl PartialOrd for GeneralizedNimGame{
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-impl Eq for GeneralizedNimGame{
-
-}
-impl PartialEq for GeneralizedNimGame{
-    fn eq(&self, other: &Self) -> bool {
-        if self.parts.len() != other.parts.len() {return false;}
+    fn get_unique_moves(&self) -> Vec<GeneralizedNimGame> {
+        let mut moves = vec![];
         for i in 0..self.parts.len(){
-            if self.parts[i] != other.parts[i] {return false;}
+            let mut parts_without_move = self.parts.clone();
+            let parts_moves = self.parts[i].get_unique_child_games();
+            parts_without_move.swap_remove(i);
+            for j in 0..parts_moves.len(){
+                let mut _move = parts_without_move.clone();
+                _move.append(&mut parts_moves[j].parts.clone());
+                moves.push(_move);
+            }
         }
-        return true;
-    }
-}
-impl Display for GeneralizedNimGame{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "\n-----Generalized-Nim-Game-----\n")?;
-        for closed in &self.parts{
-            write!(f, "{}", closed)?;
-        }
-        Ok(())
-    }
-}
-impl Debug for GeneralizedNimGame{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+        return moves.into_iter().map(|parts| GeneralizedNimGame::from_closed(parts)).collect();
     }
 }

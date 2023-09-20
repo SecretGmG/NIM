@@ -6,6 +6,7 @@ use closed_generalized::ClosedGeneralizedNimGame;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
+#[derive(Hash, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct GeneralizedNimGame {
     parts: Vec<ClosedGeneralizedNimGame>,
 }
@@ -49,15 +50,10 @@ impl GeneralizedNimGame {
         }
         return groups;
     }
-    /*
-    pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
-        todo!();
-    }
     pub fn as_closed(&self) -> Result<&ClosedGeneralizedNimGame,&ClosedGeneralizedNimGame>{
         if self.parts.len() == 1 {return Ok(&self.parts[0])};
         return Err(&self.parts[0]);
     }
-    */
 }
 
 fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
