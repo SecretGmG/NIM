@@ -1,33 +1,30 @@
 use std::vec;
 use crate::util::vec_ops;
-use crate::nim::generalized::GeneralizedNimGame;
+use crate::nim::generalized::TakingGame;
 
 use super::ClosedGeneralizedNimGame;
 
 //implements the generation of moves;
 impl ClosedGeneralizedNimGame {
-    pub fn get_unique_child_games(&self) -> Vec<GeneralizedNimGame> {
-        let mut child_games = vec![];
+    pub fn get_unique_moves(&self) -> Vec<TakingGame> {
+        let mut moves = vec![];
 
         let mut processed_groups:Vec<&Vec<u16>> = vec![];
 
-        for group in &self.groups {
+        for group in &self.sets_of_nodes {
             processed_groups.push(group);
-
             let (lone_nodes, other_nodes) = self.collect_lone_nodes_and_other_nodes(group);
-
-            self.append_moves_of_group(lone_nodes, other_nodes, &mut child_games);
+            self.append_moves_of_group(lone_nodes, other_nodes, &mut moves);
         }
-        child_games.sort_unstable();
-        child_games.dedup();
-
-        return child_games;
+        moves.sort_unstable();
+        moves.dedup();
+        return moves;
     }
     fn append_moves_of_group(
         &self,
         lone_nodes: Vec<u16>,
         other_nodes: Vec<u16>,
-        child_games: &mut Vec<GeneralizedNimGame>,
+        child_games: &mut Vec<TakingGame>,
     ) {
         if other_nodes.len() > 128 {
             panic!("This game is too complex!")
@@ -50,7 +47,7 @@ impl ClosedGeneralizedNimGame {
 
         for node in group {
             let node = *node;
-            if self.group_indecies[node as usize].len() == 0 {
+            if self.set_indices[node as usize].len() == 0 {
                 lone_nodes_in_group.push(node);
             } else {
                 other_nodes_in_group.push(node);
@@ -65,7 +62,7 @@ impl ClosedGeneralizedNimGame {
         other_nodes: &Vec<u16>,
         lone_nodes_to_remove: u16,
         mask: u128,
-    ) -> GeneralizedNimGame {
+    ) -> TakingGame {
         let mut nodes_to_remove = vec![];
         for i in 0..lone_nodes_to_remove {
             nodes_to_remove.push(lone_nodes[i as usize]);
@@ -82,16 +79,16 @@ impl ClosedGeneralizedNimGame {
         return child;
     }
     ///removes all nodes specified in the argument
-    pub fn make_move_unchecked(&self, nodes_to_remove: &mut Vec<u16>) -> GeneralizedNimGame {
+    pub fn make_move_unchecked(&self, nodes_to_remove: &mut Vec<u16>) -> TakingGame {
         nodes_to_remove.sort_unstable();
 
         let mut new_groups = vec![];
 
-        for group in &self.groups {
+        for group in &self.sets_of_nodes {
             new_groups.push(vec_ops::sorted_without(group, nodes_to_remove));
         }
 
-        let new_game = GeneralizedNimGame::new(new_groups);
+        let new_game = TakingGame::new(new_groups);
 
         return new_game;
     }

@@ -2,14 +2,24 @@
 
 mod nim;
 mod util;
-use crate::nim::generalized::GeneralizedNimGame;
+use crate::nim::generalized::TakingGame;
 use nim::{generalized::constructor::*, pit::Pit};
 use std::time::Instant;
 use evaluator::*;
 
 fn main() {
-    print_triangle_nimbers(5);
+    print_kayle_nimbers(40);
+    //print_triangle_nimbers(5);
 }
+
+fn print_kayle_nimbers(max: u16){
+    let mut eval = Evaluator::new();
+    for i in 0..max{
+        let g = Constructor::kayles(i).build();
+        println!("{}:{}", i, eval.get_nimber(g));
+    }
+}
+
 
 #[allow(dead_code)]
 fn print_triangle_nimbers(max: u16) {

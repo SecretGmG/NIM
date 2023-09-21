@@ -7,7 +7,7 @@ pub mod cell;
 pub mod reconstruct;
 use self::cell::{Cell, Wall, CellWalls};
 
-use super::generalized::GeneralizedNimGame;
+use super::generalized::TakingGame;
 #[derive(Debug)]
 pub struct Pit {
     ///first x then y
@@ -21,7 +21,7 @@ impl Pit {
         todo!();
     }
 
-    pub fn get_generalized(&self) -> GeneralizedNimGame {
+    pub fn get_generalized(&self) -> TakingGame {
         let mut list_of_groups = vec![];
 
         for y in 0..self.y {
@@ -59,7 +59,7 @@ impl Pit {
             Self::add_group_to_list_of_groups(&mut list_of_groups, &mut current_group);
         }
 
-        return GeneralizedNimGame::new(list_of_groups);
+        return TakingGame::new(list_of_groups);
     }
 
     ///handles the matching of a cell and following wall, value

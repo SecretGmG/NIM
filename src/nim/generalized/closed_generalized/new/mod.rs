@@ -12,8 +12,8 @@ impl ClosedGeneralizedNimGame {
     ///creates an empty GeneralizedNimGame
     pub fn empty() -> ClosedGeneralizedNimGame {
         return ClosedGeneralizedNimGame {
-            groups: Vec::new(),
-            group_indecies: Vec::new(),
+            sets_of_nodes: Vec::new(),
+            set_indices: Vec::new(),
             nodes: 0,
         };
     }
@@ -26,8 +26,8 @@ impl ClosedGeneralizedNimGame {
         let group_indecies = get_group_indecies(&groups, nodes);
 
         return ClosedGeneralizedNimGame {
-            groups: groups,
-            group_indecies,
+            sets_of_nodes: groups,
+            set_indices: group_indecies,
             nodes: nodes,
         };
     }

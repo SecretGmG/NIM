@@ -7,11 +7,11 @@ use closed_generalized::ClosedGeneralizedNimGame;
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
 #[derive(Hash, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
-pub struct GeneralizedNimGame {
+pub struct TakingGame {
     parts: Vec<ClosedGeneralizedNimGame>,
 }
-impl GeneralizedNimGame {
-    pub fn new(groups: Vec<Vec<u16>>) -> GeneralizedNimGame {
+impl TakingGame {
+    pub fn new(groups: Vec<Vec<u16>>) -> TakingGame {
         let closed_groups = split(groups);
 
         let parts: Vec<ClosedGeneralizedNimGame> = closed_groups
@@ -21,16 +21,13 @@ impl GeneralizedNimGame {
 
         return Self::from_closed(parts);
     }
-    pub fn from_closed(parts: Vec<ClosedGeneralizedNimGame>) -> GeneralizedNimGame {
+    pub fn from_closed(parts: Vec<ClosedGeneralizedNimGame>) -> TakingGame {
         let mut parts = parts;
         parts.sort_unstable();
 
         vec_ops::remove_pairs_sorted(&mut parts);
 
-        return GeneralizedNimGame { parts };
-    }
-    pub fn get_parts(&self) -> &Vec<ClosedGeneralizedNimGame> {
-        return &self.parts;
+        return TakingGame { parts };
     }
     pub fn get_node_count(&self) -> u16 {
         self.parts.iter().map(|p| p.get_node_count()).sum()

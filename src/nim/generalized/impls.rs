@@ -1,8 +1,8 @@
 
-use super::GeneralizedNimGame;
+use super::TakingGame;
 
-impl evaluator::Impartial<GeneralizedNimGame> for GeneralizedNimGame{
-    fn get_parts(self) -> Vec<GeneralizedNimGame> {
+impl evaluator::Impartial<TakingGame> for TakingGame{
+    fn get_parts(self) -> Vec<TakingGame> {
         self.parts.into_iter().map(|part| Self::from_closed(vec![part])).collect()
     }
 
@@ -10,11 +10,11 @@ impl evaluator::Impartial<GeneralizedNimGame> for GeneralizedNimGame{
         self.parts.iter().map(|part| part.get_node_count()).sum()
     }
 
-    fn get_unique_moves(&self) -> Vec<GeneralizedNimGame> {
+    fn get_unique_moves(&self) -> Vec<TakingGame> {
         let mut moves = vec![];
         for i in 0..self.parts.len(){
             let mut parts_without_move = self.parts.clone();
-            let parts_moves = self.parts[i].get_unique_child_games();
+            let parts_moves = self.parts[i].get_unique_moves();
             parts_without_move.swap_remove(i);
             for j in 0..parts_moves.len(){
                 let mut _move = parts_without_move.clone();
@@ -22,6 +22,6 @@ impl evaluator::Impartial<GeneralizedNimGame> for GeneralizedNimGame{
                 moves.push(_move);
             }
         }
-        return moves.into_iter().map(|parts| GeneralizedNimGame::from_closed(parts)).collect();
+        return moves.into_iter().map(|parts| TakingGame::from_closed(parts)).collect();
     }
 }

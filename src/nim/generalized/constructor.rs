@@ -1,18 +1,36 @@
-use super::GeneralizedNimGame;
+use super::TakingGame;
 use rand::Rng;
 use std::vec;
 
 pub struct Constructor {
-    g: GeneralizedNimGame,
+    g: TakingGame,
 }
 impl Constructor {
 
     pub fn new(groups: Vec<Vec<u16>>) -> Constructor{
-        return Constructor {g: GeneralizedNimGame::new(groups)};
+        return Constructor {g: TakingGame::new(groups)};
     }
 
+    pub fn empty() -> Constructor{
+        return Constructor::new(vec![vec![]]);
+    }
     pub fn unit() -> Constructor {
         return Constructor::new(vec![vec![0]]);
+    }
+
+    pub fn kayles(size: u16) -> Constructor{
+        if size == 0 {
+            return Constructor::empty();
+        }
+        if size == 1 {
+            return Constructor::unit();
+        }
+        let mut groups = vec![];
+        for i in 1..size{
+            groups.push(vec![i-1, i]);
+        }
+        return Constructor::new(groups);
+
     }
     
     #[allow(dead_code)]
@@ -79,14 +97,14 @@ impl Constructor {
         }
         return g;
     }
-    pub fn build(self) -> GeneralizedNimGame{
+    pub fn build(self) -> TakingGame{
         return self.g;
     }
     #[allow(dead_code)]
     pub fn add_connection_to_all(self) -> Constructor {
         return self.fully_connect(&Self::unit().build());
     }
-    pub fn fully_connect(mut self, g:&GeneralizedNimGame) -> Constructor {
+    pub fn fully_connect(mut self, g:&TakingGame) -> Constructor {
         let node_count = self.g.get_node_count();
         let mut new_groups = self.g.get_groups();
         for group in g.get_groups() {
@@ -97,11 +115,11 @@ impl Constructor {
                 new_groups.push(vec![i, j]);
             }
         }
-        self.g = GeneralizedNimGame::new(new_groups);
+        self.g = TakingGame::new(new_groups);
         return self;
     }
     #[allow(dead_code)]
-    pub fn combine(self, g: GeneralizedNimGame) -> Constructor{
+    pub fn combine(self, g: TakingGame) -> Constructor{
         let mut new_groups = self.g.get_groups();
         let node_count = self.g.get_node_count();
         for group in g.get_groups() {
@@ -129,7 +147,7 @@ impl Constructor {
             }
             new_groups.push(new_group);
         }
-        self.g = GeneralizedNimGame::new(new_groups);
+        self.g = TakingGame::new(new_groups);
         return self;
     }
 }

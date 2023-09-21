@@ -28,7 +28,7 @@ fn append_lone_nodes(
     h_groups: Vec<u16>,
 ) {
     for lone_node in lone_nodes {
-        let gi = g.get_group_indecies()[lone_node as usize][0];
+        let gi = g.get_set_indices()[lone_node as usize][0];
         if let Ok(index) = v_groups.binary_search(&gi) {
             append_row(board, index);
         } else if let Ok(index) = h_groups.binary_search(&gi) {
@@ -72,15 +72,15 @@ fn get_v_h_groups(
     g: &ClosedGeneralizedNimGame,
     other_nodes: &Vec<u16>,
 ) -> Option<(Vec<u16>, Vec<u16>)> {
-    let mut h_groups: Vec<u16> = vec![g.get_group_indecies()[other_nodes[0] as usize][0]];
+    let mut h_groups: Vec<u16> = vec![g.get_set_indices()[other_nodes[0] as usize][0]];
     let mut v_groups: Vec<u16> = vec![];
     let mut nodes_todo = other_nodes.clone();
     while nodes_todo.len() != 0 {
         let mut i = 0;
         while i < nodes_todo.len() {
             let node = nodes_todo[i];
-            let g1 = g.get_group_indecies()[node as usize][0];
-            let g2 = g.get_group_indecies()[node as usize][1];
+            let g1 = g.get_set_indices()[node as usize][0];
+            let g2 = g.get_set_indices()[node as usize][1];
 
             match try_insert_group_indecies(g1, g2, &mut h_groups, &mut v_groups) {
                 Some(b) => {
@@ -101,7 +101,7 @@ fn get_lone_and_other_nodes(g: &ClosedGeneralizedNimGame) -> Option<(Vec<u16>, V
     let mut lone_nodes = vec![];
     let mut other_nodes = vec![];
     for node in 0..g.get_node_count() {
-        match g.get_group_indecies()[node as usize].len() {
+        match g.get_set_indices()[node as usize].len() {
             1 => lone_nodes.push(node),
             2 => other_nodes.push(node),
             _ => return None,
@@ -147,8 +147,8 @@ fn get_indecies(
     g: &ClosedGeneralizedNimGame,
     node: u16,
 ) -> (usize, usize) {
-    let g1 = g.get_group_indecies()[node as usize][0];
-    let g2 = g.get_group_indecies()[node as usize][1];
+    let g1 = g.get_set_indices()[node as usize][0];
+    let g2 = g.get_set_indices()[node as usize][1];
     return match v_groups.binary_search(&g1) {
         Ok(x) => (x, h_groups.binary_search(&g2).unwrap()),
         Err(_) => (
