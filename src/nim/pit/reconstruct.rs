@@ -1,8 +1,8 @@
-use crate::nim::generalized::closed_generalized::ClosedGeneralizedNimGame;
+use crate::nim::generalized::TakingGame;
 use super::{Pit, cell};
 
 impl Pit {
-    pub fn try_reconstruct(g: &ClosedGeneralizedNimGame) -> Option<Pit> {
+    pub fn try_reconstruct(g: &TakingGame) -> Option<Pit> {
         if let Some(value) = try_get_basic_case(g) {
             return value;
         }
@@ -22,7 +22,7 @@ impl Pit {
 
 fn append_lone_nodes(
     lone_nodes: Vec<u16>,
-    g: &ClosedGeneralizedNimGame,
+    g: &TakingGame,
     v_groups: Vec<u16>,
     board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>,
     h_groups: Vec<u16>,
@@ -59,7 +59,7 @@ fn set_connected_nodes(
     other_nodes: Vec<u16>,
     v_groups: &Vec<u16>,
     h_groups: &Vec<u16>,
-    g: &ClosedGeneralizedNimGame,
+    g: &TakingGame,
     board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>,
 ) {
     for node in other_nodes {
@@ -69,7 +69,7 @@ fn set_connected_nodes(
 }
 
 fn get_v_h_groups(
-    g: &ClosedGeneralizedNimGame,
+    g: &TakingGame,
     other_nodes: &Vec<u16>,
 ) -> Option<(Vec<u16>, Vec<u16>)> {
     let mut h_groups: Vec<u16> = vec![g.get_set_indices()[other_nodes[0] as usize][0]];
@@ -97,7 +97,7 @@ fn get_v_h_groups(
     Some((h_groups, v_groups))
 }
 
-fn get_lone_and_other_nodes(g: &ClosedGeneralizedNimGame) -> Option<(Vec<u16>, Vec<u16>)> {
+fn get_lone_and_other_nodes(g: &TakingGame) -> Option<(Vec<u16>, Vec<u16>)> {
     let mut lone_nodes = vec![];
     let mut other_nodes = vec![];
     for node in 0..g.get_node_count() {
@@ -144,7 +144,7 @@ pub fn try_insert_group_indecies(
 fn get_indecies(
     v_groups: &Vec<u16>,
     h_groups: &Vec<u16>,
-    g: &ClosedGeneralizedNimGame,
+    g: &TakingGame,
     node: u16,
 ) -> (usize, usize) {
     let g1 = g.get_set_indices()[node as usize][0];

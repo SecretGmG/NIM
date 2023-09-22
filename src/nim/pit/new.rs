@@ -1,16 +1,8 @@
-use super::{cell::CellWalls, *};
+use rand::{thread_rng, Rng};
+
+use super::{Pit,Cell,Wall,cell};
 
 impl Pit {
-    pub fn new(board: Vec<Vec<CellWalls>>) -> Pit {
-        let x = board.len() as u8;
-        let y = board[0].len() as u8;
-
-        return Pit {
-            board: board,
-            x: x,
-            y: y,
-        };
-    }
     #[allow(dead_code)]
     pub fn empty() -> Pit {
         return Pit {

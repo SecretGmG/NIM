@@ -5,11 +5,12 @@ impl evaluator::Impartial<TakingGame> for TakingGame{
     fn get_parts(self) -> Vec<TakingGame> {
         self.parts.into_iter().map(|part| Self::from_closed(vec![part])).collect()
     }
-
     fn get_max_nimber(&self) -> u16 {
         self.parts.iter().map(|part| part.get_node_count()).sum()
     }
-
+    fn get_possible_nimbers(&self) -> Vec<u16> {
+        (0..self.get_max_nimber()).collect()
+    }
     fn get_unique_moves(&self) -> Vec<TakingGame> {
         let mut moves = vec![];
         for i in 0..self.parts.len(){

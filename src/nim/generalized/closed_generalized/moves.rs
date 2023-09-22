@@ -1,18 +1,16 @@
 use std::vec;
-use crate::util::vec_ops;
 use crate::nim::generalized::TakingGame;
-
-use super::ClosedGeneralizedNimGame;
+use super::ClosedTakingGamePart;
 
 //implements the generation of moves;
-impl ClosedGeneralizedNimGame {
+impl ClosedTakingGamePart {
     pub fn get_unique_moves(&self) -> Vec<TakingGame> {
         let mut moves = vec![];
 
-        let mut processed_groups:Vec<&Vec<u16>> = vec![];
+        let mut processed_sets:Vec<&Vec<u16>> = vec![];
 
         for group in &self.sets_of_nodes {
-            processed_groups.push(group);
+            processed_sets.push(group);
             let (lone_nodes, other_nodes) = self.collect_lone_nodes_and_other_nodes(group);
             self.append_moves_of_group(lone_nodes, other_nodes, &mut moves);
         }
@@ -85,7 +83,7 @@ impl ClosedGeneralizedNimGame {
         let mut new_groups = vec![];
 
         for group in &self.sets_of_nodes {
-            new_groups.push(vec_ops::sorted_without(group, nodes_to_remove));
+            new_groups.push(super::super::remove_subset(group, nodes_to_remove));
         }
 
         let new_game = TakingGame::new(new_groups);

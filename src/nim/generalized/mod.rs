@@ -1,32 +1,26 @@
 pub mod closed_generalized;
 pub mod constructor;
 mod impls;
-use crate::util::vec_ops::{self, contains_any_sorted};
-use closed_generalized::ClosedGeneralizedNimGame;
+use closed_generalized::ClosedTakingGamePart;
 
 ///A generalized version of any impartial "taking game"
 ///implements many tools to effitiently find the nimber of any complex taking game
 #[derive(Hash, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct TakingGame {
-    parts: Vec<ClosedGeneralizedNimGame>,
+    parts: Vec<ClosedTakingGamePart>,
 }
 impl TakingGame {
     pub fn new(groups: Vec<Vec<u16>>) -> TakingGame {
-        let closed_groups = split(groups);
-
-        let parts: Vec<ClosedGeneralizedNimGame> = closed_groups
+        let closed_groups = split_to_independent_sets_of_groups(groups);
+        let parts: Vec<ClosedTakingGamePart> = closed_groups
             .into_iter()
-            .map(ClosedGeneralizedNimGame::new)
+            .map(ClosedTakingGamePart::new)
             .collect();
-
         return Self::from_closed(parts);
     }
-    pub fn from_closed(parts: Vec<ClosedGeneralizedNimGame>) -> TakingGame {
+    pub fn from_closed(parts: Vec<ClosedTakingGamePart>) -> TakingGame {
         let mut parts = parts;
         parts.sort_unstable();
-
-        vec_ops::remove_pairs_sorted(&mut parts);
-
         return TakingGame { parts };
     }
     pub fn get_node_count(&self) -> u16 {
@@ -36,7 +30,7 @@ impl TakingGame {
         let mut offset = 0;
         let mut groups = vec![];
         for part in &self.parts{
-            let mut new_group = part.get_groups().clone();
+            let mut new_group = part.get_sets_of_nodes().clone();
             for i in 0..new_group.len() {
                 for j in 0..new_group[i].len(){
                     new_group[i][j] += offset;
@@ -47,13 +41,8 @@ impl TakingGame {
         }
         return groups;
     }
-    pub fn as_closed(&self) -> Result<&ClosedGeneralizedNimGame,&ClosedGeneralizedNimGame>{
-        if self.parts.len() == 1 {return Ok(&self.parts[0])};
-        return Err(&self.parts[0]);
-    }
 }
-
-fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
+fn split_to_independent_sets_of_groups(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
     let mut groups = groups;
     let mut parts = vec![];
 
@@ -71,8 +60,8 @@ fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
             let mut i = 0;
             prev_len = nodes_in_current_group.len();
             while i < groups.len() {
-                if contains_any_sorted(&groups[i], &nodes_in_current_group) {
-                    nodes_in_current_group.append(&mut vec_ops::sorted_without(
+                if have_common_element(&groups[i], &nodes_in_current_group) {
+                    nodes_in_current_group.append(&mut remove_subset(
                         &groups[i],
                         &nodes_in_current_group,
                     ));
@@ -88,4 +77,39 @@ fn split(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
         }
     }
     return parts;
+}
+///retures true if a and b share any elements
+pub fn have_common_element(a: &Vec<u16>, b: &Vec<u16>) -> bool {
+    let mut i = 0;
+    let mut j = 0;
+
+    while i < a.len() && j < b.len() {
+        if a[i] < b[j] {
+            i += 1;
+        } else if a[i] > b[j] {
+            j += 1;
+        } else {
+            return true;
+        }
+    }
+    return false;
+}
+pub fn remove_subset(vec1: &Vec<u16>, vec2: &Vec<u16>) -> Vec<u16> {
+    let mut i = 0;
+    let mut j = 0;
+    let mut r = vec![];
+    while i < vec1.len() {
+        if j >= vec2.len() {
+            r.push(vec1[i]);
+            i += 1;
+        } else if vec1[i] < vec2[j] {
+            r.push(vec1[i]);
+            i += 1;
+        } else if vec1[i] == vec2[j] {
+            i += 1;
+        } else {
+            j += 1;
+        }
+    }
+    return r;
 }

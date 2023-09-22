@@ -2,7 +2,6 @@
 
 mod nim;
 mod util;
-use crate::nim::generalized::TakingGame;
 use nim::{generalized::constructor::*, pit::Pit};
 use std::time::Instant;
 use evaluator::*;

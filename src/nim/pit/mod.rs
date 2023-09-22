@@ -1,10 +1,7 @@
-use rand;
-use rand::{thread_rng, Rng};
 mod display;
 pub mod new;
-pub mod latex;
 pub mod cell;
-pub mod reconstruct;
+//pub mod reconstruct;
 use self::cell::{Cell, Wall, CellWalls};
 
 use super::generalized::TakingGame;
