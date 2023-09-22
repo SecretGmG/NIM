@@ -14,7 +14,7 @@ pub struct ClosedTakingGamePart {
 //Constructors and basic functions for the GeneralizedNimGame
 impl ClosedTakingGamePart {
     pub fn get_possible_nimbers(&self) -> Vec<u16>{
-        (0..self.get_node_count()).collect()
+        (0..=self.get_node_count()).collect()
     }
     pub fn into_generalized(self) -> TakingGame {
         return TakingGame { parts: vec![self] };

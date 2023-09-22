@@ -9,7 +9,7 @@ impl evaluator::Impartial<TakingGame> for TakingGame{
         self.parts.iter().map(|part| part.get_node_count()).sum()
     }
     fn get_possible_nimbers(&self) -> Vec<u16> {
-        (0..self.get_max_nimber()).collect()
+        (0..=self.get_max_nimber()).collect()
     }
     fn get_unique_moves(&self) -> Vec<TakingGame> {
         let mut moves = vec![];

@@ -1,8 +1,7 @@
-//#![allow(dead_code)]
+mod generalized_taking_game;
+mod pit;
 
-mod nim;
-mod util;
-use nim::{generalized::constructor::*, pit::Pit};
+use generalized_taking_game::Constructor;
 use std::time::Instant;
 use evaluator::*;
 
