@@ -9,8 +9,8 @@ use super::generalized_taking_game::TakingGame;
 pub struct Pit {
     ///first x then y
     board: Vec<Vec<CellWalls>>,
-    x: u8,
-    y: u8,
+    x: usize,
+    y: usize,
 }
 
 impl Pit {
@@ -24,16 +24,16 @@ impl Pit {
         for y in 0..self.y {
             let mut current_group = vec![];
             for x in 0..self.x {
-                let (cell, v_wall, _) = self.board[x as usize][y as usize];
+                let (cell, v_wall, _) = self.board[x ][y ];
 
                 Self::match_cell_and_wall(
                     cell,
                     &mut list_of_groups,
                     &mut current_group,
                     v_wall,
-                    x as u16,
-                    y as u16,
-                    self.x as u16,
+                    x ,
+                    y ,
+                    self.x ,
                 );
             }
             Self::add_group_to_list_of_groups(&mut list_of_groups, &mut current_group);
@@ -41,16 +41,16 @@ impl Pit {
         for x in 0..self.x {
             let mut current_group = vec![];
             for y in 0..self.y {
-                let (cell, _, h_wall) = self.board[x as usize][y as usize];
+                let (cell, _, h_wall) = self.board[x ][y ];
 
                 Self::match_cell_and_wall(
                     cell,
                     &mut list_of_groups,
                     &mut current_group,
                     h_wall,
-                    x as u16,
-                    y as u16,
-                    self.x as u16,
+                    x ,
+                    y ,
+                    self.x ,
                 );
             }
             Self::add_group_to_list_of_groups(&mut list_of_groups, &mut current_group);
@@ -62,12 +62,12 @@ impl Pit {
     ///handles the matching of a cell and following wall, value
     fn match_cell_and_wall(
         cell: cell::Cell,
-        list_of_groups: &mut Vec<Vec<u16>>,
-        current_group: &mut Vec<u16>,
+        list_of_groups: &mut Vec<Vec<usize>>,
+        current_group: &mut Vec<usize>,
         wall: cell::Wall,
-        x: u16,
-        y: u16,
-        board_x: u16,
+        x: usize,
+        y: usize,
+        board_x: usize,
     ) {
         match cell {
             cell::Cell::On => {
@@ -81,7 +81,7 @@ impl Pit {
         }
     }
 
-    fn add_group_to_list_of_groups(list_of_groups: &mut Vec<Vec<u16>>, group: &mut Vec<u16>) {
+    fn add_group_to_list_of_groups(list_of_groups: &mut Vec<Vec<usize>>, group: &mut Vec<usize>) {
         //No need to add empty groups
         if group.is_empty() {
         }

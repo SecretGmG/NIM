@@ -12,19 +12,19 @@ impl Pit {
         };
     }
     #[allow(dead_code)]
-    pub fn empty_rect(x: u8, y: u8) -> Pit {
+    pub fn empty_rect(x: usize, y: usize) -> Pit {
         return Pit {
-            board: vec![vec![(Cell::On, Wall::None, Wall::None); y as usize]; x as usize],
+            board: vec![vec![(Cell::On, Wall::None, Wall::None); y ]; x ],
             x: x,
             y: y,
         };
     }
     #[allow(dead_code, non_snake_case)] //the L is supposed to be uppercase
-    pub fn empty_L_shape(x: u8, y: u8) -> Pit {
+    pub fn empty_L_shape(x: usize, y: usize) -> Pit {
         let mut board = vec![];
-        board.push(vec![(Cell::On, Wall::None, Wall::None); y as usize]);
+        board.push(vec![(Cell::On, Wall::None, Wall::None); y ]);
 
-        let mut line = vec![(Cell::Off, Wall::None, Wall::None); y as usize];
+        let mut line = vec![(Cell::Off, Wall::None, Wall::None); y ];
         line[0] = (cell::Cell::On, cell::Wall::None, cell::Wall::None);
 
         for _ in 1..x {
@@ -39,10 +39,10 @@ impl Pit {
     pub fn random_rect(
         cell_type_distribution: (u32, u32),
         wall_type_distribution: (u32, u32),
-        x: u8,
-        y: u8,
+        x: usize,
+        y: usize,
     ) -> Pit {
-        let mut board = vec![vec![(Cell::Off, Wall::None, Wall::None); y as usize]; x as usize];
+        let mut board = vec![vec![(Cell::Off, Wall::None, Wall::None); y ]; x ];
 
         let mut rng = thread_rng();
         for i in 0..x {
@@ -72,7 +72,7 @@ impl Pit {
                     v_wall = cell::Wall::Wall
                 }
 
-                board[i as usize][j as usize] = (cell, h_wall, v_wall);
+                board[i ][j ] = (cell, h_wall, v_wall);
             }
         }
         return Pit {

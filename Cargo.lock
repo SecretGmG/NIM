@@ -11,7 +11,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "evaluator"
 version = "0.1.0"
-source = "git+https://github.com/SecretGmG/impartial_analiser.git#63b1065c6f7bea3cf6b6a952590fe5a6ee8b09a0"
+source = "git+https://github.com/SecretGmG/impartial_analiser.git#4526c5882b8574cd294fa3f5b5024e49ef7e87f3"
 dependencies = [
  "serde",
 ]

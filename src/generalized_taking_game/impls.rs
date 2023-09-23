@@ -5,10 +5,10 @@ impl evaluator::Impartial<TakingGame> for TakingGame{
     fn get_parts(self) -> Vec<TakingGame> {
         self.parts.into_iter().map(|part| Self::from_closed(vec![part])).collect()
     }
-    fn get_max_nimber(&self) -> u16 {
+    fn get_max_nimber(&self) -> usize {
         self.parts.iter().map(|part| part.get_node_count()).fold(0, |max, val| max | val)
     }
-    fn get_possible_nimbers(&self) -> Vec<u16> {
+    fn get_possible_nimbers(&self) -> Vec<usize> {
         if self.parts.len() == 1 {return self.parts[0].get_possible_nimbers();}
         (0..=self.get_max_nimber()).collect()
     }

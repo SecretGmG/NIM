@@ -7,7 +7,7 @@ pub struct Constructor {
 }
 impl Constructor {
 
-    pub fn new(groups: Vec<Vec<u16>>) -> Constructor{
+    pub fn new(groups: Vec<Vec<usize>>) -> Constructor{
         return Constructor {g: TakingGame::new(groups)};
     }
 
@@ -18,7 +18,7 @@ impl Constructor {
         return Constructor::new(vec![vec![0]]);
     }
 
-    pub fn kayles(size: u16) -> Constructor{
+    pub fn kayles(size: usize) -> Constructor{
         if size == 0 {
             return Constructor::empty();
         }
@@ -34,22 +34,22 @@ impl Constructor {
     
     #[allow(dead_code)]
     pub fn rand(
-        node_count: u16,
-        group_count: u16,
-        min_groups_per_node: u16,
-        max_groups_per_node: u16,
+        node_count: usize,
+        group_count: usize,
+        min_groups_per_node: usize,
+        max_groups_per_node: usize,
     ) -> Constructor {
-        let mut groups = vec![vec![]; group_count as usize];
+        let mut groups = vec![vec![]; group_count ];
         for node in 0..node_count {
             for _ in 0..(rand::thread_rng().gen_range(min_groups_per_node, max_groups_per_node)) {
-                groups[rand::thread_rng().gen_range(0, group_count) as usize].push(node);
+                groups[rand::thread_rng().gen_range(0, group_count) ].push(node);
             }
         }
         return Constructor::new(groups);
     }
     
     #[allow(dead_code)]
-    pub fn triangle(l: u16) -> Constructor {
+    pub fn triangle(l: usize) -> Constructor {
         let mut groups = vec![];
         for i in 0..l {
             let mut new_group1 = vec![];
@@ -73,15 +73,15 @@ impl Constructor {
         return Constructor::new(groups);
     }
     #[allow(dead_code)]
-    pub fn rect(x: u16, y: u16) -> Constructor {
+    pub fn rect(x: usize, y: usize) -> Constructor {
         Self::hyper_cuboid(vec![x, y])
     }
     #[allow(dead_code)]
-    pub fn hyper_cube(dim: u16, l: u16) -> Constructor {
-        Self::hyper_cuboid(vec![l; dim as usize])
+    pub fn hyper_cube(dim: usize, l: usize) -> Constructor {
+        Self::hyper_cuboid(vec![l; dim ])
     }
     #[allow(dead_code)]
-    pub fn hyper_cuboid(lengths: Vec<u16>) -> Constructor {
+    pub fn hyper_cuboid(lengths: Vec<usize>) -> Constructor {
         let mut g = Self::unit();
         for length in lengths {
             g = g.extrude(length);
@@ -89,7 +89,7 @@ impl Constructor {
         return g;
     }
     #[allow(dead_code)]
-    pub fn hyper_tetrahedron(dim: u16) -> Constructor {
+    pub fn hyper_tetrahedron(dim: usize) -> Constructor {
         let mut g = Self::unit();
         for _ in 0..dim {
             g = g.add_connection_to_all();
@@ -126,7 +126,7 @@ impl Constructor {
         }
         return Self::new(new_groups);
     }
-    pub fn extrude(mut self, l: u16) -> Constructor {
+    pub fn extrude(mut self, l: usize) -> Constructor {
         let mut new_groups = self.g.get_groups().clone();
         let node_count = self.g.get_node_count();
 

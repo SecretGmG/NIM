@@ -16,14 +16,14 @@ impl Pit {
 }
 
 fn append_lone_nodes(
-    lone_nodes: Vec<u16>,
+    lone_nodes: Vec<usize>,
     g: &TakingGame,
-    v_groups: Vec<u16>,
+    v_groups: Vec<usize>,
     board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>,
-    h_groups: Vec<u16>,
+    h_groups: Vec<usize>,
 ) {
     for lone_node in lone_nodes {
-        let gi = g.get_set_indices()[lone_node as usize][0];
+        let gi = g.get_set_indices()[lone_node ][0];
         if let Ok(index) = v_groups.binary_search(&gi) {
             append_row(board, index);
         } else if let Ok(index) = h_groups.binary_search(&gi) {
@@ -48,9 +48,9 @@ fn append_row(board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>, index:
     }
 }
 fn set_connected_nodes(
-    other_nodes: Vec<u16>,
-    v_groups: &Vec<u16>,
-    h_groups: &Vec<u16>,
+    other_nodes: Vec<usize>,
+    v_groups: &Vec<usize>,
+    h_groups: &Vec<usize>,
     g: &TakingGame,
     board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>,
 ) {
@@ -61,17 +61,17 @@ fn set_connected_nodes(
 }
 fn get_v_h_groups(
     g: &TakingGame,
-    other_nodes: &Vec<u16>,
-) -> Option<(Vec<u16>, Vec<u16>)> {
-    let mut h_groups: Vec<u16> = vec![g.get_set_indices()[other_nodes[0] as usize][0]];
-    let mut v_groups: Vec<u16> = vec![];
+    other_nodes: &Vec<usize>,
+) -> Option<(Vec<usize>, Vec<usize>)> {
+    let mut h_groups: Vec<usize> = vec![g.get_set_indices()[other_nodes[0] ][0]];
+    let mut v_groups: Vec<usize> = vec![];
     let mut nodes_todo = other_nodes.clone();
     while nodes_todo.len() != 0 {
         let mut i = 0;
         while i < nodes_todo.len() {
             let node = nodes_todo[i];
-            let g1 = g.get_set_indices()[node as usize][0];
-            let g2 = g.get_set_indices()[node as usize][1];
+            let g1 = g.get_set_indices()[node ][0];
+            let g2 = g.get_set_indices()[node ][1];
 
             match try_insert_group_indecies(g1, g2, &mut h_groups, &mut v_groups) {
                 Some(b) => {
@@ -87,11 +87,11 @@ fn get_v_h_groups(
     }
     Some((h_groups, v_groups))
 }
-fn get_lone_and_other_nodes(g: &TakingGame) -> Option<(Vec<u16>, Vec<u16>)> {
+fn get_lone_and_other_nodes(g: &TakingGame) -> Option<(Vec<usize>, Vec<usize>)> {
     let mut lone_nodes = vec![];
     let mut other_nodes = vec![];
     for node in 0..g.get_node_count() {
-        match g.get_set_indices()[node as usize].len() {
+        match g.get_set_indices()[node ].len() {
             1 => lone_nodes.push(node),
             2 => other_nodes.push(node),
             _ => return None,
@@ -101,17 +101,17 @@ fn get_lone_and_other_nodes(g: &TakingGame) -> Option<(Vec<u16>, Vec<u16>)> {
 }
 fn try_get_basic_case(g: &ClosedGeneralizedNimGame) -> Option<Option<Pit>> {
     if g.get_groups().len() == 1 {
-        let board = vec![vec![cell::ON; g.get_node_count() as usize]];
+        let board = vec![vec![cell::ON; g.get_node_count() ]];
 
         return Some(Some(Pit::new(board)));
     }
     None
 }
 pub fn try_insert_group_indecies(
-    g1: u16,
-    g2: u16,
-    h_groups: &mut Vec<u16>,
-    v_groups: &mut Vec<u16>,
+    g1: usize,
+    g2: usize,
+    h_groups: &mut Vec<usize>,
+    v_groups: &mut Vec<usize>,
 ) -> Option<bool> {
     let h1 = h_groups.binary_search(&g1);
     let h2 = h_groups.binary_search(&g2);
@@ -131,13 +131,13 @@ pub fn try_insert_group_indecies(
     return Some(true);
 }
 fn get_indecies(
-    v_groups: &Vec<u16>,
-    h_groups: &Vec<u16>,
+    v_groups: &Vec<usize>,
+    h_groups: &Vec<usize>,
     g: &TakingGame,
-    node: u16,
+    node: usize,
 ) -> (usize, usize) {
-    let g1 = g.get_set_indices()[node as usize][0];
-    let g2 = g.get_set_indices()[node as usize][1];
+    let g1 = g.get_set_indices()[node ][0];
+    let g2 = g.get_set_indices()[node ][1];
     return match v_groups.binary_search(&g1) {
         Ok(x) => (x, h_groups.binary_search(&g2).unwrap()),
         Err(_) => (

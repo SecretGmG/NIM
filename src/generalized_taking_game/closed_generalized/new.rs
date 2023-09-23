@@ -12,8 +12,8 @@ impl ClosedTakingGamePart {
             nodes: 0,
         };
     }
-    ///creates and simplifies a GeneralisedTakingGame from a vec<vec<u16>>
-    pub fn new(mut sets_of_nodes: Vec<Vec<u16>>) -> ClosedTakingGamePart {
+    ///creates and simplifies a GeneralisedTakingGame from a vec<vec<usize>>
+    pub fn new(mut sets_of_nodes: Vec<Vec<usize>>) -> ClosedTakingGamePart {
         let nodes = Self::flatten_and_get_node_count(&mut sets_of_nodes);
         Self::remove_redundant_sets(&mut sets_of_nodes);
         Self::sort_sets_of_nodes(&mut sets_of_nodes, nodes);
@@ -26,13 +26,13 @@ impl ClosedTakingGamePart {
         };
     }
     ///flattens the indecies and then returns the nr of nodes
-    fn flatten_and_get_node_count(sets_of_nodes: &mut Vec<Vec<u16>>) -> u16 {
-        let mut indices: Vec<u16> = sets_of_nodes.iter().flatten().copied().collect();
+    fn flatten_and_get_node_count(sets_of_nodes: &mut Vec<Vec<usize>>) -> usize {
+        let mut indices: Vec<usize> = sets_of_nodes.iter().flatten().copied().collect();
         indices.sort_unstable();
         indices.dedup();
         let mut map = HashMap::new();
         for i in 0..indices.len() {
-            map.insert(indices[i], i as u16);
+            map.insert(indices[i], i );
         }
         {
             for i in 0..sets_of_nodes.len() {
@@ -41,10 +41,10 @@ impl ClosedTakingGamePart {
                 }
             }
         };
-        return indices.len() as u16;
+        return indices.len() ;
     }
     ///removes sets that are totally contained in other sets
-    fn remove_redundant_sets(sets_of_nodes: &mut Vec<Vec<u16>>) {
+    fn remove_redundant_sets(sets_of_nodes: &mut Vec<Vec<usize>>) {
         for i in 0..sets_of_nodes.len() {
             sets_of_nodes[i].sort_unstable();
             sets_of_nodes[i].dedup();
@@ -67,55 +67,55 @@ impl ClosedTakingGamePart {
             i += 1;
         }
     }
-    pub fn sort_sets_of_nodes(sets_of_nodes: &mut Vec<Vec<u16>>, nodes: u16) {
+    pub fn sort_sets_of_nodes(sets_of_nodes: &mut Vec<Vec<usize>>, nodes: usize) {
         loop {
             Self::partially_sort_sets_of_nodes(sets_of_nodes);
             let permutation = Self::generate_index_remaping(sets_of_nodes, nodes);
             if {
                 (0..permutation.len())
                     .zip(&permutation)
-                    .all(|(a, b)| a as u16 == *b)
+                    .all(|(a, b)| a  == *b)
             } {
                 return;
             }
             for i in 0..sets_of_nodes.len() {
                 for j in 0..sets_of_nodes[i].len() {
-                    sets_of_nodes[i][j] = permutation[sets_of_nodes[i][j] as usize];
+                    sets_of_nodes[i][j] = permutation[sets_of_nodes[i][j] ];
                 }
             }
         }
     }
-    fn generate_index_remaping(groups: &Vec<Vec<u16>>, nodes: u16) -> Vec<u16> {
-        let mut refrences: Vec<u16> = (0..nodes).collect();
+    fn generate_index_remaping(groups: &Vec<Vec<usize>>, nodes: usize) -> Vec<usize> {
+        let mut refrences: Vec<usize> = (0..nodes).collect();
         let set_indices = &Self::generate_set_indices(groups, nodes);
         refrences.sort_by(|a, b| node_comparer(*a, *b, set_indices));
         let permutation = inverse_permutation(refrences);
         return permutation;
     }
 
-    fn partially_sort_sets_of_nodes(sets_of_nodes: &mut Vec<Vec<u16>>) {
+    fn partially_sort_sets_of_nodes(sets_of_nodes: &mut Vec<Vec<usize>>) {
         for i in 0..sets_of_nodes.len() {
             sets_of_nodes[i].sort();
         }
         sets_of_nodes.sort_by(compare_sorted);
     }
     ///gets a vec with each index storing all the groups that contain the node with that index
-    pub fn generate_set_indices(groups: &Vec<Vec<u16>>, nodes: u16) -> Vec<Vec<u16>> {
-        let mut group_indecies = vec![vec![]; nodes as usize];
+    pub fn generate_set_indices(groups: &Vec<Vec<usize>>, nodes: usize) -> Vec<Vec<usize>> {
+        let mut group_indecies = vec![vec![]; nodes ];
 
         for i in 0..groups.len() {
             for node in &groups[i] {
-                group_indecies[*node as usize].push(i as u16);
+                group_indecies[*node ].push(i );
             }
         }
         for i in 0..nodes {
-            group_indecies[i as usize].sort_unstable();
+            group_indecies[i ].sort_unstable();
         }
         return group_indecies;
     }
 }
 //checks if two a sorted array is a subset of another sorted array
-fn is_subset(arr1: &Vec<u16>, arr2: &Vec<u16>) -> bool {
+fn is_subset(arr1: &Vec<usize>, arr2: &Vec<usize>) -> bool {
     let mut index1 = 0;
     let mut index2 = 0;
     while index1 < arr1.len() && index2 < arr2.len() {
@@ -134,15 +134,15 @@ fn is_subset(arr1: &Vec<u16>, arr2: &Vec<u16>) -> bool {
 }
 ///calculates the inverse permutation of a given input permutation
 ///undefined behaviour if the input is not a permutation
-fn inverse_permutation(refrences: Vec<u16>) -> Vec<u16> {
+fn inverse_permutation(refrences: Vec<usize>) -> Vec<usize> {
     let mut perm = vec![0; refrences.len()];
     for i in 0..refrences.len() {
-        perm[refrences[i] as usize] = i as u16;
+        perm[refrences[i] ] = i ;
     }
     return perm;
 }
-fn node_comparer(a: u16, b: u16, set_indices: &Vec<Vec<u16>>) -> Ordering {
-    return compare_sorted(&set_indices[a as usize], &set_indices[b as usize]);
+fn node_comparer(a: usize, b: usize, set_indices: &Vec<Vec<usize>>) -> Ordering {
+    return compare_sorted(&set_indices[a ], &set_indices[b ]);
 }
 ///compares two sorted vecs, first by length, then by their elements
 pub fn compare_sorted<T: Ord>(vec1: &Vec<T>, vec2: &Vec<T>) -> Ordering {

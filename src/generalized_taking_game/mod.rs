@@ -10,7 +10,7 @@ pub struct TakingGame {
     parts: Vec<ClosedTakingGamePart>,
 }
 impl TakingGame {
-    pub fn new(groups: Vec<Vec<u16>>) -> TakingGame {
+    pub fn new(groups: Vec<Vec<usize>>) -> TakingGame {
         let closed_groups = split_to_independent_sets_of_groups(groups);
         let parts: Vec<ClosedTakingGamePart> = closed_groups
             .into_iter()
@@ -23,10 +23,10 @@ impl TakingGame {
         parts.sort_unstable();
         return TakingGame { parts };
     }
-    pub fn get_node_count(&self) -> u16 {
+    pub fn get_node_count(&self) -> usize {
         self.parts.iter().map(|p| p.get_node_count()).sum()
     }
-    pub fn get_groups(&self) -> Vec<Vec<u16>>{
+    pub fn get_groups(&self) -> Vec<Vec<usize>>{
         let mut offset = 0;
         let mut groups = vec![];
         for part in &self.parts{
@@ -42,7 +42,7 @@ impl TakingGame {
         return groups;
     }
 }
-fn split_to_independent_sets_of_groups(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16>>> {
+fn split_to_independent_sets_of_groups(groups: Vec<Vec<usize>>) -> Vec<Vec<Vec<usize>>> {
     let mut groups = groups;
     let mut parts = vec![];
 
@@ -79,7 +79,7 @@ fn split_to_independent_sets_of_groups(groups: Vec<Vec<u16>>) -> Vec<Vec<Vec<u16
     return parts;
 }
 ///retures true if a and b share any elements
-pub fn have_common_element(a: &Vec<u16>, b: &Vec<u16>) -> bool {
+pub fn have_common_element(a: &Vec<usize>, b: &Vec<usize>) -> bool {
     let mut i = 0;
     let mut j = 0;
 
@@ -94,7 +94,7 @@ pub fn have_common_element(a: &Vec<u16>, b: &Vec<u16>) -> bool {
     }
     return false;
 }
-pub fn remove_subset(vec1: &Vec<u16>, vec2: &Vec<u16>) -> Vec<u16> {
+pub fn remove_subset(vec1: &Vec<usize>, vec2: &Vec<usize>) -> Vec<usize> {
     let mut i = 0;
     let mut j = 0;
     let mut r = vec![];

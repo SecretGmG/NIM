@@ -11,7 +11,7 @@ fn main() {
     //print_triangle_nimbers(5);
 }
 
-fn print_kayle_nimbers(max: u16){
+fn print_kayle_nimbers(max: usize){
     let mut eval = Evaluator::new();
     for i in 0..max{
         let g = Constructor::kayles(i).build();
@@ -21,7 +21,7 @@ fn print_kayle_nimbers(max: u16){
 
 
 #[allow(dead_code)]
-fn print_triangle_nimbers(max: u16) {
+fn print_triangle_nimbers(max: usize) {
     let mut eval = Evaluator::new();
     for i in 0..max {
         let g = Constructor::triangle(i).build();
