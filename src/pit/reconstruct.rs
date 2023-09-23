@@ -7,15 +7,10 @@ impl Pit {
             return value;
         }
         let (lone_nodes, other_nodes) = get_lone_and_other_nodes(g)?;
-
         let (h_groups, v_groups) = get_v_h_groups(g, &other_nodes)?;
-
         let mut board = vec![vec![cell::ON; h_groups.len()]; v_groups.len()];
-
         set_connected_nodes(other_nodes, &v_groups, &h_groups, g, &mut board);
-
         append_lone_nodes(lone_nodes, g, v_groups, &mut board, h_groups);
-
         return Some(Pit::new(board));
     }
 }
@@ -38,13 +33,11 @@ fn append_lone_nodes(
         }
     }
 }
-
 fn append_collumn(board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>, index: usize) {
     let mut new_collumn = vec![cell::OFF; board[0].len()];
     new_collumn[index] = cell::ON;
     board.push(new_collumn);
 }
-
 fn append_row(board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>, index: usize) {
     for i in 0..board.len() {
         if i == index {
@@ -54,7 +47,6 @@ fn append_row(board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>, index:
         }
     }
 }
-
 fn set_connected_nodes(
     other_nodes: Vec<u16>,
     v_groups: &Vec<u16>,
@@ -67,7 +59,6 @@ fn set_connected_nodes(
         board[x][y] = cell::ON;
     }
 }
-
 fn get_v_h_groups(
     g: &TakingGame,
     other_nodes: &Vec<u16>,
@@ -96,7 +87,6 @@ fn get_v_h_groups(
     }
     Some((h_groups, v_groups))
 }
-
 fn get_lone_and_other_nodes(g: &TakingGame) -> Option<(Vec<u16>, Vec<u16>)> {
     let mut lone_nodes = vec![];
     let mut other_nodes = vec![];
@@ -109,7 +99,6 @@ fn get_lone_and_other_nodes(g: &TakingGame) -> Option<(Vec<u16>, Vec<u16>)> {
     }
     Some((lone_nodes, other_nodes))
 }
-
 fn try_get_basic_case(g: &ClosedGeneralizedNimGame) -> Option<Option<Pit>> {
     if g.get_groups().len() == 1 {
         let board = vec![vec![cell::ON; g.get_node_count() as usize]];

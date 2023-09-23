@@ -1,9 +1,9 @@
-/*
 use std::collections::HashMap;
 
-use super::ClosedGeneralizedNimGame;
+use super::ClosedTakingGamePart;
+
 //Implements the symmetry finder for GeneralizedNimGame
-impl ClosedGeneralizedNimGame {
+impl ClosedTakingGamePart {
     ///Tries to find a symmetry by running a recursive algorithm
     pub fn find_symmetry(&self) -> Option<Vec<u16>> {
         //If there isn't an even amount of nodes it's impossible for every node to have a symmetry
@@ -13,20 +13,16 @@ impl ClosedGeneralizedNimGame {
 
         let sets_of_candidates = self.get_sets_of_candidates();
 
-        if Self::cannot_be_symmetric(&sets_of_candidates) {
+        if sets_of_candidates.iter().all(|v| (v.len() % 2) == 0) {
             return None;
         }
 
-        return self
-            .leads_to_contradiction(&mut vec![None; self.nodes as usize], &sets_of_candidates);
+        let mut symmetries = vec![None; self.get_node_count() as usize];
+
+        return self.leads_to_contradiction(&mut symmetries, &sets_of_candidates);
     }
 
-    ///checks if a set of sets candidates could be symmetric
-    ///by checking if every set has an even amount of members
-    fn cannot_be_symmetric(sets_of_candidates: &Vec<Vec<u16>>) -> bool {
-        return !sets_of_candidates.iter().all(|v| (v.len() % 2) == 0);
-    }
-
+    /// sorts the nodes into sets that each have the same neighbour pattern
     fn get_sets_of_candidates(&self) -> Vec<Vec<u16>> {
         //key: sorted amount of
         //value: vec of nodes that have neighbours with exactly this amount of neighbours
@@ -36,8 +32,9 @@ impl ClosedGeneralizedNimGame {
             //generate list of neighbours_lengths
             let mut neighbours_lengths = vec![];
 
-            for neighbour in self.get_neighbours(node) {
-                let amount_of_neighbours_neighbours = self.get_neighbours(*neighbour).len() as u16;
+            for neighbour in &self.set_indices[node as usize] {
+                let amount_of_neighbours_neighbours =
+                    self.set_indices[*neighbour as usize].len() as u16;
 
                 match neighbours_lengths.binary_search(&amount_of_neighbours_neighbours) {
                     Ok(_) => {} // element already in vector
@@ -83,8 +80,7 @@ impl ClosedGeneralizedNimGame {
             if symmetries.binary_search(&Some(candidates[i])).is_ok() {
                 continue;
             }
-            if self
-                .get_neighbours(node)
+            if self.set_indices[node as usize]
                 .binary_search(&candidates[i])
                 .is_ok()
             {
@@ -112,12 +108,12 @@ impl ClosedGeneralizedNimGame {
     ///     assuming the vec of previously definde symmetries.
     ///
     ///   * Every Iteration a new node is chosen and candidates of wich at least one HAS to be symmetric to the node are generated
-    ///     
+    ///
     ///   * If any of these candidates is found to be symmetric to the root_node without contradiction the assumed symmetries must be valid
     ///
     ///   * This can be checked by adding the symmetry (root_node <==> candidate_node) to the vec of symmetries and recursively calling the function.
     ///
-    ///     
+    ///
     fn leads_to_contradiction(
         &self,
         symmetries: &mut Vec<Option<u16>>,
@@ -140,7 +136,7 @@ impl ClosedGeneralizedNimGame {
         //a list of all nodes that must be a neighbour of the candidate for the candidate not to be a contradiction
         let mut neighbours_of_symmetry = Vec::new();
         //this seems weird!!!------------------------------------------------
-        for neighbour in self.get_neighbours(root_node) {
+        for neighbour in &self.set_indices[root_node as usize] {
             match symmetries[*neighbour as usize] {
                 Some(symmetric_neighbour) => neighbours_of_symmetry.push(symmetric_neighbour),
                 None => continue,
@@ -152,8 +148,7 @@ impl ClosedGeneralizedNimGame {
 
             //if a node of neighbours Of Symmetry were not in candidatesNeighbours that would be a contradiction
             if !neighbours_of_symmetry.iter().all(|neighbour_of_symmetry| {
-                self.get_neighbours(candidate)
-                    .contains(neighbour_of_symmetry)
+                self.set_indices[candidate as usize].contains(neighbour_of_symmetry)
             }) {
                 return None;
             }
@@ -188,4 +183,3 @@ impl ClosedGeneralizedNimGame {
         return Some(result);
     }
 }
-*/

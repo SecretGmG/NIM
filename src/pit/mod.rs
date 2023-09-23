@@ -4,7 +4,7 @@ pub mod cell;
 //pub mod reconstruct;
 use self::cell::{Cell, Wall, CellWalls};
 
-use super::generalized::TakingGame;
+use super::generalized_taking_game::TakingGame;
 #[derive(Debug)]
 pub struct Pit {
     ///first x then y

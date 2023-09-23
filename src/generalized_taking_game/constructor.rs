@@ -30,7 +30,6 @@ impl Constructor {
             groups.push(vec![i-1, i]);
         }
         return Constructor::new(groups);
-
     }
     
     #[allow(dead_code)]

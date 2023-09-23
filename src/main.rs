@@ -1,7 +1,8 @@
 mod generalized_taking_game;
 mod pit;
 
-use generalized_taking_game::Constructor;
+use pit::Pit;
+use generalized_taking_game::constructor::Constructor;
 use std::time::Instant;
 use evaluator::*;
 

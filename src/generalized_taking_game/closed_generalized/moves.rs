@@ -1,5 +1,5 @@
 use std::vec;
-use crate::nim::generalized::TakingGame;
+use super::TakingGame;
 use super::ClosedTakingGamePart;
 
 //implements the generation of moves;
