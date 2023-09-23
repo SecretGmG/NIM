@@ -1,29 +1,55 @@
+use evaluator::Impartial;
+use super::{TakingGame, util};
 
-use super::TakingGame;
 
-impl evaluator::Impartial<TakingGame> for TakingGame{
+impl Impartial<TakingGame> for TakingGame{
     fn get_parts(self) -> Vec<TakingGame> {
-        self.parts.into_iter().map(|part| Self::from_closed(vec![part])).collect()
+        split_to_independent_sets_of_groups(self.sets_of_nodes).into_iter().map(|sets| TakingGame::new(sets)).collect()
     }
     fn get_max_nimber(&self) -> usize {
-        self.parts.iter().map(|part| part.get_node_count()).fold(0, |max, val| max | val)
+        self.node_count
     }
-    fn get_possible_nimbers(&self) -> Vec<usize> {
-        if self.parts.len() == 1 {return self.parts[0].get_possible_nimbers();}
-        (0..=self.get_max_nimber()).collect()
-    }
+
     fn get_unique_moves(&self) -> Vec<TakingGame> {
-        let mut moves = vec![];
-        for i in 0..self.parts.len(){
-            let mut parts_without_move = self.parts.clone();
-            let parts_moves = self.parts[i].get_unique_moves();
-            parts_without_move.swap_remove(i);
-            for j in 0..parts_moves.len(){
-                let mut _move = parts_without_move.clone();
-                _move.append(&mut parts_moves[j].parts.clone());
-                moves.push(_move);
+        self.get_deduped_moves()
+    }
+    
+}
+
+
+fn split_to_independent_sets_of_groups(groups: Vec<Vec<usize>>) -> Vec<Vec<Vec<usize>>> {
+    let mut groups = groups;
+    let mut parts = vec![];
+
+    for i in 0..groups.len() {
+        groups[i].sort_unstable();
+        groups[i].dedup();
+    }
+
+    while groups.len() != 0 {
+        let mut nodes_in_current_group = groups.swap_remove(0);
+        let mut new_part = vec![nodes_in_current_group.clone()];
+
+        let mut prev_len = 0;
+        while nodes_in_current_group.len() != prev_len {
+            let mut i = 0;
+            prev_len = nodes_in_current_group.len();
+            while i < groups.len() {
+                if util::have_common_element(&groups[i], &nodes_in_current_group) {
+                    nodes_in_current_group.append(&mut util::remove_subset(
+                        &groups[i],
+                        &nodes_in_current_group,
+                    ));
+                    nodes_in_current_group.sort_unstable();
+                    new_part.push(groups.remove(i));
+                } else {
+                    i += 1;
+                }
             }
         }
-        return moves.into_iter().map(|parts| TakingGame::from_closed(parts)).collect();
+        if new_part[0].len() != 0 {
+            parts.push(new_part);
+        }
     }
+    return parts;
 }

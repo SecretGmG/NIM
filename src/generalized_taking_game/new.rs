@@ -1,28 +1,28 @@
-use super::ClosedTakingGamePart;
-use std::cmp::Ordering;
+use super::{TakingGame, util};
 use std::collections::HashMap;
+use super::util::compare_sorted;
 
-impl ClosedTakingGamePart {
+impl TakingGame {
     #[allow(dead_code)]
     ///creates an empty GeneralizedNimGame
-    pub fn empty() -> ClosedTakingGamePart {
-        return ClosedTakingGamePart {
+    pub fn empty() -> TakingGame {
+        return TakingGame {
             sets_of_nodes: Vec::new(),
             set_indices: Vec::new(),
-            nodes: 0,
+            node_count: 0,
         };
     }
     ///creates and simplifies a GeneralisedTakingGame from a vec<vec<usize>>
-    pub fn new(mut sets_of_nodes: Vec<Vec<usize>>) -> ClosedTakingGamePart {
+    pub fn new(mut sets_of_nodes: Vec<Vec<usize>>) -> TakingGame {
         let nodes = Self::flatten_and_get_node_count(&mut sets_of_nodes);
         Self::remove_redundant_sets(&mut sets_of_nodes);
         Self::sort_sets_of_nodes(&mut sets_of_nodes, nodes);
         let set_indices = Self::generate_set_indices(&sets_of_nodes, nodes);
 
-        return ClosedTakingGamePart {
+        return TakingGame {
             sets_of_nodes,
             set_indices,
-            nodes: nodes,
+            node_count: nodes,
         };
     }
     ///flattens the indecies and then returns the nr of nodes
@@ -59,7 +59,7 @@ impl ClosedTakingGamePart {
             }
 
             for potential_bigger_group in &sets_of_nodes[(i + 1)..] {
-                if is_subset(&sets_of_nodes[i], potential_bigger_group) {
+                if util::is_subset(&sets_of_nodes[i], potential_bigger_group) {
                     sets_of_nodes.remove(i);
                     continue 'outer;
                 }
@@ -88,8 +88,8 @@ impl ClosedTakingGamePart {
     fn generate_index_remaping(groups: &Vec<Vec<usize>>, nodes: usize) -> Vec<usize> {
         let mut refrences: Vec<usize> = (0..nodes).collect();
         let set_indices = &Self::generate_set_indices(groups, nodes);
-        refrences.sort_by(|a, b| node_comparer(*a, *b, set_indices));
-        let permutation = inverse_permutation(refrences);
+        refrences.sort_by(|a, b| util::node_comparer(*a, *b, set_indices));
+        let permutation = util::inverse_permutation(refrences);
         return permutation;
     }
 
@@ -113,50 +113,4 @@ impl ClosedTakingGamePart {
         }
         return group_indecies;
     }
-}
-//checks if two a sorted array is a subset of another sorted array
-fn is_subset(arr1: &Vec<usize>, arr2: &Vec<usize>) -> bool {
-    let mut index1 = 0;
-    let mut index2 = 0;
-    while index1 < arr1.len() && index2 < arr2.len() {
-        if arr1[index1] < arr2[index2] {
-            break;
-        }
-        if arr1[index1] == arr2[index2] {
-            index1 += 1;
-            index2 += 1;
-        } else {
-            index2 += 1;
-        }
-    }
-    let result = index1 == arr1.len();
-    return result;
-}
-///calculates the inverse permutation of a given input permutation
-///undefined behaviour if the input is not a permutation
-fn inverse_permutation(refrences: Vec<usize>) -> Vec<usize> {
-    let mut perm = vec![0; refrences.len()];
-    for i in 0..refrences.len() {
-        perm[refrences[i] ] = i ;
-    }
-    return perm;
-}
-fn node_comparer(a: usize, b: usize, set_indices: &Vec<Vec<usize>>) -> Ordering {
-    return compare_sorted(&set_indices[a ], &set_indices[b ]);
-}
-///compares two sorted vecs, first by length, then by their elements
-pub fn compare_sorted<T: Ord>(vec1: &Vec<T>, vec2: &Vec<T>) -> Ordering {
-    match vec1.len().cmp(&vec2.len()) {
-        Ordering::Less => return Ordering::Less,
-        Ordering::Greater => return Ordering::Greater,
-        Ordering::Equal => (),
-    }
-    for i in 0..vec1.len() {
-        match vec1[i].cmp(&vec2[i]) {
-            Ordering::Less => return Ordering::Less,
-            Ordering::Greater => return Ordering::Greater,
-            Ordering::Equal => (),
-        }
-    }
-    return Ordering::Equal;
 }

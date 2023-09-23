@@ -105,48 +105,48 @@ impl Constructor {
     }
     pub fn fully_connect(mut self, g:&TakingGame) -> Constructor {
         let node_count = self.g.get_node_count();
-        let mut new_groups = self.g.get_groups();
-        for group in g.get_groups() {
-            new_groups.push(group.iter().map(|n| n + node_count).collect());
+        let mut new_sets_of_nodes = self.g.get_sets_of_nodes().clone();
+        for set in g.get_sets_of_nodes() {
+            new_sets_of_nodes.push(set.iter().map(|n| n + node_count).collect());
         }
         for i in 0..node_count {
             for j in node_count..(node_count + g.get_node_count()) {
-                new_groups.push(vec![i, j]);
+                new_sets_of_nodes.push(vec![i, j]);
             }
         }
-        self.g = TakingGame::new(new_groups);
+        self.g = TakingGame::new(new_sets_of_nodes);
         return self;
     }
     #[allow(dead_code)]
     pub fn combine(self, g: TakingGame) -> Constructor{
-        let mut new_groups = self.g.get_groups();
+        let mut new_groups = self.g.get_sets_of_nodes().clone();
         let node_count = self.g.get_node_count();
-        for group in g.get_groups() {
+        for group in g.get_sets_of_nodes() {
             new_groups.push(group.iter().map(|n| n + node_count).collect());
         }
         return Self::new(new_groups);
     }
     pub fn extrude(mut self, l: usize) -> Constructor {
-        let mut new_groups = self.g.get_groups().clone();
+        let mut new_sets_of_nodes = self.g.get_sets_of_nodes().clone();
         let node_count = self.g.get_node_count();
 
-        for group in self.g.get_groups() {
+        for set in self.g.get_sets_of_nodes() {
             for offset in 0..l {
                 let mut new_group = vec![];
-                for node in &group {
+                for node in set {
                     new_group.push(node + offset * node_count);
                 }
-                new_groups.push(new_group);
+                new_sets_of_nodes.push(new_group);
             }
         }
         for node in 0..node_count {
-            let mut new_group = vec![];
+            let mut new_set = vec![];
             for offset in 0..l {
-                new_group.push(node + offset * node_count);
+                new_set.push(node + offset * node_count);
             }
-            new_groups.push(new_group);
+            new_sets_of_nodes.push(new_set);
         }
-        self.g = TakingGame::new(new_groups);
+        self.g = TakingGame::new(new_sets_of_nodes);
         return self;
     }
 }

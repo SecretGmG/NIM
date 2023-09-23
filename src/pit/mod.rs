@@ -1,10 +1,24 @@
 mod display;
 pub mod new;
-pub mod cell;
-//pub mod reconstruct;
-use self::cell::{Cell, Wall, CellWalls};
+pub mod reconstruct;
 
 use super::generalized_taking_game::TakingGame;
+
+#[derive(Copy, Clone, Debug)]
+pub enum Cell {
+    Off,
+    On,
+}
+
+#[derive(Copy, Clone, Debug)]
+pub enum Wall {
+    None,
+    Wall,
+}
+pub type CellWalls = (Cell, Wall, Wall);
+
+
+
 #[derive(Debug)]
 pub struct Pit {
     ///first x then y
@@ -61,23 +75,23 @@ impl Pit {
 
     ///handles the matching of a cell and following wall, value
     fn match_cell_and_wall(
-        cell: cell::Cell,
+        cell: Cell,
         list_of_groups: &mut Vec<Vec<usize>>,
         current_group: &mut Vec<usize>,
-        wall: cell::Wall,
+        wall: Wall,
         x: usize,
         y: usize,
         board_x: usize,
     ) {
         match cell {
-            cell::Cell::On => {
+            Cell::On => {
                 current_group.push(x + (y * board_x));
                 match wall {
-                    cell::Wall::Wall => Self::add_group_to_list_of_groups(list_of_groups, current_group),
-                    cell::Wall::None => (),
+                    Wall::Wall => Self::add_group_to_list_of_groups(list_of_groups, current_group),
+                    Wall::None => (),
                 }
             }
-            cell::Cell::Off => (),
+            Cell::Off => (),
         }
     }
 
@@ -92,6 +106,12 @@ impl Pit {
             list_of_groups.push(group.clone());
             group.clear();
         }
+    }
+
+    fn new(board: Vec<Vec<(Cell, Wall, Wall)>>) -> Pit {
+        let x = board.len();
+        let y = board[0].len();
+        Pit{x, y, board}
     }
 }
 

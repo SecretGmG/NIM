@@ -7,7 +7,7 @@ impl ClosedTakingGamePart {
     ///Tries to find a symmetry by running a recursive algorithm
     pub fn find_symmetry(&self) -> Option<Vec<usize>> {
         //If there isn't an even amount of nodes it's impossible for every node to have a symmetry
-        if self.nodes % 2 != 0 {
+        if self.node_count % 2 != 0 {
             return None;
         }
 
@@ -28,7 +28,7 @@ impl ClosedTakingGamePart {
         //value: vec of nodes that have neighbours with exactly this amount of neighbours
         let mut map: HashMap<Vec<usize>, Vec<usize>> = HashMap::new();
 
-        for node in 0..self.nodes {
+        for node in 0..self.node_count {
             //generate list of neighbours_lengths
             let mut neighbours_lengths = vec![];
 
@@ -94,7 +94,7 @@ impl ClosedTakingGamePart {
 
     ///gets the first node in no symmetry
     fn get_next_node(&self, symmetries: &Vec<Option<usize>>) -> Option<usize> {
-        for i in 0..self.nodes {
+        for i in 0..self.node_count {
             if symmetries[i ] == Option::None {
                 return Some(i);
             }

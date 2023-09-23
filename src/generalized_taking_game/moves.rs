@@ -1,10 +1,10 @@
 use std::vec;
 use super::TakingGame;
-use super::ClosedTakingGamePart;
+use super::util;
 
 //implements the generation of moves;
-impl ClosedTakingGamePart {
-    pub fn get_unique_moves(&self) -> Vec<TakingGame> {
+impl TakingGame {
+    pub fn get_deduped_moves(&self) -> Vec<TakingGame> {
         let mut moves = vec![];
 
         let mut processed_sets:Vec<&Vec<usize>> = vec![];
@@ -83,7 +83,7 @@ impl ClosedTakingGamePart {
         let mut new_groups = vec![];
 
         for group in &self.sets_of_nodes {
-            new_groups.push(super::super::remove_subset(group, nodes_to_remove));
+            new_groups.push(util::remove_subset(group, nodes_to_remove));
         }
 
         let new_game = TakingGame::new(new_groups);

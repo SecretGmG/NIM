@@ -1,4 +1,4 @@
-use super::{cell::Cell, cell::Wall, Pit};
+use super::{Cell, Wall, Pit};
 use std::fmt;
 
 impl Pit {

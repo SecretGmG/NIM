@@ -1,5 +1,8 @@
-use crate::nim::generalized::TakingGame;
-use super::{Pit, cell};
+use crate::generalized_taking_game::TakingGame;
+use super::{Pit, Cell, Wall};
+
+const ON: (Cell, Wall, Wall) = (Cell::On, Wall::None, Wall::None);
+const OFF: (Cell, Wall, Wall) = (Cell::Off, Wall::None, Wall::None);
 
 impl Pit {
     pub fn try_reconstruct(g: &TakingGame) -> Option<Pit> {
@@ -8,7 +11,7 @@ impl Pit {
         }
         let (lone_nodes, other_nodes) = get_lone_and_other_nodes(g)?;
         let (h_groups, v_groups) = get_v_h_groups(g, &other_nodes)?;
-        let mut board = vec![vec![cell::ON; h_groups.len()]; v_groups.len()];
+        let mut board = vec![vec![ON; h_groups.len()]; v_groups.len()];
         set_connected_nodes(other_nodes, &v_groups, &h_groups, g, &mut board);
         append_lone_nodes(lone_nodes, g, v_groups, &mut board, h_groups);
         return Some(Pit::new(board));
@@ -19,11 +22,11 @@ fn append_lone_nodes(
     lone_nodes: Vec<usize>,
     g: &TakingGame,
     v_groups: Vec<usize>,
-    board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>,
+    board: &mut Vec<Vec<(Cell, Wall, Wall)>>,
     h_groups: Vec<usize>,
 ) {
     for lone_node in lone_nodes {
-        let gi = g.get_set_indices()[lone_node ][0];
+        let gi = g.get_set_indices()[lone_node][0];
         if let Ok(index) = v_groups.binary_search(&gi) {
             append_row(board, index);
         } else if let Ok(index) = h_groups.binary_search(&gi) {
@@ -33,17 +36,17 @@ fn append_lone_nodes(
         }
     }
 }
-fn append_collumn(board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>, index: usize) {
-    let mut new_collumn = vec![cell::OFF; board[0].len()];
-    new_collumn[index] = cell::ON;
+fn append_collumn(board: &mut Vec<Vec<(Cell, Wall, Wall)>>, index: usize) {
+    let mut new_collumn = vec![OFF; board[0].len()];
+    new_collumn[index] = ON;
     board.push(new_collumn);
 }
-fn append_row(board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>, index: usize) {
+fn append_row(board: &mut Vec<Vec<(Cell, Wall, Wall)>>, index: usize) {
     for i in 0..board.len() {
         if i == index {
-            board[i].push(cell::ON);
+            board[i].push(ON);
         } else {
-            board[i].push(cell::OFF);
+            board[i].push(OFF);
         }
     }
 }
@@ -52,11 +55,11 @@ fn set_connected_nodes(
     v_groups: &Vec<usize>,
     h_groups: &Vec<usize>,
     g: &TakingGame,
-    board: &mut Vec<Vec<(cell::Cell, cell::Wall, cell::Wall)>>,
+    board: &mut Vec<Vec<(Cell, Wall, Wall)>>,
 ) {
     for node in other_nodes {
-        let (x, y) = get_indecies(v_groups, h_groups, g, node);
-        board[x][y] = cell::ON;
+        let (x, y) = get_indecies(v_groups, h_groups, &g, node);
+        board[x][y] = ON;
     }
 }
 fn get_v_h_groups(
@@ -70,8 +73,8 @@ fn get_v_h_groups(
         let mut i = 0;
         while i < nodes_todo.len() {
             let node = nodes_todo[i];
-            let g1 = g.get_set_indices()[node ][0];
-            let g2 = g.get_set_indices()[node ][1];
+            let g1 = g.get_set_indices()[node][0];
+            let g2 = g.get_set_indices()[node][1];
 
             match try_insert_group_indecies(g1, g2, &mut h_groups, &mut v_groups) {
                 Some(b) => {
@@ -99,9 +102,9 @@ fn get_lone_and_other_nodes(g: &TakingGame) -> Option<(Vec<usize>, Vec<usize>)> 
     }
     Some((lone_nodes, other_nodes))
 }
-fn try_get_basic_case(g: &ClosedGeneralizedNimGame) -> Option<Option<Pit>> {
-    if g.get_groups().len() == 1 {
-        let board = vec![vec![cell::ON; g.get_node_count() ]];
+fn try_get_basic_case(g: &TakingGame) -> Option<Option<Pit>> {
+    if g.get_set_indices().len() == 1 {
+        let board = vec![vec![ON; g.get_node_count() ]];
 
         return Some(Some(Pit::new(board)));
     }
@@ -136,8 +139,8 @@ fn get_indecies(
     g: &TakingGame,
     node: usize,
 ) -> (usize, usize) {
-    let g1 = g.get_set_indices()[node ][0];
-    let g2 = g.get_set_indices()[node ][1];
+    let g1 = g.get_set_indices()[node][0];
+    let g2 = g.get_set_indices()[node][1];
     return match v_groups.binary_search(&g1) {
         Ok(x) => (x, h_groups.binary_search(&g2).unwrap()),
         Err(_) => (
