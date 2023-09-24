@@ -4,7 +4,9 @@ use super::{TakingGame, util};
 
 impl Impartial<TakingGame> for TakingGame{
     fn get_parts(self) -> Vec<TakingGame> {
-        split_to_independent_sets_of_groups(self.sets_of_nodes).into_iter().map(|sets| TakingGame::new(sets)).collect()
+        let mut parts: Vec<TakingGame> = split_to_independent_sets_of_groups(self.sets_of_nodes).into_iter().map(|sets| TakingGame::new(sets)).collect();
+        parts.iter_mut().for_each(|part| part.sort());
+        return parts;
     }
     fn get_max_nimber(&self) -> usize {
         self.node_count
