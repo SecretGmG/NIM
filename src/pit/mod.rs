@@ -33,51 +33,51 @@ impl Pit {
     }
 
     pub fn get_generalized(&self) -> TakingGame {
-        let mut list_of_groups = vec![];
+        let mut list_of_sets = vec![];
 
         for y in 0..self.y {
-            let mut current_group = vec![];
+            let mut set = vec![];
             for x in 0..self.x {
                 let (cell, v_wall, _) = self.board[x ][y ];
 
                 Self::match_cell_and_wall(
                     cell,
-                    &mut list_of_groups,
-                    &mut current_group,
+                    &mut list_of_sets,
+                    &mut set,
                     v_wall,
                     x ,
                     y ,
                     self.x ,
                 );
             }
-            Self::add_group_to_list_of_groups(&mut list_of_groups, &mut current_group);
+            Self::append_set(&mut list_of_sets, &mut set);
         }
         for x in 0..self.x {
-            let mut current_group = vec![];
+            let mut set = vec![];
             for y in 0..self.y {
                 let (cell, _, h_wall) = self.board[x ][y ];
 
                 Self::match_cell_and_wall(
                     cell,
-                    &mut list_of_groups,
-                    &mut current_group,
+                    &mut list_of_sets,
+                    &mut set,
                     h_wall,
                     x ,
                     y ,
                     self.x ,
                 );
             }
-            Self::add_group_to_list_of_groups(&mut list_of_groups, &mut current_group);
+            Self::append_set(&mut list_of_sets, &mut set);
         }
 
-        return TakingGame::new(list_of_groups);
+        return TakingGame::new(list_of_sets);
     }
 
     ///handles the matching of a cell and following wall, value
     fn match_cell_and_wall(
         cell: Cell,
-        list_of_groups: &mut Vec<Vec<usize>>,
-        current_group: &mut Vec<usize>,
+        sets_of_nodes: &mut Vec<Vec<usize>>,
+        set: &mut Vec<usize>,
         wall: Wall,
         x: usize,
         y: usize,
@@ -85,9 +85,9 @@ impl Pit {
     ) {
         match cell {
             Cell::On => {
-                current_group.push(x + (y * board_x));
+                set.push(x + (y * board_x));
                 match wall {
-                    Wall::Wall => Self::add_group_to_list_of_groups(list_of_groups, current_group),
+                    Wall::Wall => Self::append_set(sets_of_nodes, set),
                     Wall::None => (),
                 }
             }
@@ -95,16 +95,16 @@ impl Pit {
         }
     }
 
-    fn add_group_to_list_of_groups(list_of_groups: &mut Vec<Vec<usize>>, group: &mut Vec<usize>) {
-        //No need to add empty groups
-        if group.is_empty() {
+    fn append_set(sets_of_nodes: &mut Vec<Vec<usize>>, set: &mut Vec<usize>) {
+        //No need to add empty sets
+        if set.is_empty() {
         }
-        //skips redundant empty groups
-        else if group.len() == 1 && list_of_groups.contains(group) {
-            group.clear();
+        //skips redundant empty sets
+        else if set.len() == 1 && sets_of_nodes.contains(set) {
+            set.clear();
         } else {
-            list_of_groups.push(group.clone());
-            group.clear();
+            sets_of_nodes.push(set.clone());
+            set.clear();
         }
     }
 

@@ -2,6 +2,7 @@ pub mod constructor;
 mod new;
 mod impls;
 mod moves;
+mod symmetries;
 pub mod util;
 
 ///A generalized version of any impartial "taking game"

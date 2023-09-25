@@ -1,9 +1,7 @@
 use std::collections::HashMap;
-
-use super::ClosedTakingGamePart;
-
+use super::TakingGame;
 //Implements the symmetry finder for GeneralizedNimGame
-impl ClosedTakingGamePart {
+impl TakingGame {
     ///Tries to find a symmetry by running a recursive algorithm
     pub fn find_symmetry(&self) -> Option<Vec<usize>> {
         //If there isn't an even amount of nodes it's impossible for every node to have a symmetry
@@ -70,7 +68,7 @@ impl ClosedTakingGamePart {
         //generate a new vec without:
         // * the node itself
         // * nodes already in a symmetry
-        // * nodes that are in the same group
+        // * nodes that are in the same set
         let mut final_candidates = vec![];
 
         for i in 0..candidates.len() {

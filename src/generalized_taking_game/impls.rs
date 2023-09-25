@@ -4,12 +4,13 @@ use super::{TakingGame, util};
 
 impl Impartial<TakingGame> for TakingGame{
     fn get_parts(self) -> Vec<TakingGame> {
-        let mut parts: Vec<TakingGame> = split_to_independent_sets_of_groups(self.sets_of_nodes).into_iter().map(|sets| TakingGame::new(sets)).collect();
-        parts.iter_mut().for_each(|part| part.sort());
-        return parts;
+        split_to_independent_sets_of_nodes(self.sets_of_nodes).into_iter().map(|sets| TakingGame::new(sets)).collect()
     }
     fn get_max_nimber(&self) -> usize {
-        self.node_count
+        match self.find_symmetry() {
+            Some(_) => 0,
+            None => self.node_count,
+        }
     }
 
     fn get_unique_moves(&self) -> Vec<TakingGame> {
@@ -19,31 +20,30 @@ impl Impartial<TakingGame> for TakingGame{
 }
 
 
-fn split_to_independent_sets_of_groups(groups: Vec<Vec<usize>>) -> Vec<Vec<Vec<usize>>> {
-    let mut groups = groups;
+fn split_to_independent_sets_of_nodes(mut sets_of_nodes: Vec<Vec<usize>>) -> Vec<Vec<Vec<usize>>> {
     let mut parts = vec![];
 
-    for i in 0..groups.len() {
-        groups[i].sort_unstable();
-        groups[i].dedup();
+    for i in 0..sets_of_nodes.len() {
+        sets_of_nodes[i].sort_unstable();
+        sets_of_nodes[i].dedup();
     }
 
-    while groups.len() != 0 {
-        let mut nodes_in_current_group = groups.swap_remove(0);
-        let mut new_part = vec![nodes_in_current_group.clone()];
+    while sets_of_nodes.len() != 0 {
+        let mut nodes_in_current_set = sets_of_nodes.swap_remove(0);
+        let mut new_part = vec![nodes_in_current_set.clone()];
 
         let mut prev_len = 0;
-        while nodes_in_current_group.len() != prev_len {
+        while nodes_in_current_set.len() != prev_len {
             let mut i = 0;
-            prev_len = nodes_in_current_group.len();
-            while i < groups.len() {
-                if util::have_common_element(&groups[i], &nodes_in_current_group) {
-                    nodes_in_current_group.append(&mut util::remove_subset(
-                        &groups[i],
-                        &nodes_in_current_group,
+            prev_len = nodes_in_current_set.len();
+            while i < sets_of_nodes.len() {
+                if util::have_common_element(&sets_of_nodes[i], &nodes_in_current_set) {
+                    nodes_in_current_set.append(&mut util::remove_subset(
+                        &sets_of_nodes[i],
+                        &nodes_in_current_set,
                     ));
-                    nodes_in_current_group.sort_unstable();
-                    new_part.push(groups.remove(i));
+                    nodes_in_current_set.sort_unstable();
+                    new_part.push(sets_of_nodes.remove(i));
                 } else {
                     i += 1;
                 }

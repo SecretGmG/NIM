@@ -18,11 +18,13 @@ impl TakingGame {
         Self::remove_redundant_sets(&mut sets_of_nodes);
         let set_indices = Self::generate_set_indices(&sets_of_nodes, nodes);
         
-        return TakingGame {
+        let mut taking_game =  TakingGame {
             sets_of_nodes,
             set_indices,
             node_count: nodes,
         };
+        taking_game.sort();
+        return taking_game;
     }
     ///flattens the indecies and then returns the nr of nodes
     fn flatten_and_get_node_count(sets_of_nodes: &mut Vec<Vec<usize>>) -> usize {
@@ -57,8 +59,8 @@ impl TakingGame {
                 continue;
             }
 
-            for potential_bigger_group in &sets_of_nodes[(i + 1)..] {
-                if util::is_subset(&sets_of_nodes[i], potential_bigger_group) {
+            for bigger_set in &sets_of_nodes[(i + 1)..] {
+                if util::is_subset(&sets_of_nodes[i], bigger_set) {
                     sets_of_nodes.remove(i);
                     continue 'outer;
                 }
@@ -97,12 +99,12 @@ impl TakingGame {
         self.sets_of_nodes.sort_by(compare_sorted);
         self.set_indices = Self::generate_set_indices(&self.sets_of_nodes, self.get_node_count());
     }
-    ///gets a vec with each index storing all the groups that contain the node with that index
-    pub fn generate_set_indices(groups: &Vec<Vec<usize>>, nodes: usize) -> Vec<Vec<usize>> {
+    ///gets a vec with each index storing all the set that contain the node with that index
+    pub fn generate_set_indices(sets_of_nodes: &Vec<Vec<usize>>, nodes: usize) -> Vec<Vec<usize>> {
         let mut set_indices = vec![vec![]; nodes ];
 
-        for i in 0..groups.len() {
-            for node in &groups[i] {
+        for i in 0..sets_of_nodes.len() {
+            for node in &sets_of_nodes[i] {
                 set_indices[*node ].push(i );
             }
         }

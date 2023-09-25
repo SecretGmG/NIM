@@ -1,24 +1,42 @@
 mod generalized_taking_game;
 mod pit;
 
-use pit::Pit;
-use generalized_taking_game::constructor::Constructor;
-use std::time::Instant;
 use evaluator::*;
+use generalized_taking_game::constructor::Constructor;
+use pit::Pit;
+use std::time::Instant;
 
 fn main() {
-    print_kayle_nimbers(40);
-    //print_triangle_nimbers(5);
-}
-
-fn print_kayle_nimbers(max: usize){
+    //print_triangle_nimbers(10);
     let mut eval = Evaluator::new();
-    for i in 0..max{
+    let g = Constructor::hyper_cuboid(vec![4, 5]);
+    println!("{}", eval.get_nimber(g.build()));
+
+    let g = Constructor::hyper_cuboid(vec![4, 5]);
+    println!("{}", eval.get_nimber(g.build()));
+}
+mod test {
+    use super::*;
+    #[test]
+    fn sqr2x5() {
+        let mut eval = Evaluator::new();
+        let g = Pit::empty_rect(4, 5).get_generalized();
+        println!("{}", eval.get_nimber(g));
+        let g = Pit::empty_rect(5, 4).get_generalized();
+        println!("{}", eval.get_nimber(g));
+        let g = Pit::empty_rect(4, 3).get_generalized();
+        println!("{}", eval.get_nimber(g));
+        let g = Pit::empty_rect(5, 5).get_generalized();
+        println!("{}", eval.get_nimber(g));
+    }
+}
+fn print_kayle_nimbers(max: usize) {
+    let mut eval = Evaluator::new();
+    for i in 0..max {
         let g = Constructor::kayles(i).build();
         println!("{}:{}", i, eval.get_nimber(g));
     }
 }
-
 
 #[allow(dead_code)]
 fn print_triangle_nimbers(max: usize) {

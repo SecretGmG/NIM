@@ -9,16 +9,16 @@ impl TakingGame {
 
         let mut processed_sets:Vec<&Vec<usize>> = vec![];
 
-        for group in &self.sets_of_nodes {
-            processed_sets.push(group);
-            let (lone_nodes, other_nodes) = self.collect_lone_nodes_and_other_nodes(group);
-            self.append_moves_of_group(lone_nodes, other_nodes, &mut moves);
+        for set_of_nodes in &self.sets_of_nodes {
+            processed_sets.push(set_of_nodes);
+            let (lone_nodes, other_nodes) = self.collect_lone_nodes_and_other_nodes(set_of_nodes);
+            self.append_moves_of_set(lone_nodes, other_nodes, &mut moves);
         }
         moves.sort_unstable();
         moves.dedup();
         return moves;
     }
-    fn append_moves_of_group(
+    fn append_moves_of_set(
         &self,
         lone_nodes: Vec<usize>,
         other_nodes: Vec<usize>,
@@ -39,19 +39,19 @@ impl TakingGame {
             }
         }
     }
-    fn collect_lone_nodes_and_other_nodes(&self, group: &Vec<usize>) -> (Vec<usize>, Vec<usize>) {
-        let mut lone_nodes_in_group = vec![];
-        let mut other_nodes_in_group = vec![];
+    fn collect_lone_nodes_and_other_nodes(&self, set_of_nodes: &Vec<usize>) -> (Vec<usize>, Vec<usize>) {
+        let mut lone_nodes_in_set = vec![];
+        let mut other_nodes_in_set = vec![];
 
-        for node in group {
+        for node in set_of_nodes {
             let node = *node;
             if self.set_indices[node ].len() == 0 {
-                lone_nodes_in_group.push(node);
+                lone_nodes_in_set.push(node);
             } else {
-                other_nodes_in_group.push(node);
+                other_nodes_in_set.push(node);
             }
         }
-        return (lone_nodes_in_group, other_nodes_in_group);
+        return (lone_nodes_in_set, other_nodes_in_set);
     }
 
     fn get_child(
@@ -80,13 +80,13 @@ impl TakingGame {
     pub fn make_move_unchecked(&self, nodes_to_remove: &mut Vec<usize>) -> TakingGame {
         nodes_to_remove.sort_unstable();
 
-        let mut new_groups = vec![];
+        let mut new_sets_of_nodes = vec![];
 
-        for group in &self.sets_of_nodes {
-            new_groups.push(util::remove_subset(group, nodes_to_remove));
+        for set_of_nodes in &self.sets_of_nodes {
+            new_sets_of_nodes.push(util::remove_subset(set_of_nodes, nodes_to_remove));
         }
 
-        let new_game = TakingGame::new(new_groups);
+        let new_game = TakingGame::new(new_sets_of_nodes);
 
         return new_game;
     }

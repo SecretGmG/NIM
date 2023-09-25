@@ -7,8 +7,8 @@ pub struct Constructor {
 }
 impl Constructor {
 
-    pub fn new(groups: Vec<Vec<usize>>) -> Constructor{
-        return Constructor {g: TakingGame::new(groups)};
+    pub fn new(sets_of_nodes: Vec<Vec<usize>>) -> Constructor{
+        return Constructor {g: TakingGame::new(sets_of_nodes)};
     }
 
     pub fn empty() -> Constructor{
@@ -25,36 +25,36 @@ impl Constructor {
         if size == 1 {
             return Constructor::unit();
         }
-        let mut groups = vec![];
+        let mut sets_of_nodes = vec![];
         for i in 1..size{
-            groups.push(vec![i-1, i]);
+            sets_of_nodes.push(vec![i-1, i]);
         }
-        return Constructor::new(groups);
+        return Constructor::new(sets_of_nodes);
     }
     
     #[allow(dead_code)]
     pub fn rand(
         node_count: usize,
-        group_count: usize,
-        min_groups_per_node: usize,
-        max_groups_per_node: usize,
+        set_count: usize,
+        min_sets_per_node: usize,
+        max_sets_per_node: usize,
     ) -> Constructor {
-        let mut groups = vec![vec![]; group_count ];
+        let mut sets_of_nodes = vec![vec![]; set_count ];
         for node in 0..node_count {
-            for _ in 0..(rand::thread_rng().gen_range(min_groups_per_node, max_groups_per_node)) {
-                groups[rand::thread_rng().gen_range(0, group_count) ].push(node);
+            for _ in 0..(rand::thread_rng().gen_range(min_sets_per_node, max_sets_per_node)) {
+                sets_of_nodes[rand::thread_rng().gen_range(0, set_count) ].push(node);
             }
         }
-        return Constructor::new(groups);
+        return Constructor::new(sets_of_nodes);
     }
     
     #[allow(dead_code)]
     pub fn triangle(l: usize) -> Constructor {
-        let mut groups = vec![];
+        let mut sets_of_nodes = vec![];
         for i in 0..l {
-            let mut new_group1 = vec![];
-            let mut new_group2 = vec![];
-            let mut new_group3 = vec![];
+            let mut new_set_of_nodes1 = vec![];
+            let mut new_set_of_nodes2 = vec![];
+            let mut new_set_of_nodes3 = vec![];
             for j in 0..(l - i) {
                 /*
                 12# # #
@@ -62,15 +62,15 @@ impl Constructor {
                 4 5 6 #
                 0 1 2 3
                 */
-                new_group1.push(i + j * l);
-                new_group2.push(j + i * l);
-                new_group3.push(l - 1 - i + j * (l - 1));
+                new_set_of_nodes1.push(i + j * l);
+                new_set_of_nodes2.push(j + i * l);
+                new_set_of_nodes3.push(l - 1 - i + j * (l - 1));
             }
-            groups.push(new_group1);
-            groups.push(new_group2);
-            groups.push(new_group3);
+            sets_of_nodes.push(new_set_of_nodes1);
+            sets_of_nodes.push(new_set_of_nodes2);
+            sets_of_nodes.push(new_set_of_nodes3);
         }
-        return Constructor::new(groups);
+        return Constructor::new(sets_of_nodes);
     }
     #[allow(dead_code)]
     pub fn rect(x: usize, y: usize) -> Constructor {
@@ -119,12 +119,12 @@ impl Constructor {
     }
     #[allow(dead_code)]
     pub fn combine(self, g: TakingGame) -> Constructor{
-        let mut new_groups = self.g.get_sets_of_nodes().clone();
+        let mut new_sets_of_nodes = self.g.get_sets_of_nodes().clone();
         let node_count = self.g.get_node_count();
-        for group in g.get_sets_of_nodes() {
-            new_groups.push(group.iter().map(|n| n + node_count).collect());
+        for set_of_nodes in g.get_sets_of_nodes() {
+            new_sets_of_nodes.push(set_of_nodes.iter().map(|n| n + node_count).collect());
         }
-        return Self::new(new_groups);
+        return Self::new(new_sets_of_nodes);
     }
     pub fn extrude(mut self, l: usize) -> Constructor {
         let mut new_sets_of_nodes = self.g.get_sets_of_nodes().clone();
@@ -132,11 +132,11 @@ impl Constructor {
 
         for set in self.g.get_sets_of_nodes() {
             for offset in 0..l {
-                let mut new_group = vec![];
+                let mut new_set_of_nodes = vec![];
                 for node in set {
-                    new_group.push(node + offset * node_count);
+                    new_set_of_nodes.push(node + offset * node_count);
                 }
-                new_sets_of_nodes.push(new_group);
+                new_sets_of_nodes.push(new_set_of_nodes);
             }
         }
         for node in 0..node_count {
