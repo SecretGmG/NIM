@@ -2,6 +2,7 @@ pub mod constructor;
 mod new;
 mod impls;
 mod moves;
+mod tests;
 mod symmetries;
 pub mod util;
 
