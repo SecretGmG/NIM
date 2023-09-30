@@ -1,4 +1,5 @@
 mod display;
+pub mod impls;
 pub mod new;
 pub mod reconstruct;
 

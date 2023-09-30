@@ -4,7 +4,7 @@ use super::util;
 
 //implements the generation of moves;
 impl TakingGame {
-    pub fn get_deduped_moves(&self) -> Vec<TakingGame> {
+    pub fn get_moves(&self) -> Vec<TakingGame> {
         let mut moves = vec![];
 
         let mut processed_sets:Vec<&Vec<usize>> = vec![];
@@ -14,8 +14,6 @@ impl TakingGame {
             let (lone_nodes, other_nodes) = self.collect_lone_nodes_and_other_nodes(set_of_nodes);
             self.append_moves_of_set(lone_nodes, other_nodes, &mut moves);
         }
-        moves.sort_unstable();
-        moves.dedup();
         return moves;
     }
     fn append_moves_of_set(

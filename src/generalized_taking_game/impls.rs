@@ -7,6 +7,8 @@ impl Impartial<TakingGame> for TakingGame{
         split_to_independent_sets_of_nodes(self.sets_of_nodes).into_iter().map(|sets| TakingGame::new(sets)).collect()
     }
     fn get_max_nimber(&self) -> usize {
+        //return self.get_node_count();
+        
         match self.find_symmetry() {
             Some(_) => 0,
             None => self.node_count,
@@ -14,9 +16,11 @@ impl Impartial<TakingGame> for TakingGame{
     }
 
     fn get_unique_moves(&self) -> Vec<TakingGame> {
-        self.get_deduped_moves()
+        let mut moves = self.get_moves();
+        moves.sort_unstable();
+        moves.dedup();
+        moves
     }
-    
 }
 
 
@@ -54,4 +58,27 @@ fn split_to_independent_sets_of_nodes(mut sets_of_nodes: Vec<Vec<usize>>) -> Vec
         }
     }
     return parts;
+}
+#[cfg(test)]
+mod test{
+    use evaluator::Evaluator;
+
+    use crate::generalized_taking_game::constructor::Constructor;
+
+    #[test]
+    fn test_many(){
+        let mut eval = Evaluator::new();
+        let g = Constructor::hyper_cube(2, 4);
+        assert_eq!(eval.get_nimber(g.build()), 0);
+        let g = Constructor::hyper_cube(2, 3);
+        assert_eq!(eval.get_nimber(g.build()), 0);
+        let g = Constructor::kayles(40);
+        assert_eq!(eval.get_nimber(g.build()), 1);
+        let g = Constructor::hyper_tetrahedron(10);
+        assert_eq!(eval.get_nimber(g.build()), 2);
+        let g = Constructor::triangle(4);
+        assert_eq!(eval.get_nimber(g.build()), 0);
+        let g = Constructor::hyper_cuboid(vec![2,2,3]);
+        assert_eq!(eval.get_nimber(g.build()), 0);
+    }
 }

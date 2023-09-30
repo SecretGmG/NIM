@@ -8,6 +8,19 @@ impl TakingGame {
         if self.node_count % 2 != 0 {
             return None;
         }
+        if 0 != (0..self.get_node_count())
+            .into_iter()
+            .map(|node| {
+                self.set_indices[node]
+                    .iter()
+                    .map(|set_index| self.sets_of_nodes[*set_index].len())
+                    .fold(0, |a, b| a << 1 ^ b)
+            })
+            .fold(0, |a, b| a ^ b)
+        {
+            return None;
+        }
+
         let sets_of_candidates = self.get_sets_of_candidates();
 
         if sets_of_candidates.iter().any(|v| (v.len() % 2) != 0) {
@@ -23,7 +36,7 @@ impl TakingGame {
     fn get_sets_of_candidates(&self) -> Vec<Vec<usize>> {
         //key: sorted amount of
         //value: vec of nodes that have neighbours with exactly this amount of neighbours
-        let mut map: HashMap<Vec<usize>, Vec<usize>> = HashMap::new();
+        let mut map: HashMap<Vec<usize>, Vec<usize>> = HashMap::with_capacity(self.node_count);
 
         for node in 0..self.node_count {
             //generate list of neighbours_lengths
@@ -32,17 +45,6 @@ impl TakingGame {
                 .iter()
                 .map(|set_index| self.sets_of_nodes[*set_index].len())
                 .collect();
-            /*
-            let neighbour_pattern: Vec<Vec<usize>> = self
-            .get_neighbours(node)
-            .map(|n| {
-                self.set_indices[*n]
-                .iter()
-                .map(|set_index| self.sets_of_nodes[*set_index].len())
-                .collect()
-            })
-            .collect();
-            */
 
             //push nodes that have the same neighbour pattern
             match map.get_mut(&set_pattern) {
