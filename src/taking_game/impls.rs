@@ -62,8 +62,7 @@ fn split_to_independent_sets_of_nodes(mut sets_of_nodes: Vec<Vec<usize>>) -> Vec
 #[cfg(test)]
 mod test{
     use evaluator::Evaluator;
-
-    use crate::generalized_taking_game::constructor::Constructor;
+    use crate::taking_game::constructor::Constructor;
 
     #[test]
     fn test_many(){

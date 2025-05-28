@@ -3,15 +3,15 @@ pub mod impls;
 pub mod new;
 pub mod reconstruct;
 
-use super::generalized_taking_game::TakingGame;
+use crate::taking_game::TakingGame;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Cell {
     Off,
     On,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Wall {
     None,
     Wall,
@@ -20,7 +20,7 @@ pub type CellWalls = (Cell, Wall, Wall);
 
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Pit {
     ///first x then y
     board: Vec<Vec<CellWalls>>,
@@ -35,7 +35,6 @@ impl Pit {
 
     pub fn get_generalized(&self) -> TakingGame {
         let mut list_of_sets = vec![];
-
         for y in 0..self.y {
             let mut set = vec![];
             for x in 0..self.x {
@@ -70,7 +69,6 @@ impl Pit {
             }
             Self::append_set(&mut list_of_sets, &mut set);
         }
-
         return TakingGame::new(list_of_sets);
     }
 

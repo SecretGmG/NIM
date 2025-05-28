@@ -1,5 +1,5 @@
 use super::TakingGame;
-use rand::Rng;
+use rand::{rng,Rng};
 use std::vec;
 
 pub struct Constructor {
@@ -41,8 +41,8 @@ impl Constructor {
     ) -> Constructor {
         let mut sets_of_nodes = vec![vec![]; set_count ];
         for node in 0..node_count {
-            for _ in 0..(rand::thread_rng().gen_range(min_sets_per_node, max_sets_per_node)) {
-                sets_of_nodes[rand::thread_rng().gen_range(0, set_count) ].push(node);
+            for _ in 0..(rng().random_range(min_sets_per_node..max_sets_per_node)) {
+                sets_of_nodes[rng().random_range(..set_count) ].push(node);
             }
         }
         return Constructor::new(sets_of_nodes);

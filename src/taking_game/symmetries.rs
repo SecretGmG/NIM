@@ -183,31 +183,32 @@ impl TakingGame {
 
 #[cfg(test)]
 mod tests {
-    use crate::generalized_taking_game::constructor;
+
+    use crate::taking_game::constructor::Constructor;
 
     #[test]
     fn test_hypercube_2_2() {
-        let g = constructor::Constructor::hyper_cube(2, 2).build();
+        let g = Constructor::hyper_cube(2, 2).build();
         assert!(g.find_symmetry().is_some());
     }
     #[test]
     fn test_hypercube_4_4() {
-        let g = constructor::Constructor::hyper_cube(4, 4).build();
+        let g = Constructor::hyper_cube(4, 4).build();
         assert!(g.find_symmetry().is_some());
     }
     #[test]
     fn test_hypercube_2_32() {
-        let g = constructor::Constructor::hyper_cube(2, 32).build();
+        let g = Constructor::hyper_cube(2, 32).build();
         assert!(g.find_symmetry().is_some());
     }
     #[test]
     fn test_hypercube_3_3() {
-        let g = constructor::Constructor::hyper_cube(3, 3).build();
+        let g = Constructor::hyper_cube(3, 3).build();
         assert!(g.find_symmetry().is_none());
     }
     #[test]
     fn test_hypertetrahedron_16() {
-        let g = constructor::Constructor::hyper_tetrahedron(15).build();
+        let g = Constructor::hyper_tetrahedron(15).build();
         assert!(g.find_symmetry().is_none());
     }
 }

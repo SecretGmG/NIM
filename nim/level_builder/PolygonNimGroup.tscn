@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://c1eaqfquttg6x"]
+
+[ext_resource type="Script" path="res://level_builder/level_builder_base/scripts/nim_group.gd" id="1_ij2im"]
+[ext_resource type="Script" path="res://level_builder/level_builder_base/scripts/polygon_nim_group_2d.gd" id="2_otvev"]
+
+[node name="PolygonNimGroup" type="Node2D"]
+script = ExtResource("1_ij2im")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(3, 4, 247, 100, 64, 261)
+script = ExtResource("2_otvev")

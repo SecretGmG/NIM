@@ -1,4 +1,4 @@
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 
 use super::{Pit,Cell,Wall};
 
@@ -44,11 +44,11 @@ impl Pit {
     ) -> Pit {
         let mut board = vec![vec![(Cell::Off, Wall::None, Wall::None); y ]; x ];
 
-        let mut rng = thread_rng();
+        let mut rng = rng();
         for i in 0..x {
             for j in 0..y {
                 let (off, on) = cell_type_distribution;
-                let rand_int = rng.gen_range(0, off + on);
+                let rand_int = rng.random_range(..(off + on));
                 let cell = if rand_int < off {
                     Cell::Off
                 } else {
@@ -56,7 +56,7 @@ impl Pit {
                 };
 
                 let (none, some) = wall_type_distribution;
-                let rand_int = rng.gen_range(0, none + some);
+                let rand_int = rng.random_range(..(none + some));
                 let h_wall = if rand_int < none {
                     Wall::None
                 } else {
@@ -65,14 +65,14 @@ impl Pit {
 
                 let (none, some) = wall_type_distribution;
                 let v_wall;
-                let rand_int = rng.gen_range(0, none + some);
+                let rand_int = rng.random_range(..(none + some));
                 if rand_int < none {
                     v_wall = Wall::None
                 } else {
                     v_wall = Wall::Wall
                 }
 
-                board[i ][j ] = (cell, h_wall, v_wall);
+                board[i][j] = (cell, h_wall, v_wall);
             }
         }
         return Pit {

@@ -1,4 +1,4 @@
-use crate::generalized_taking_game::TakingGame;
+use crate::taking_game::TakingGame;
 use super::{Pit, Cell, Wall};
 
 const ON: (Cell, Wall, Wall) = (Cell::On, Wall::None, Wall::None);

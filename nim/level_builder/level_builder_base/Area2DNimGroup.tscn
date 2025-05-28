@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://oqenisdqxwbd"]
+
+[ext_resource type="Script" path="res://level_builder/level_builder_base/scripts/polygon_nim_group_2d.gd" id="1_tt4un"]
+
+[node name="Area2dNimGroup" type="Area2D"]
+script = ExtResource("1_tt4un")

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://m2rd01ctgr5f"]
+
+[ext_resource type="Script" path="res://level_builder/level_builder_base/scripts/nim_node.gd" id="1_4qrfb"]
+
+[node name="NimNode" type="Node2D"]
+script = ExtResource("1_4qrfb")

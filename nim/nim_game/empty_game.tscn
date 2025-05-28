@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://dt72ycvla63nx"]
+
+[sub_resource type="Curve2D" id="Curve2D_aphgq"]
+bake_interval = 6.6
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 694, 202, 0, 0, 0, 0, 558, 128, 0, 0, 0, 0, 416, 69, 0, 0, 0, 0, 195, 141)
+}
+point_count = 4
+
+[node name="EmptyGame" type="Node2D"]
+
+[node name="Path2D" type="Path2D" parent="."]
+curve = SubResource("Curve2D_aphgq")
