@@ -61,8 +61,8 @@ fn test_reconstruction(pit: Pit) {
     }
     let c = &g.get_parts()[0];
     println!("{:?}", c);
-    //let reconstructed = Pit::try_reconstruct(c).unwrap();
-    //println!("{}", reconstructed);
+    let reconstructed = Pit::reconstruct(c).unwrap();
+    println!("{}", reconstructed);
 }
 #[allow(dead_code)]
 fn test_pit_game(pit: Pit) {

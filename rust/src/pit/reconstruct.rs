@@ -5,7 +5,7 @@ const ON: (Cell, Wall, Wall) = (Cell::On, Wall::None, Wall::None);
 const OFF: (Cell, Wall, Wall) = (Cell::Off, Wall::None, Wall::None);
 
 impl Pit {
-    pub fn try_reconstruct(g: &TakingGame) -> Option<Pit> {
+    pub fn reconstruct(g: &TakingGame) -> Option<Pit> {
         if let Some(value) = try_get_basic_case(g) {
             return value;
         }
