@@ -30,7 +30,7 @@ pub struct Pit {
 
 impl Pit {
     pub fn make_move() -> Option<Pit> {
-        todo!();
+        unimplemented!();
     }
 
     pub fn get_generalized(&self) -> TakingGame {
@@ -95,16 +95,15 @@ impl Pit {
     }
 
     fn append_set(sets_of_nodes: &mut Vec<Vec<usize>>, set: &mut Vec<usize>) {
-        //No need to add empty sets
         if set.is_empty() {
+            return;
         }
-        //skips redundant empty sets
-        else if set.len() == 1 && sets_of_nodes.contains(set) {
+        if set.len() == 1 && sets_of_nodes.iter().any(|s| s == set) {
             set.clear();
-        } else {
-            sets_of_nodes.push(set.clone());
-            set.clear();
+            return;
         }
+        sets_of_nodes.push(set.clone());
+        set.clear();
     }
 
     fn new(board: Vec<Vec<(Cell, Wall, Wall)>>) -> Pit {

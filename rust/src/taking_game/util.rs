@@ -1,5 +1,7 @@
 use std::cmp::Ordering;
 
+// #TODO use sorted-vec / sorted-set here
+
 //checks if two a sorted array is a subset of another sorted array
 pub fn is_subset(arr1: &Vec<usize>, arr2: &Vec<usize>) -> bool {
     let mut index1 = 0;

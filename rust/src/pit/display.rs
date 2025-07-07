@@ -45,10 +45,10 @@ impl fmt::Display for Pit {
                     Cell::On => display_string.push('O'),
                 }
 
-                match v_wall {
-                    Wall::None => display_string.push(' '),
-                    Wall::Wall => display_string.push('│'),
-                }
+                display_string.push(match v_wall {
+                    Wall::None => ' ',
+                    Wall::Wall => '│',
+                });
             }
 
             display_string.push('\n');
@@ -65,24 +65,24 @@ impl fmt::Display for Pit {
                 let next_v_wall = self.get_v_wall_at(x, y + 1);
                 let next_h_wall = self.get_h_wall_at(x + 1, y);
 
-                match (v_wall, h_wall, next_v_wall, next_h_wall) {
-                    (Wall::Wall, Wall::Wall, Wall::Wall, Wall::Wall) => display_string.push('┼'),
-                    (Wall::Wall, Wall::Wall, Wall::Wall, Wall::None) => display_string.push('┤'),
-                    (Wall::Wall, Wall::Wall, Wall::None, Wall::Wall) => display_string.push('┴'),
-                    (Wall::Wall, Wall::Wall, Wall::None, Wall::None) => display_string.push('┘'),
-                    (Wall::Wall, Wall::None, Wall::Wall, Wall::Wall) => display_string.push('├'),
-                    (Wall::Wall, Wall::None, Wall::Wall, Wall::None) => display_string.push('│'),
-                    (Wall::Wall, Wall::None, Wall::None, Wall::Wall) => display_string.push('└'),
-                    (Wall::Wall, Wall::None, Wall::None, Wall::None) => display_string.push(' '),
-                    (Wall::None, Wall::Wall, Wall::Wall, Wall::Wall) => display_string.push('┬'),
-                    (Wall::None, Wall::Wall, Wall::Wall, Wall::None) => display_string.push('┐'),
-                    (Wall::None, Wall::Wall, Wall::None, Wall::Wall) => display_string.push('─'),
-                    (Wall::None, Wall::Wall, Wall::None, Wall::None) => display_string.push(' '),
-                    (Wall::None, Wall::None, Wall::Wall, Wall::Wall) => display_string.push('┌'),
-                    (Wall::None, Wall::None, Wall::Wall, Wall::None) => display_string.push(' '),
-                    (Wall::None, Wall::None, Wall::None, Wall::Wall) => display_string.push(' '),
-                    (Wall::None, Wall::None, Wall::None, Wall::None) => display_string.push(' '),
-                }
+                display_string.push (match (v_wall, h_wall, next_v_wall, next_h_wall) {
+                    (Wall::Wall, Wall::Wall, Wall::Wall, Wall::Wall) => '┼',
+                    (Wall::Wall, Wall::Wall, Wall::Wall, Wall::None) => '┤',
+                    (Wall::Wall, Wall::Wall, Wall::None, Wall::Wall) => '┴',
+                    (Wall::Wall, Wall::Wall, Wall::None, Wall::None) => '┘',
+                    (Wall::Wall, Wall::None, Wall::Wall, Wall::Wall) => '├',
+                    (Wall::Wall, Wall::None, Wall::Wall, Wall::None) => '│',
+                    (Wall::Wall, Wall::None, Wall::None, Wall::Wall) => '└',
+                    (Wall::Wall, Wall::None, Wall::None, Wall::None) => ' ',
+                    (Wall::None, Wall::Wall, Wall::Wall, Wall::Wall) => '┬',
+                    (Wall::None, Wall::Wall, Wall::Wall, Wall::None) => '┐',
+                    (Wall::None, Wall::Wall, Wall::None, Wall::Wall) => '─',
+                    (Wall::None, Wall::Wall, Wall::None, Wall::None) => ' ',
+                    (Wall::None, Wall::None, Wall::Wall, Wall::Wall) => '┌',
+                    (Wall::None, Wall::None, Wall::Wall, Wall::None) => ' ',
+                    (Wall::None, Wall::None, Wall::None, Wall::Wall) => ' ',
+                    (Wall::None, Wall::None, Wall::None, Wall::None) => ' ',
+                });
             }
             display_string.push('\n');
         }

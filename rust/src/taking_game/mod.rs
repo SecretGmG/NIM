@@ -5,8 +5,11 @@ mod moves;
 mod symmetries;
 pub mod util;
 
-///A generalized version of any impartial "taking game"
-///implements many tools to effitiently find the nimber of any complex taking game
+/// A generalized representation of an impartial "taking game".
+/// 
+/// This struct implements tools to efficiently compute the nimber 
+/// (Grundy number) for complex taking games by modeling them as 
+/// collections of node sets.
 #[derive(Hash, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct TakingGame {
     sets_of_nodes: Vec<Vec<usize>>,

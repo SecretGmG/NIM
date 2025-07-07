@@ -12,7 +12,14 @@ impl TakingGame {
             node_count: 0,
         };
     }
-    ///creates and simplifies a GeneralisedTakingGame from a vec<vec<usize>>
+    /// Constructs a canonicalized TakingGame from a collection of node sets.
+    /// 
+    /// This function:
+    /// - Normalizes node indices to a compact range starting from 0
+    /// - Deduplicates and sorts each set
+    /// - Removes redundant (subset) sets
+    /// - Computes and stores set indices per node
+    /// - Reorders node indices to canonical form
     pub fn new(mut sets_of_nodes: Vec<Vec<usize>>) -> TakingGame {
         let nodes = Self::flatten_and_get_node_count(&mut sets_of_nodes);
         Self::remove_redundant_sets(&mut sets_of_nodes);
@@ -24,7 +31,7 @@ impl TakingGame {
             node_count: nodes,
         };
         taking_game.sort();
-        return taking_game;
+        taking_game
     }
     ///flattens the indecies and then returns the nr of nodes
     fn flatten_and_get_node_count(sets_of_nodes: &mut Vec<Vec<usize>>) -> usize {
@@ -42,7 +49,7 @@ impl TakingGame {
                 }
             }
         };
-        return indices.len() ;
+        indices.len()
     }
     ///removes sets that are totally contained in other sets
     fn remove_redundant_sets(sets_of_nodes: &mut Vec<Vec<usize>>) {
@@ -73,9 +80,7 @@ impl TakingGame {
             self.sort_sets_of_nodes_by_indices();
             let permutation = self.generate_index_remaping();
             if {
-                (0..permutation.len())
-                    .zip(&permutation)
-                    .all(|(a, b)| a  == *b)
+                permutation.iter().enumerate().all(|(a, b)| a  == *b)
             } {
                 return;
             }
@@ -89,8 +94,7 @@ impl TakingGame {
     fn generate_index_remaping(&self) -> Vec<usize> {
         let mut inverse_maping: Vec<usize> = (0..self.get_node_count()).collect();
         inverse_maping.sort_by(|a, b| util::node_comparer(*a, *b, &self.set_indices));
-        let maping = util::inverse_permutation(inverse_maping);
-        return maping;
+        util::inverse_permutation(inverse_maping)
     }
 
     ///sorts each set of nodes and sorts the sets of nodes
@@ -111,6 +115,6 @@ impl TakingGame {
         for i in 0..nodes {
             set_indices[i ].sort_unstable();
         }
-        return set_indices;
+        set_indices
     }
 }
