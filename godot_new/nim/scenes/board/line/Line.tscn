@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3x1wk6mcinnx"]
+
+[ext_resource type="Script" uid="uid://58tfnmmnf3wj" path="res://scenes/board/line/line_controller.gd" id="1_m8nsx"]
+[ext_resource type="Script" uid="uid://b78ojbaeswk3j" path="res://scenes/board/line/line_view.gd" id="2_j8xgu"]
+
+[node name="LineController" type="Node2D"]
+script = ExtResource("1_m8nsx")
+metadata/_custom_type_script = "uid://58tfnmmnf3wj"
+
+[node name="LineView" type="Node2D" parent="."]
+script = ExtResource("2_j8xgu")
+metadata/_custom_type_script = "uid://b78ojbaeswk3j"

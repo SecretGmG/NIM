@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://cn2xgoy22vmos"]
+
+[ext_resource type="Script" uid="uid://lwthk36dg4q4" path="res://tests/first_board_test.gd" id="1_flpie"]
+[ext_resource type="Script" uid="uid://dnm82v5p5fo6f" path="res://scenes/board/board_controller.gd" id="1_rw0cm"]
+
+[node name="FirstBoardTest" type="Node2D"]
+script = ExtResource("1_flpie")
+
+[node name="BoardController" type="Node2D" parent="."]
+script = ExtResource("1_rw0cm")
+metadata/_custom_type_script = "uid://dnm82v5p5fo6f"

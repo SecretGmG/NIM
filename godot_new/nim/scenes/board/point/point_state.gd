@@ -1,0 +1,7 @@
+class_name PointState 
+enum {
+	CONTROL_VISIBLE,
+	CONTROL_HIDDEN,
+	DEFAULT,
+	ACTIVATED
+}
