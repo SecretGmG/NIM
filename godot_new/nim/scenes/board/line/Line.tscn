@@ -10,3 +10,7 @@ metadata/_custom_type_script = "uid://58tfnmmnf3wj"
 [node name="LineView" type="Node2D" parent="."]
 script = ExtResource("2_j8xgu")
 metadata/_custom_type_script = "uid://b78ojbaeswk3j"
+
+[node name="Area2D" type="Area2D" parent="LineView"]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="LineView/Area2D"]

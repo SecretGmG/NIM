@@ -12,6 +12,8 @@ signal line_exited(line_id : int)
 signal point_clicked(point_id : int)
 signal line_clicked(line_id : int)
 
+signal point_moved(point_id : int)
+
 # Core board state: points, lines, and their relationships
 var next_point_id : int = 0
 var next_line_id : int = 0
@@ -70,15 +72,48 @@ func get_point(point_id) -> PointController:
 func get_line(line_id) -> LineController:
 	return lines[line_id]
 
+func set_line_focused(line_id, focused):
+	var vi : VisualInfo = lines[line_id].visual_info
+	vi.focused = focused
+	lines[line_id].set_visual_info(vi)
+
+func set_line_possible_to_select(line_id, possible_to_select):
+	var vi : VisualInfo = lines[line_id].visual_info
+	vi.possible_to_select = possible_to_select
+	lines[line_id].set_visual_info(vi)
+
+func set_line_selected(line_id, selected):
+	var vi : VisualInfo = lines[line_id].visual_info
+	vi.selected = selected
+	lines[line_id].set_visual_info(vi)
+
+func set_point_focused(point_id, focused):
+	var vi : VisualInfo = points[point_id].visual_info
+	vi.focused = focused
+	points[point_id].set_visual_info(vi)
+	
+func set_point_possible_to_select(point_id, possible_to_select):
+	var vi : VisualInfo = points[point_id].visual_info
+	vi.possible_to_select = possible_to_select
+	points[point_id].set_visual_info(vi)
+
+func set_point_selected(point_id, selected):
+	var vi : VisualInfo = points[point_id].visual_info
+	vi.selected = selected
+	points[point_id].set_visual_info(vi)
+
+func set_point_state(point_id, state : int):
+	points[point_id].set_state(state)
+
 func spawn_point() -> int:
 	var point = POINT_SCENE.instantiate().init(next_point_id, self)
 	add_child(point)
-	point.exited.connect(_on_line_exited)
+	point.exited.connect(_on_point_exited)
 	point.entered.connect(_on_point_entered)
 	point.clicked.connect(_on_point_clicked)
 	point.moved.connect(_on_point_moved)
 	points[next_point_id] = point
-	next_point_id += 1
+	next_point_id = next_point_id + 1
 	return point.id
 
 func spawn_line() -> int:
@@ -88,5 +123,5 @@ func spawn_line() -> int:
 	line.entered.connect(_on_line_entered)
 	line.clicked.connect(_on_line_clicked)
 	lines[next_line_id] = line
-	next_line_id += 1
+	next_line_id = next_line_id + 1
 	return line.id

@@ -15,9 +15,9 @@ var visual_info : VisualInfo = VisualInfo.new()
 
 @onready var view : PointView = $PointView
 
-func init(id : int, controller : BoardController) -> PointController:
-	self.id = id
-	self.controller = controller
+func init(_id : int, _controller : BoardController) -> PointController:
+	self.id = _id
+	self.controller = _controller
 	return self
 
 func _ready():
@@ -38,11 +38,11 @@ func _on_moved():
 	moved.emit(id)
 
 
-func set_state(state: int):
-	self.state = state
+func set_state(_state: int):
+	self.state = _state
 	view.update()
 
-func set_visual_info(visual_info : VisualInfo):
-	self.visual_info = visual_info
+func set_visual_info(_visual_info : VisualInfo):
+	self.visual_info = _visual_info
 	view.update()
 	
