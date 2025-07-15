@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3 uid="uid://ds1yjvte4duw1"]
+
+[ext_resource type="Script" uid="uid://cfwiigxlp2nv" path="res://scenes/editor/editor_view.gd" id="1_onfn8"]
+
+[node name="EditorView" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_onfn8")
+metadata/_custom_type_script = "uid://cfwiigxlp2nv"
+
+[node name="Background" type="ColorRect" parent="."]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+color = Color(0.125911, 0.125911, 0.125911, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -118.0
+offset_right = 118.0
+offset_bottom = 31.0
+grow_horizontal = 2
+
+[node name="AddLineButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "Add Line"
+
+[node name="SaveGameButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "Save Game"
+
+[node name="LoadGameButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "Load Game"

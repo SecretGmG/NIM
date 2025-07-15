@@ -1,0 +1,14 @@
+[configuration]
+entry_symbol = "gdext_rust_init"
+compatibility_minimum = 4.1
+reloadable = true
+
+[libraries]
+linux.debug.x86_64 =     "res://../rust/target/debug/libnim_bot.so"
+linux.release.x86_64 =   "res://../rust/target/release/libnim_bot.so"
+windows.debug.x86_64 =   "res://../rust/target/debug/nim_bot.dll"
+windows.release.x86_64 = "res://../rust/target/release/nim_bot.dll"
+macos.debug =            "res://../rust/target/debug/libnim_bot.dylib"
+macos.release =          "res://../rust/target/release/libnim_bot.dylib"
+macos.debug.arm64 =      "res://../rust/target/debug/libnim_bot.dylib"
+macos.release.arm64 =    "res://../rust/target/release/libnim_bot.dylib"

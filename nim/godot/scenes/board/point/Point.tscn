@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3 uid="uid://cbobsr3cqj1io"]
+
+[ext_resource type="Script" uid="uid://bevejfo5stw5s" path="res://scenes/board/point/point_controller.gd" id="1_l5qyj"]
+[ext_resource type="Script" uid="uid://cwtsf42clahuf" path="res://scenes/board/point/point_view.gd" id="2_w7g2c"]
+[ext_resource type="Texture2D" uid="uid://d4dlmqdfy15ux" path="res://assets/textures/node_control_visible.svg" id="3_tqwjp"]
+[ext_resource type="Texture2D" uid="uid://b4xqthwsicy44" path="res://assets/textures/node_default.svg" id="3_w7g2c"]
+[ext_resource type="Texture2D" uid="uid://bg7jxtgm0llfa" path="res://assets/textures/node_activated.svg" id="5_6x6uh"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6x6uh"]
+
+[node name="PointController" type="Node2D"]
+script = ExtResource("1_l5qyj")
+metadata/_custom_type_script = "uid://bevejfo5stw5s"
+
+[node name="PointView" type="Node2D" parent="."]
+z_index = 10
+script = ExtResource("2_w7g2c")
+metadata/_custom_type_script = "uid://cwtsf42clahuf"
+
+[node name="Default" type="Node2D" parent="PointView"]
+visible = false
+
+[node name="SpriteDefault" type="Sprite2D" parent="PointView/Default"]
+texture = ExtResource("3_w7g2c")
+
+[node name="Activated" type="Node2D" parent="PointView"]
+visible = false
+
+[node name="SpriteActivated" type="Sprite2D" parent="PointView/Activated"]
+texture = ExtResource("5_6x6uh")
+
+[node name="Control" type="Node2D" parent="PointView"]
+visible = false
+
+[node name="SpriteControl" type="Sprite2D" parent="PointView/Control"]
+texture = ExtResource("3_tqwjp")
+offset = Vector2(12.5, 12.5)
+
+[node name="Hidden" type="Node2D" parent="PointView"]
+
+[node name="SpriteHidden" type="Sprite2D" parent="PointView/Hidden"]
+
+[node name="Area2D" type="Area2D" parent="PointView"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PointView/Area2D"]
+shape = SubResource("CircleShape2D_6x6uh")
+
+[connection signal="item_rect_changed" from="PointView" to="." method="_on_moved"]
