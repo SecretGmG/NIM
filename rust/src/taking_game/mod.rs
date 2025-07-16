@@ -8,6 +8,7 @@ pub mod new;
 pub mod symmetries;
 pub mod util;
 
+
 /// A generalized representation of an impartial "taking game".
 /// 
 /// This struct implements tools to efficiently compute the nimber 
@@ -20,6 +21,7 @@ pub struct TakingGame {
     node_count: usize,
 }
 impl TakingGame {
+    
     pub fn get_sets_of_nodes(&self) -> &Vec<SortedSet<usize>> {
         &self.sets_of_nodes
     }

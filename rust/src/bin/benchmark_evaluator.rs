@@ -38,12 +38,7 @@ fn main() {
     println!("Cache entries: {:.6?}", eval.get_cache_size());
 }
 
-//cargo run --bin benchmark_evaluator --no-default-features -- --optimized
-//Time elapsed: 14.361108s
-//Cache entries: 4898
 
-
-//cargo run --bin benchmark_evaluator -- --optimized
-// ~ 17%
-//Time elapsed: 14.985881s
-//Cache entries: 4898
+//cargo run --release --bin benchmark_evaluator
+//Time elapsed: 2.227720s
+//Cache entries: 4922

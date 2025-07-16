@@ -9,7 +9,7 @@ fn main(){
         println!("how many kayle nimbers do you want to see?");
         let mut input = String::new();
         stdin().read_line(&mut input).expect("line could not be read");
-        let max : usize = input.parse().expect("could not be parsed to integer");
+        let max : usize = input.trim().parse().expect("could not be parsed to integer");
 
     for i in 0..max {
         let g = Constructor::triangle(i).build();

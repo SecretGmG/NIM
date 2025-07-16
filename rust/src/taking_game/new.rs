@@ -8,7 +8,7 @@ impl TakingGame {
     const MAX_SORT_STEPS: usize = 0;
 
     #[cfg(not(feature = "no_sort"))]
-    const MAX_SORT_STEPS: usize = 16;
+    const MAX_SORT_STEPS: usize = 256;
 
     #[allow(dead_code)]
     ///creates an empty GeneralizedNimGame
@@ -43,21 +43,24 @@ impl TakingGame {
     fn flatten_and_get_node_count(
         mut sets_of_nodes: Vec<SortedSet<usize>>,
     ) -> (Vec<SortedSet<usize>>, usize) {
-        let indices: SortedSet<usize> = sets_of_nodes
+        let mut all_nodes: Vec<usize> = sets_of_nodes
             .iter()
-            .fold(SortedSet::new(), |a, b| util::merge(&a, b));
-        let mut map = HashMap::new();
-        for i in 0..indices.len() {
-            map.insert(indices[i], i);
+            .flat_map(|s| s.iter())
+            .copied()
+            .collect();
+        all_nodes.sort_unstable();
+        all_nodes.dedup();
+
+        let mut map = HashMap::with_capacity(all_nodes.len());
+        for (i, val) in all_nodes.iter().enumerate() {
+            map.insert(*val, i);
         }
-        {
-            for i in 0..sets_of_nodes.len() {
-                sets_of_nodes[i] = SortedSet::from_unsorted(
-                    sets_of_nodes[i].iter().map(|node| map[node]).collect(),
-                );
-            }
-        };
-        (sets_of_nodes, indices.len())
+
+        for set in &mut sets_of_nodes {
+            *set = SortedSet::from_unsorted(set.iter().map(|x| map[x]).collect());
+        }
+
+        (sets_of_nodes, all_nodes.len())
     }
     ///removes sets that are totally contained in other sets
     fn remove_redundant_sets(mut sets_of_nodes: Vec<SortedSet<usize>>) -> Vec<SortedSet<usize>> {
@@ -128,7 +131,6 @@ impl TakingGame {
     fn sort_sets_of_nodes_by_indices(sets_of_nodes: &mut Vec<SortedSet<usize>>) {
         sets_of_nodes.sort_by(|set1, set2| util::compare_sorted(set1, set2));
     }
-    
 }
 #[cfg(test)]
 mod tests {
