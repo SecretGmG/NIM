@@ -3,7 +3,7 @@ use sorted_vec::SortedSet;
 use crate::taking_game::util;
 
 use super::TakingGame;
-use std::{collections::HashMap, hash::Hash};
+use std::collections::HashMap;
 
 impl TakingGame {
 

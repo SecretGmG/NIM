@@ -2,10 +2,10 @@ use std::hash::{Hasher, Hash};
 
 use sorted_vec::SortedSet;
 
+pub mod impls;
 pub mod constructor;
-mod new;
-mod impls;
-mod symmetries;
+pub mod new;
+pub mod symmetries;
 pub mod util;
 
 /// A generalized representation of an impartial "taking game".
@@ -36,3 +36,4 @@ impl Hash for TakingGame {
         self.sets_of_nodes.hash(state)
     }
 }
+
