@@ -100,8 +100,14 @@ impl TakingGame {
     }
     fn apply_permutation(sets: &mut Vec<SortedSet<usize>>, perm: &Vec<usize>) {
         for set in sets.iter_mut() {
-            *set = SortedSet::from_unsorted(set.iter().map(|&x| perm[x]).collect());
+            let mut new_set: Vec<usize> = set.iter().map(|&x| perm[x]).collect();
+            new_set.sort_unstable();
+            *set = unsafe {SortedSet::from_sorted(new_set)};
         }
+    }
+    ///sorts each set of nodes and sorts the sets of nodes
+    fn sort_sets_of_nodes_by_indices(sets_of_nodes: &mut Vec<SortedSet<usize>>) {
+        sets_of_nodes.sort_by(|set1, set2| util::compare_sorted(set1, set2));
     }
     fn generate_index_mapping(set_indices: &Vec<Vec<usize>>, node_count: usize) -> Vec<usize> {
         let mut inverse_maping: Vec<usize> = (0..node_count).collect();
@@ -115,7 +121,6 @@ impl TakingGame {
         sets_of_nodes: &Vec<SortedSet<usize>>,
         node_count: usize,
     ) -> Vec<Vec<usize>> {
-        // First determine the maximum node index to allocate the result vector
         let mut node_to_sets: Vec<Vec<usize>> = vec![vec![]; node_count];
 
         for (set_index, set) in sets_of_nodes.iter().enumerate() {
@@ -123,14 +128,10 @@ impl TakingGame {
                 node_to_sets[node].push(set_index);
             }
         }
-
         node_to_sets
     }
 
-    ///sorts each set of nodes and sorts the sets of nodes
-    fn sort_sets_of_nodes_by_indices(sets_of_nodes: &mut Vec<SortedSet<usize>>) {
-        sets_of_nodes.sort_by(|set1, set2| util::compare_sorted(set1, set2));
-    }
+    
 }
 #[cfg(test)]
 mod tests {

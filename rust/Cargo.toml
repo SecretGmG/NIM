@@ -14,7 +14,7 @@ debug = true
 
 [dependencies]
 rand = "0.9.1"
-queues = "1.0.2"
+queues = "1.1.0"
 sorted-vec = "0.8.6"
 indicatif = "0.18.0"
 union-find = "0.4.3"
