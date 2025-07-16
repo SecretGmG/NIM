@@ -1,7 +1,7 @@
 mod pit;
-mod taking_game;
+pub mod taking_game;
 use evaluator::*;
-use taking_game::constructor::Constructor;
+pub use taking_game::constructor::Constructor;
 use pit::Pit;
 use std::time::Instant;
 
@@ -9,10 +9,10 @@ fn main() {
     //print_triangle_nimbers(10);
     let mut eval = Evaluator::new();
     let g = Constructor::hyper_cuboid(vec![4, 5]).build();
-    println!("{}", eval.get_nimber(g));
+    println!("{}", eval.get_nimber(g).unwrap());
 
     let g = Constructor::hyper_cuboid(vec![4, 5]).build();
-    println!("{}", eval.get_nimber(g));
+    println!("{}", eval.get_nimber(g).unwrap());
 }
 #[cfg(test)]
 mod test {
@@ -24,13 +24,13 @@ mod test {
     fn sqr2x5() {
         let mut eval = Evaluator::new();
         let g = Pit::empty_rect(4, 5).get_generalized();
-        println!("{}", eval.get_nimber(g));
+        println!("{}", eval.get_nimber(g).unwrap());
         let g = Pit::empty_rect(5, 4).get_generalized();
-        println!("{}", eval.get_nimber(g));
+        println!("{}", eval.get_nimber(g).unwrap());
         let g = Pit::empty_rect(4, 3).get_generalized();
-        println!("{}", eval.get_nimber(g));
+        println!("{}", eval.get_nimber(g).unwrap());
         let g = Pit::empty_rect(5, 5).get_generalized();
-        println!("{}", eval.get_nimber(g));
+        println!("{}", eval.get_nimber(g).unwrap());
     }
 }
 
@@ -39,7 +39,7 @@ fn print_kayle_nimbers(max: usize) {
     let mut eval = Evaluator::new();
     for i in 0..max {
         let g = Constructor::kayles(i).build();
-        println!("{}:{}", i, eval.get_nimber(g));
+        println!("{}:{}", i, eval.get_nimber(g).unwrap());
     }
 }
 
@@ -48,7 +48,7 @@ fn print_triangle_nimbers(max: usize) {
     let mut eval = Evaluator::new();
     for i in 0..max {
         let g = Constructor::triangle(i).build();
-        println!("{}:{}", i, eval.get_nimber(g));
+        println!("{}:{}", i, eval.get_nimber(g).unwrap());
     }
 }
 
@@ -56,10 +56,10 @@ fn print_triangle_nimbers(max: usize) {
 fn test_reconstruction(pit: Pit) {
     println!("{}", pit);
     let g = pit.get_generalized();
-    if g.clone().get_parts().len() == 0 {
+    if g.clone().get_parts().unwrap().len() == 0 {
         return;
     }
-    let c = &g.get_parts()[0];
+    let c = &g.get_parts().unwrap()[0];
     println!("{:?}", c);
     let reconstructed = Pit::reconstruct(c).unwrap();
     println!("{}", reconstructed);
@@ -75,7 +75,7 @@ fn test_pit_game(pit: Pit) {
 
     println!("{:?}", g);
 
-    let nimber = db.get_nimber(g);
+    let nimber = db.get_nimber(g).unwrap();
 
     println!("nimber: {}", nimber);
 

@@ -3,20 +3,20 @@ use evaluator::Impartial;
 use super::{Pit, Cell, Wall};
 
 impl Impartial<Pit> for Pit {
-    fn get_parts(self) -> Vec<Pit> {
-        vec![self]
+    fn get_parts(&self) -> Option<Vec<Pit>> {
+        None
     }
 
-    fn get_max_nimber(&self) -> usize {
-        self.board.iter().map(|row| {
+    fn get_max_nimber(&self) -> Option<usize> {
+        Some(self.board.iter().map(|row| {
             row.iter().map(|(cell, _, _)| match cell {
                 Cell::On => 1,
                 _ => 0,
             }).sum::<usize>()
-        }).sum()
+        }).sum())
     }
 
-    fn get_unique_moves(&self) -> Vec<Pit> {
+    fn get_moves(&self) -> Vec<Pit> {
         let mut groups = vec![];
         for y in 0..self.y {
             let mut group = vec![];
@@ -47,9 +47,5 @@ impl Impartial<Pit> for Pit {
         }
         todo!()
 
-    }
-
-    fn get_possible_nimbers(&self) -> Vec<usize> {
-        (0..=self.get_max_nimber()).collect()
     }
 }

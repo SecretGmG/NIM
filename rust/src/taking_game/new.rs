@@ -1,120 +1,160 @@
-use super::{TakingGame, util};
-use std::collections::HashMap;
-use super::util::compare_sorted;
+use sorted_vec::SortedSet;
+
+use super::{util, TakingGame};
+use std::{cmp::Ordering, collections::HashMap};
 
 impl TakingGame {
+    #[cfg(feature = "no_sort")]
+    const MAX_SORT_STEPS: usize = 0;
+
+    #[cfg(not(feature = "no_sort"))]
+    const MAX_SORT_STEPS: usize = 16;
+
     #[allow(dead_code)]
     ///creates an empty GeneralizedNimGame
     pub fn empty() -> TakingGame {
-        return TakingGame {
+        TakingGame {
             sets_of_nodes: Vec::new(),
-            set_indices: Vec::new(),
             node_count: 0,
-        };
+            set_indices: Vec::new(),
+        }
     }
+
     /// Constructs a canonicalized TakingGame from a collection of node sets.
-    /// 
+    ///
     /// This function:
     /// - Normalizes node indices to a compact range starting from 0
     /// - Deduplicates and sorts each set
     /// - Removes redundant (subset) sets
     /// - Computes and stores set indices per node
     /// - Reorders node indices to canonical form
-    pub fn new(mut sets_of_nodes: Vec<Vec<usize>>) -> TakingGame {
-        let nodes = Self::flatten_and_get_node_count(&mut sets_of_nodes);
-        Self::remove_redundant_sets(&mut sets_of_nodes);
-        let set_indices = Self::generate_set_indices(&sets_of_nodes, nodes);
-        
-        let mut taking_game =  TakingGame {
-            sets_of_nodes,
-            set_indices,
-            node_count: nodes,
-        };
-        taking_game.sort();
-        taking_game
+    pub fn new(sets_of_nodes: Vec<SortedSet<usize>>) -> TakingGame {
+        let (flattened_sets_of_nodes, node_count) = Self::flatten_and_get_node_count(sets_of_nodes);
+        let cleaned_sets_of_nodes = Self::remove_redundant_sets(flattened_sets_of_nodes);
+        let (sorted_sets_of_nodes, set_indices) = Self::sort(cleaned_sets_of_nodes, node_count);
+
+        TakingGame {
+            set_indices: set_indices,
+            sets_of_nodes: sorted_sets_of_nodes,
+            node_count,
+        }
     }
     ///flattens the indecies and then returns the nr of nodes
-    fn flatten_and_get_node_count(sets_of_nodes: &mut Vec<Vec<usize>>) -> usize {
-        let mut indices: Vec<usize> = sets_of_nodes.iter().flatten().copied().collect();
-        indices.sort_unstable();
-        indices.dedup();
+    fn flatten_and_get_node_count(
+        mut sets_of_nodes: Vec<SortedSet<usize>>,
+    ) -> (Vec<SortedSet<usize>>, usize) {
+        let indices: SortedSet<usize> = sets_of_nodes
+            .iter()
+            .fold(SortedSet::new(), |a, b| util::merge(&a, b));
         let mut map = HashMap::new();
         for i in 0..indices.len() {
-            map.insert(indices[i], i );
+            map.insert(indices[i], i);
         }
         {
             for i in 0..sets_of_nodes.len() {
-                for j in 0..sets_of_nodes[i].len() {
-                    sets_of_nodes[i][j] = *map.get(&sets_of_nodes[i][j]).expect("the indices were generated correctly");
-                }
+                sets_of_nodes[i] = SortedSet::from_unsorted(
+                    sets_of_nodes[i].iter().map(|node| map[node]).collect(),
+                );
             }
         };
-        indices.len()
+        (sets_of_nodes, indices.len())
     }
     ///removes sets that are totally contained in other sets
-    fn remove_redundant_sets(sets_of_nodes: &mut Vec<Vec<usize>>) {
-        for i in 0..sets_of_nodes.len() {
-            sets_of_nodes[i].sort_unstable();
-            sets_of_nodes[i].dedup();
-        }
-        sets_of_nodes.sort_by(|a, b| a.len().cmp(&b.len()));
+    fn remove_redundant_sets(mut sets_of_nodes: Vec<SortedSet<usize>>) -> Vec<SortedSet<usize>> {
+        sets_of_nodes.sort_by_key(|set| set.len());
 
-        let mut i = 0;
-        'outer: while i + 1 < sets_of_nodes.len() {
-            if sets_of_nodes[i].len() == 0 {
-                sets_of_nodes.remove(i);
-                continue;
-            }
-
-            for bigger_set in &sets_of_nodes[(i + 1)..] {
-                if util::is_subset(&sets_of_nodes[i], bigger_set) {
-                    sets_of_nodes.remove(i);
+        let mut retained = Vec::new();
+        'outer: for i in 0..sets_of_nodes.len() {
+            for j in (i + 1)..sets_of_nodes.len() {
+                if util::is_subset(&sets_of_nodes[i], &sets_of_nodes[j]) {
                     continue 'outer;
                 }
             }
-            i += 1;
-        }
-    }
-    pub fn sort(&mut self) {
-        loop {
-            self.sort_sets_of_nodes_by_indices();
-            let permutation = self.generate_index_remaping();
-            if {
-                permutation.iter().enumerate().all(|(a, b)| a  == *b)
-            } {
-                return;
-            }
-            for i in 0..self.sets_of_nodes.len() {
-                for j in 0..self.sets_of_nodes[i].len() {
-                    self.sets_of_nodes[i][j] = permutation[self.sets_of_nodes[i][j]];
-                }
+            if !sets_of_nodes[i].is_empty() {
+                retained.push(sets_of_nodes[i].clone());
             }
         }
+
+        retained
     }
-    fn generate_index_remaping(&self) -> Vec<usize> {
-        let mut inverse_maping: Vec<usize> = (0..self.get_node_count()).collect();
-        inverse_maping.sort_by(|a, b| util::node_comparer(*a, *b, &self.set_indices));
+    pub fn sort(
+        mut sets_of_nodes: Vec<SortedSet<usize>>,
+        node_count: usize,
+    ) -> (Vec<SortedSet<usize>>, Vec<Vec<usize>>) {
+        Self::sort_sets_of_nodes_by_indices(&mut sets_of_nodes);
+        let mut set_indices = Self::generate_set_indices(&sets_of_nodes, node_count);
+
+        for _ in 0..Self::MAX_SORT_STEPS {
+            let permutation = Self::generate_index_mapping(&set_indices, node_count);
+            if permutation.iter().enumerate().all(|(a, b)| a == *b) {
+                return (sets_of_nodes, set_indices);
+            }
+            Self::apply_permutation(&mut sets_of_nodes, &permutation);
+            Self::sort_sets_of_nodes_by_indices(&mut sets_of_nodes);
+            set_indices = Self::generate_set_indices(&sets_of_nodes, node_count);
+        }
+        (sets_of_nodes, set_indices)
+    }
+    fn apply_permutation(sets: &mut Vec<SortedSet<usize>>, perm: &Vec<usize>) {
+        for set in sets.iter_mut() {
+            *set = SortedSet::from_unsorted(set.iter().map(|&x| perm[x]).collect());
+        }
+    }
+    fn generate_index_mapping(set_indices: &Vec<Vec<usize>>, node_count: usize) -> Vec<usize> {
+        let mut inverse_maping: Vec<usize> = (0..node_count).collect();
+        inverse_maping.sort_by(|a, b| Self::node_comparer(*a, *b, &set_indices));
         util::inverse_permutation(inverse_maping)
+    }
+    fn node_comparer(a: usize, b: usize, set_indices: &Vec<Vec<usize>>) -> Ordering {
+        util::compare_sorted(&set_indices[a], &set_indices[b])
+    }
+    fn generate_set_indices(
+        sets_of_nodes: &Vec<SortedSet<usize>>,
+        node_count: usize,
+    ) -> Vec<Vec<usize>> {
+        // First determine the maximum node index to allocate the result vector
+        let mut node_to_sets: Vec<Vec<usize>> = vec![vec![]; node_count];
+
+        for (set_index, set) in sets_of_nodes.iter().enumerate() {
+            for &node in set.iter() {
+                node_to_sets[node].push(set_index);
+            }
+        }
+
+        node_to_sets
     }
 
     ///sorts each set of nodes and sorts the sets of nodes
-    fn sort_sets_of_nodes_by_indices(&mut self) {
-        self.sets_of_nodes.iter_mut().for_each(|set_of_nodes| set_of_nodes.sort_unstable());
-        self.sets_of_nodes.sort_by(compare_sorted);
-        self.set_indices = Self::generate_set_indices(&self.sets_of_nodes, self.get_node_count());
+    fn sort_sets_of_nodes_by_indices(sets_of_nodes: &mut Vec<SortedSet<usize>>) {
+        sets_of_nodes.sort_by(|set1, set2| util::compare_sorted(set1, set2));
     }
-    ///gets a vec with each index storing all the set that contain the node with that index
-    pub fn generate_set_indices(sets_of_nodes: &Vec<Vec<usize>>, nodes: usize) -> Vec<Vec<usize>> {
-        let mut set_indices = vec![vec![]; nodes ];
+    
+}
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_canonicalization() {
+        let game1 = TakingGame::new(vec![
+            SortedSet::from_unsorted(vec![2, 4]),
+            SortedSet::from_unsorted(vec![0, 4]),
+            SortedSet::from_unsorted(vec![0, 2]),
+        ]);
+        let game2 = TakingGame::new(vec![
+            SortedSet::from_unsorted(vec![1, 3]),
+            SortedSet::from_unsorted(vec![3, 5]),
+            SortedSet::from_unsorted(vec![1, 5]),
+        ]);
+        assert_eq!(game1, game2); // should be true due to canonicalization
+    }
 
-        for i in 0..sets_of_nodes.len() {
-            for node in &sets_of_nodes[i] {
-                set_indices[*node ].push(i );
-            }
-        }
-        for i in 0..nodes {
-            set_indices[i ].sort_unstable();
-        }
-        set_indices
+    use super::*;
+    use sorted_vec::SortedSet;
+
+    #[test]
+    fn test_empty_game() {
+        let empty_game = TakingGame::empty();
+        assert_eq!(empty_game.node_count, 0);
+        assert!(empty_game.sets_of_nodes.is_empty());
+        assert!(empty_game.set_indices.is_empty());
     }
 }

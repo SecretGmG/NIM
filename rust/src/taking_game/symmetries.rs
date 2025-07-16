@@ -1,185 +1,188 @@
+use sorted_vec::SortedSet;
+
+use crate::taking_game::util;
+
 use super::TakingGame;
-use std::collections::HashMap;
-//Implements the symmetry finder for GeneralizedNimGame
+use std::{collections::HashMap, hash::Hash};
+
 impl TakingGame {
-    ///Tries to find a symmetry by running a recursive algorithm
+
+    #[cfg(not(feature = "symmetry_finder"))]
     pub fn find_symmetry(&self) -> Option<Vec<usize>> {
-        //If there isn't an even amount of nodes it's impossible for every node to have a symmetry
+        // disabled version: always return None
+        None
+    }
+    #[cfg(feature = "symmetry_finder")]
+    pub fn find_symmetry(&self) -> Option<Vec<usize>> {
         if self.node_count % 2 != 0 {
             return None;
         }
-        if 0 != (0..self.get_node_count())
-            .into_iter()
-            .map(|node| {
-                self.set_indices[node]
-                    .iter()
-                    .map(|set_index| self.sets_of_nodes[*set_index].len())
-                    .fold(0, |a, b| a << 1 ^ b)
-            })
-            .fold(0, |a, b| a ^ b)
-        {
-            return None;
-        }
 
-        let sets_of_candidates = self.get_sets_of_candidates();
+        let symmetry_hash = self.generate_symmety_hash()?;
 
-        if sets_of_candidates.iter().any(|v| (v.len() % 2) != 0) {
-            return None;
-        }
+        let sets_of_candidates = Self::generate_sets_of_candidates(symmetry_hash)?;
 
-        let mut symmetries = vec![None; self.get_node_count()];
+        let neighbourhoods = self.get_neighbourhoods();
 
-        return self.leads_to_contradiction(&mut symmetries, &sets_of_candidates);
+        let mut symmetries = vec![None; self.node_count];
+        self.generate_symmetry_from_sets_of_candidates(&mut symmetries, &sets_of_candidates, &neighbourhoods)
     }
 
-    /// sorts the nodes into sets that each have the same neighbour pattern
-    fn get_sets_of_candidates(&self) -> Vec<Vec<usize>> {
-        //key: sorted amount of
-        //value: vec of nodes that have neighbours with exactly this amount of neighbours
-        let mut map: HashMap<Vec<usize>, Vec<usize>> = HashMap::with_capacity(self.node_count);
 
-        for node in 0..self.node_count {
-            //generate list of neighbours_lengths
-
-            let set_pattern: Vec<usize> = self.set_indices[node]
-                .iter()
-                .map(|set_index| self.sets_of_nodes[*set_index].len())
-                .collect();
-
-            //push nodes that have the same neighbour pattern
-            match map.get_mut(&set_pattern) {
-                Some(v) => v.push(node),
-                None => _ = map.insert(set_pattern, vec![node]),
+    fn update_node_parities(&self, node_parities : &mut Vec<usize>, set_parities : & Vec<usize>){
+        for ni in 0..self.node_count {
+            let mut hash: usize = 0;
+            for &si in &self.get_set_indices()[ni] {
+                hash = hash.wrapping_mul(31) ^ set_parities[si];
+            }
+            node_parities[ni] = node_parities[ni].wrapping_mul(31) ^ hash;
+        }
+    }
+    fn update_set_parities(&self, node_parities : &Vec<usize>, set_parities : &mut Vec<usize>){
+        for sis in self.get_set_indices() {
+            let mut hash: usize = 0;
+            for &si in sis{
+                hash = hash.wrapping_mul(31) ^ self.sets_of_nodes[si].iter().fold(0, |a, b| a ^ node_parities[*b]);
+            }
+            for &si in sis{
+                set_parities[si] = set_parities[si].wrapping_mul(31) ^ hash;
             }
         }
-        return map.into_values().collect();
     }
 
-    ///gets nodes that might be symmetric to a given node
-    fn get_candidates(
+    fn generate_symmety_hash(&self) -> Option<Vec<usize>> {
+        let mut node_parities = vec![0; self.node_count];
+        let mut set_parities: Vec<usize> = self.sets_of_nodes.iter().map(|s| s.len()).collect();
+
+        self.update_node_parities(&mut node_parities, &set_parities);
+        for _ in 0..3{
+            self.update_set_parities(&node_parities, &mut set_parities);
+            self.update_node_parities(&mut node_parities, &set_parities);
+            if node_parities.iter().fold(0, |a, b| a ^ *b) != 0{
+                return None
+            }
+
+        }
+        Some(node_parities)
+    }
+
+    fn generate_sets_of_candidates(symmetry_hash : Vec<usize>) -> Option<Vec<SortedSet<usize>>>{
+        let mut sets_of_candidates: HashMap<usize, SortedSet<usize>> = HashMap::with_capacity(symmetry_hash.len() / 2);
+
+        for (i, hash) in symmetry_hash.iter().enumerate(){
+            match sets_of_candidates.get_mut(hash){
+                Some(set) => { set.push(i); },
+                None => { sets_of_candidates.insert(*hash,  SortedSet::from_unsorted(vec![i])); },
+            }
+        }
+        if sets_of_candidates.values().any(|set| set.len() % 2 != 0){
+            return None
+        }
+        Some(sets_of_candidates.into_values().collect())
+    }
+
+    fn generate_symmetry_from_sets_of_candidates(
+        &self,
+        symmetries: &mut Vec<Option<usize>>,
+        sets_of_candidates: &Vec<SortedSet<usize>>,
+        neighbourhoods : &Vec<SortedSet<usize>>
+    ) -> Option<Vec<usize>> {
+        if let Some(node) = Self::find_unmatched_node(symmetries) {
+            let candidates = self.find_valid_candidates(node, symmetries, sets_of_candidates, neighbourhoods);
+            for cand in candidates {
+                symmetries[node] = Some(cand);
+                symmetries[cand] = Some(node);
+
+                if let Some(result) = self.generate_symmetry_from_sets_of_candidates(symmetries, sets_of_candidates, neighbourhoods) {
+                    return Some(result);
+                }
+
+                symmetries[node] = None;
+                symmetries[cand] = None;
+            }
+            return None;
+        }
+
+        // All nodes are matched
+        Some(symmetries.iter().map(|x| x.unwrap()).collect())
+    }
+
+    fn find_unmatched_node(symmetries: &[Option<usize>]) -> Option<usize> {
+        symmetries.iter().position(|v| v.is_none())
+    }
+
+    fn find_valid_candidates(
         &self,
         node: usize,
-        symmetries: &Vec<Option<usize>>,
-        sets_of_candidates: &Vec<Vec<usize>>,
+        symmetries: &[Option<usize>],
+        candidate_groups: &Vec<SortedSet<usize>>,
+        neighbourhoods : &Vec<SortedSet<usize>>
     ) -> Vec<usize> {
-        let candidates = sets_of_candidates
-            .iter()
-            .find(|set| set.contains(&node))
-            .expect("at least one set of candidates should contain the node");
-
-        //filter for nodes that are not
-        // * the node itself
-        // * nodes already in a symmetry
-        // * nodes that are in the same set
-        return candidates
-            .iter()
-            .filter(|&candidate| self.can_be_symmetric(node, *candidate, symmetries))
-            .copied()
-            .collect();
+        for group in candidate_groups {
+            if group.contains(&node) {
+                return group
+                    .iter()
+                    .copied()
+                    .filter(|&cand| self.is_valid_match(node, cand, symmetries, neighbourhoods))
+                    .collect();
+            }
+        }
+        unreachable!();
     }
 
-    fn can_be_symmetric(
+    fn is_valid_match(
         &self,
         node: usize,
         candidate: usize,
-        symmetries: &Vec<Option<usize>>,
+        symmetries: &[Option<usize>],
+        neighbourhoods : &Vec<SortedSet<usize>>
     ) -> bool {
-        if node == candidate {
+        if node == candidate || symmetries[candidate].is_some() {
             return false;
         }
-        if symmetries[candidate].is_some() {
-            return false;
-        }
-        if self.set_indices[node]
+
+        // Check if they share a set -> immediate disqualification
+        if self.get_set_indices()[node]
             .iter()
-            .any(|set_index| self.sets_of_nodes[*set_index].contains(&candidate))
-        {
-            return false;
-        }
-        if !self
-            .get_neighbours(node)
-            .filter_map(|n| symmetries[*n])
-            .all(|n1| self.get_neighbours(candidate).any(|n2| n1 == *n2))
+            .any(|&si| self.sets_of_nodes[si].contains(&candidate))
         {
             return false;
         }
 
-        return true;
-    }
-    fn get_neighbours(&self, node: usize) -> impl Iterator<Item = &usize> {
-        self.set_indices[node]
-            .iter()
-            .flat_map(|set_index| &self.sets_of_nodes[*set_index])
-    }
+        // All neighbors of node (that are already mapped) must have their images in candidate's neighborhood
+        let candidate_neighbours = &neighbourhoods[candidate];
 
-    ///gets the first node in no symmetry
-    fn get_next_free_node(&self, symmetries: &Vec<Option<usize>>) -> Option<usize> {
-        for i in 0..self.get_node_count() {
-            if symmetries[i].is_none() {
-                return Some(i);
-            }
-        }
-        return None;
-    }
-
-    /// ### Takes a vec of symmetries and checks if they do not lead to a contradiction by:
-    ///
-    ///   * Checking if there exists a root_node wich has a symmetry to another node that does not lead to a contradiction,
-    ///     assuming the vec of previously definde symmetries.
-    ///
-    ///   * Every Iteration a new node is chosen and candidates of wich at least one HAS to be symmetric to the node are generated
-    ///
-    ///   * If any of these candidates is found to be symmetric to the root_node without contradiction the assumed symmetries must be valid
-    ///
-    ///   * This can be checked by adding the symmetry (root_node <==> candidate_node) to the vec of symmetries and recursively calling the function.
-    ///
-    ///
-    fn leads_to_contradiction(
-        &self,
-        symmetries: &mut Vec<Option<usize>>,
-        sets_of_candidates: &Vec<Vec<usize>>,
-    ) -> Option<Vec<usize>> {
-        //If there are none, return
-        let next_node = match self.get_next_free_node(symmetries) {
-            None => return Self::flatten_vec(symmetries),
-            Some(node) => node,
-        };
-
-        //get nodes that might be symmetric to the root_node
-        let candidates = self.get_candidates(next_node, symmetries, sets_of_candidates);
-
-        //no symmetry candidates for the node means the start symmetry leads to a contradiction
-        if candidates.len() == 0 {
-            return None;
-        }
-
-        for candidate in candidates {
-            symmetries[next_node] = Some(candidate);
-            symmetries[candidate] = Some(next_node);
-
-            match self.leads_to_contradiction(symmetries, sets_of_candidates) {
-                Some(result) => return Some(result),
-                None => {
-                    symmetries[next_node] = None;
-                    symmetries[candidate] = None;
-                    continue;
+        for &set_index in &self.get_set_indices()[node] {
+            for &neighbour in &self.sets_of_nodes[set_index] {
+                if let Some(mapped) = symmetries[neighbour] {
+                    if !candidate_neighbours.contains(&mapped) {
+                        return false;
+                    }
                 }
             }
         }
-        return None;
+
+        true
     }
-    ///flattenes a vec<Option<usize>> to a Option<Vec<usize>>
-    fn flatten_vec(symmetries: &Vec<Option<usize>>) -> Option<Vec<usize>> {
-        let mut result = vec![];
-        for symmetry in symmetries {
-            match symmetry {
-                Some(symmetry) => result.push(*symmetry),
-                None => return None,
+
+    fn get_neighbourhoods(&self) -> Vec<SortedSet<usize>> {
+        let mut neighbourhoods: Vec<SortedSet<usize>> = vec![SortedSet::new(); self.get_node_count()];
+        for node in 0..self.get_node_count(){
+            for &si in &self.get_set_indices()[node] {
+                neighbourhoods[node] = util::merge(&neighbourhoods[node], &self.get_sets_of_nodes()[si])
             }
         }
-        return Some(result);
+        neighbourhoods
     }
+    //fn get_neighbourhood(&self, node: usize) -> SortedSet<usize> {
+    //    let mut neighbours = SortedSet::new();
+    //    for &si in &self.get_set_indices()[node] {
+    //        neighbours = util::merge(&neighbours, &self.sets_of_nodes[si])
+    //    }
+    //    neighbours
+    //}
 }
+
 
 #[cfg(test)]
 mod tests {

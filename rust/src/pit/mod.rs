@@ -3,6 +3,8 @@ pub mod impls;
 pub mod new;
 pub mod reconstruct;
 
+use sorted_vec::SortedSet;
+
 use crate::taking_game::TakingGame;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -29,14 +31,10 @@ pub struct Pit {
 }
 
 impl Pit {
-    pub fn make_move() -> Option<Pit> {
-        unimplemented!();
-    }
-
     pub fn get_generalized(&self) -> TakingGame {
         let mut list_of_sets = vec![];
         for y in 0..self.y {
-            let mut set = vec![];
+            let mut set = SortedSet::new();
             for x in 0..self.x {
                 let (cell, v_wall, _) = self.board[x ][y ];
 
@@ -53,7 +51,7 @@ impl Pit {
             Self::append_set(&mut list_of_sets, &mut set);
         }
         for x in 0..self.x {
-            let mut set = vec![];
+            let mut set = SortedSet::new();
             for y in 0..self.y {
                 let (cell, _, h_wall) = self.board[x ][y ];
 
@@ -75,8 +73,8 @@ impl Pit {
     ///handles the matching of a cell and following wall, value
     fn match_cell_and_wall(
         cell: Cell,
-        sets_of_nodes: &mut Vec<Vec<usize>>,
-        set: &mut Vec<usize>,
+        sets_of_nodes: &mut Vec<SortedSet<usize>>,
+        set: &mut SortedSet<usize>,
         wall: Wall,
         x: usize,
         y: usize,
@@ -94,7 +92,7 @@ impl Pit {
         }
     }
 
-    fn append_set(sets_of_nodes: &mut Vec<Vec<usize>>, set: &mut Vec<usize>) {
+    fn append_set(sets_of_nodes: &mut Vec<SortedSet<usize>>, set: &mut SortedSet<usize>) {
         if set.is_empty() {
             return;
         }
