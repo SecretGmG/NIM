@@ -57,7 +57,6 @@ func update():
 		color = base_color
 	
 	update_curve()
-	queue_redraw()
 
 func update_curve():
 	curve.clear_points()

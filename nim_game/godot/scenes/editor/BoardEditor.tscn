@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://bnhayj0n4hy6r"]
+
+[ext_resource type="Script" uid="uid://b4dg74bjdt4lr" path="res://scenes/editor/board_editor.gd" id="1_m00av"]
+[ext_resource type="Script" uid="uid://dnm82v5p5fo6f" path="res://scenes/board/board_controller.gd" id="2_7jvil"]
+[ext_resource type="PackedScene" uid="uid://ds1yjvte4duw1" path="res://scenes/editor/EditorView.tscn" id="3_d6v8f"]
+
+[node name="LevelEditor" type="Node2D"]
+script = ExtResource("1_m00av")
+metadata/_custom_type_script = "uid://b4dg74bjdt4lr"
+
+[node name="BoardController" type="Node2D" parent="."]
+script = ExtResource("2_7jvil")
+metadata/_custom_type_script = "uid://dnm82v5p5fo6f"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="EditorView" parent="CanvasLayer" instance=ExtResource("3_d6v8f")]
+z_index = -1
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="NimBot" type="NimBot" parent="."]

@@ -1,8 +1,12 @@
 extends Node2D
 
-class_name GameController
+class_name BoardPlayer
 
-@onready var board_controller: BoardController = $BoardController
+signal go_to_editor_pressed
+
+@onready var board_controller : BoardController = $BoardController
+@onready var player_view : PlayerView = $CanvasLayer/PlayerView
+@onready var nim_bot : NimBot = $NimBot
 
 var focused_point_id : int = -1
 var focused_line_id : int = -1
@@ -10,6 +14,10 @@ var selected_point_ids : Array[int] = []
 
 var selectable_point_ids : Array[int] = []
 
+func init(_state : BoardState):
+	board_controller.load_state(_state)
+	update_selectable_points()
+	
 func _ready():
 	# Connect point signals
 	board_controller.point_pressed.connect(on_point_pressed)
@@ -21,20 +29,13 @@ func _ready():
 	board_controller.line_pressed.connect(on_line_pressed)
 	board_controller.line_entered.connect(on_line_entered)
 	board_controller.line_exited.connect(on_line_exited)
-
-	# TEMP: Initialize test board
-	_test_setup()
-
-func _test_setup():
-	board_controller.load_state(load('res://assets/boards/test_board.res'))
-	update_selectable_points()
-
-func _input(event: InputEvent) -> void:
-	if event.is_action("ui_accept"):
-		on_make_move()
+	
+	player_view.make_bot_move_pressed.connect(on_make_bot_move_pressed)
+	player_view.make_move_pressed.connect(on_make_move_pressed)
+	player_view.escape_pressed.connect(on_escape_pressed)
+	player_view.go_to_editor_pressed.connect(on_go_to_editor_pressed)
 
 func update_selectable_points() -> void:
-	
 	if selected_point_ids.is_empty():
 		selectable_point_ids.clear()
 		for point_id in board_controller.points.keys():
@@ -63,10 +64,8 @@ func update_selectable_points() -> void:
 				board_controller.get_point(point_id).state == PointState.DEFAULT):
 				selectable_point_ids.append(point_id)
 		
-
 func can_point_be_selected(point_id: int) -> bool:
 	return selectable_point_ids.has(point_id)
-	
 
 func toggle_point_selection(point_id: int) -> void:
 	if point_id in selected_point_ids:
@@ -80,7 +79,6 @@ func toggle_point_selection(point_id: int) -> void:
 	update_selectable_points()
 
 func on_point_pressed(point_id: int) -> void:
-	
 	if can_point_be_selected(point_id) or point_id in selected_point_ids:
 		toggle_point_selection(point_id)
 
@@ -99,19 +97,6 @@ func on_point_exited(point_id: int) -> void:
 		board_controller.set_point_focused(point_id, false)
 		focused_point_id = -1
 
-func on_make_move() -> void:
-	if selected_point_ids.is_empty():
-		# Add some UI feedback
-		return
-	for point_id in selected_point_ids:
-		board_controller.set_point_state(point_id, PointState.ACTIVATED)
-		board_controller.set_point_selected(point_id, false)
-	
-	#make ai move or change to other player. for now do nothing
-	
-	selected_point_ids = []
-	update_selectable_points()
-
 func on_line_pressed(_line_id: int) -> void:
 	pass
 	#maybe toggle selection for all point on this line
@@ -128,3 +113,34 @@ func on_line_exited(line_id: int) -> void:
 	if focused_line_id == line_id:
 		board_controller.set_line_focused(line_id, false)
 		focused_line_id = -1
+
+
+func on_escape_pressed() -> void:
+	for pid in selected_point_ids:
+		toggle_point_selection(pid)
+
+func on_make_move_pressed() -> void:
+	if selected_point_ids.is_empty():
+		# Add some UI feedback
+		return
+	for point_id in selected_point_ids:
+		board_controller.set_point_state(point_id, PointState.ACTIVATED)
+		board_controller.set_point_selected(point_id, false)
+	
+	#make ai move or change to other player. for now do nothing
+	
+	selected_point_ids = []
+	update_selectable_points()
+
+func on_make_bot_move_pressed():
+	if not selected_point_ids.is_empty():
+		# Add some UI feedback
+		return
+	var sets_of_nodes = board_controller.get_activatable_points_in_lines()
+	var nodes_to_remove = nim_bot.sample_move(sets_of_nodes)
+	
+	for node in nodes_to_remove:
+		board_controller.set_point_state(node, PointState.ACTIVATED)
+
+func on_go_to_editor_pressed() -> void:
+	go_to_editor_pressed.emit()

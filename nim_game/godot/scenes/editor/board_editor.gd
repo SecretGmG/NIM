@@ -1,9 +1,12 @@
 extends Node2D
 
-class_name BoardEditorController
+class_name BoardEditor
+
+signal play_pressed
 
 @onready var board_controller : BoardController = $BoardController
 @onready var view : BoardEditorView = $CanvasLayer/EditorView
+@onready var nim_bot : NimBot = $NimBot
 
 enum Mode {
 	Idle,
@@ -47,37 +50,32 @@ var add_line_line_id: int = -1
 var is_dragging : bool = false
 var toggle_on_release : bool = false
 
+func init(state : BoardState):
+	board_controller.load_state(state)
+
 func _ready():
 	# Connect point signals
 	board_controller.point_pressed.connect(on_point_pressed)
 	board_controller.point_released.connect(on_point_released)
 	board_controller.point_entered.connect(on_point_entered)
 	board_controller.point_exited.connect(on_point_exited)
-	board_controller.point_deleted.connect(on_point_deleted)
 
 	# Connect line signals
 	board_controller.line_pressed.connect(on_line_pressed)
 	board_controller.line_entered.connect(on_line_entered)
 	board_controller.line_exited.connect(on_line_exited)
-	board_controller.line_deleted.connect(on_line_deleted)
 	
 	# Connect view signals
 	view.background_pressed.connect(on_background_pressed)
 	
-	view.add_line_button_pressed.connect(activate_add_line)
-	view.save_game_button_pressed.connect(save_game)
-	view.load_game_button_pressed.connect(load_game)
+	view.escape_pressed.connect(on_escape_pressed)
+	view.delete_pressed.connect(on_delete_pressed)
+	view.add_line_pressed.connect(on_add_line_pressed)
+	view.save_game.connect(on_save_game)
+	view.load_game.connect(on_load_game)
+	view.play_pressed.connect(on_play_pressed)
 	
 func _input(event: InputEvent) -> void:
-	if event.is_action("ui_delete"):
-		on_delete_pressed()
-	if event.is_action("ui_escape"):
-		on_escape_pressed()
-	if event.is_action("print_debug_info"):
-		if add_line_line_id != -1:
-			print(board_controller.get_line(add_line_line_id).point_ids)
-	
-	
 	# Handle drag
 	if mode == Mode.PointSelected and selected_point_id != -1:
 		if event is InputEventMouseMotion and is_dragging:
@@ -89,26 +87,6 @@ func _input(event: InputEvent) -> void:
 		if event is InputEventMouseMotion:
 			var pos = get_global_mouse_position()
 			board_controller.move_point(control_point_id, pos)
-
-
-func clear_mode_state():
-	# Update visual hints, previews, highlights depending on mode
-	match mode:
-		Mode.Idle:
-			pass
-		Mode.PointSelected:
-			pass
-		Mode.LineSelected:
-			pass
-		Mode.AddLine:
-			if control_point_id != -1:
-				board_controller.remove_point(self.control_point_id)
-	
-	is_dragging = false
-	selected_point_id = -1
-	selected_line_id = -1
-	control_point_id = -1
-	add_line_line_id = -1
 
 func activate_idle():
 	clear_mode_state()
@@ -132,6 +110,7 @@ func activate_line_selected(line_id):
 	print('line selected activated')
 	pass #ui updates
 
+
 func activate_add_line():
 	clear_mode_state()
 	self.mode = Mode.AddLine
@@ -140,6 +119,47 @@ func activate_add_line():
 	board_controller.insert_point_to_line(control_point_id, add_line_line_id)
 	print('add line activated')
 
+func clear_mode_state():
+	# Update visual hints, previews, highlights depending on mode
+	match mode:
+		Mode.Idle:
+			pass
+		Mode.PointSelected:
+			pass
+		Mode.LineSelected:
+			pass
+		Mode.AddLine:
+			if control_point_id != -1:
+				delete_point(control_point_id)
+	
+	is_dragging = false
+	selected_point_id = -1
+	selected_line_id = -1
+	control_point_id = -1
+	add_line_line_id = -1
+
+func delete_point(point_id : int):
+	var removed_lines = board_controller.remove_point(point_id)
+	on_point_deleted(selected_point_id)
+	for lid in removed_lines:
+		on_line_deleted(lid)
+
+func toggle_point_state(point_id : int) -> void:
+	match board_controller.get_point(point_id).state:
+		PointState.DEFAULT:
+			board_controller.set_point_state(point_id, PointState.ACTIVATED)
+		PointState.ACTIVATED:
+			board_controller.set_point_state(point_id, PointState.CONTROL_VISIBLE)
+		PointState.CONTROL_VISIBLE:
+			board_controller.set_point_state(point_id, PointState.DEFAULT)
+
+func cancel_add_line():
+	board_controller.remove_line(add_line_line_id)
+	on_line_deleted(add_line_line_id)
+	clear_mode_state()
+	activate_idle()
+
+## Process Nodes Pressed
 
 func on_background_pressed(_position: Vector2) -> void:
 	print('background pressed')
@@ -158,15 +178,6 @@ func on_background_pressed(_position: Vector2) -> void:
 			board_controller.insert_point_to_line(control_point_id, add_line_line_id)
 			board_controller.move_point(control_point_id, _position)
 			board_controller.set_point_state(new_point_id, PointState.DEFAULT)
-
-func toggle_point_state(point_id : int) -> void:
-	match board_controller.get_point(point_id).state:
-		PointState.DEFAULT:
-			board_controller.set_point_state(point_id, PointState.ACTIVATED)
-		PointState.ACTIVATED:
-			board_controller.set_point_state(point_id, PointState.CONTROL_VISIBLE)
-		PointState.CONTROL_VISIBLE:
-			board_controller.set_point_state(point_id, PointState.DEFAULT)
 
 func on_point_pressed(point_id: int) -> void:
 	print('point pressed')
@@ -196,24 +207,7 @@ func on_point_released(point_id: int) -> void:
 				toggle_on_release = true
 			is_dragging = false
 
-func on_point_deleted(point_id : int) -> void:
-	if selected_point_id == point_id:
-		selected_line_id = -1
-	if focused_point_id == point_id:
-		focused_point_id = -1
-	if control_point_id ==  point_id:
-		control_point_id = -1
-
-func on_line_deleted(line_id : int) -> void:
-	if selected_line_id == line_id:
-		selected_line_id = -1
-	if focused_line_id == line_id:
-		focused_line_id = -1
-	if add_line_line_id ==  line_id:
-		add_line_line_id = -1
-
 func on_line_pressed(line_id: int) -> void:
-	print('line pressed, focused pointid : {0}'.format([focused_point_id]))
 	if focused_point_id != -1:
 		# points are 'in front of' lines
 		# if a point is focused line clicks will be ignored
@@ -232,29 +226,9 @@ func on_line_pressed(line_id: int) -> void:
 			# Maybe ignore or cancel add line
 			pass
 
-func on_delete_pressed() -> void:
-	match mode:
-		Mode.PointSelected:
-			board_controller.remove_point(selected_point_id)
-			activate_idle()
-		Mode.LineSelected:
-			board_controller.remove_line(selected_line_id)
-			activate_idle()
-		Mode.AddLine:
-			cancel_add_line()
-
-func on_escape_pressed() -> void:
-	match mode:
-		Mode.PointSelected:
-			activate_idle()
-		Mode.LineSelected:
-			activate_idle()
-		Mode.AddLine:
-			activate_idle()
-
+## Entered / Exited logic
 
 func on_point_entered(point_id: int) -> void:
-	print('point entered')
 	if point_id == control_point_id:
 		return #ignore the control point
 	if focused_point_id != point_id:
@@ -266,7 +240,6 @@ func on_point_entered(point_id: int) -> void:
 		focused_point_id = point_id
 
 func on_point_exited(point_id: int) -> void:
-	print('point exited')
 	if focused_point_id == point_id:
 		board_controller.set_point_focused(point_id, false)
 		focused_point_id = -1
@@ -287,22 +260,59 @@ func on_line_exited(line_id: int) -> void:
 		board_controller.set_line_focused(line_id, false)
 		focused_line_id = -1
 
+## Buttons
 
-func cancel_add_line():
-	board_controller.remove_line(self.add_line_line_id)
-	add_line_line_id = -1
-	clear_mode_state()
-	activate_idle()
+func on_escape_pressed() -> void:
+	match mode:
+		Mode.PointSelected:
+			activate_idle()
+		Mode.LineSelected:
+			activate_idle()
+		Mode.AddLine:
+			activate_idle()
+
+func on_delete_pressed() -> void:
+	match mode:
+		Mode.PointSelected:
+			delete_point(selected_point_id)
+			activate_idle()
+		Mode.LineSelected:
+			board_controller.remove_line(selected_line_id)
+			on_line_deleted(selected_line_id)
+			activate_idle()
+		Mode.AddLine:
+			cancel_add_line()
 
 
-func save_game():
+func on_add_line_pressed():
+	activate_add_line()
+
+func on_save_game(path):
 	var state = board_controller.get_state()
-	var err = ResourceSaver.save(state, 'res://assets/boards/test_board.res')
-	print('saved game')
+	var err = ResourceSaver.save(state, path)
 	print(err)
 
-func load_game():
-	
-	var state = load("res://assets/boards/test_board.res")
+func on_load_game(path):
+	var state = load(path)
 	board_controller.load_state(state)
-	print('loaded game')
+
+func on_play_pressed() -> void:
+	play_pressed.emit()
+
+## Deletions
+
+func on_point_deleted(point_id : int) -> void:
+	if selected_point_id == point_id:
+		selected_line_id = -1
+	if focused_point_id == point_id:
+		focused_point_id = -1
+	if control_point_id ==  point_id:
+		control_point_id = -1
+
+func on_line_deleted(line_id : int) -> void:
+	if selected_line_id == line_id:
+		selected_line_id = -1
+	if focused_line_id == line_id:
+		focused_line_id = -1
+	if add_line_line_id ==  line_id:
+		add_line_line_id = -1

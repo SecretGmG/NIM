@@ -11,15 +11,15 @@ signal moved(id : int)
 var id : int
 var controller : BoardController
 
-var state : int = PointState.CONTROL_HIDDEN
+var state : int
 var visual_info : VisualInfo = VisualInfo.new()
 
 @onready var view : PointView = $PointView
 
-func init(_id : int, _controller : BoardController, state : int = PointState.CONTROL_HIDDEN) -> PointController:
+func init(_id : int, _controller : BoardController, _state : int = PointState.CONTROL_HIDDEN) -> PointController:
 	self.id = _id
 	self.controller = _controller
-	self.set_state.call_deferred(state)
+	self.set_state(_state)
 	return self
 
 func _ready():
@@ -42,7 +42,6 @@ func _on_view_released():
 
 func _on_moved():
 	moved.emit(id)
-
 
 func set_state(_state: int):
 	self.state = _state

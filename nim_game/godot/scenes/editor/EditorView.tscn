@@ -34,20 +34,51 @@ offset_right = 118.0
 offset_bottom = 31.0
 grow_horizontal = 2
 
+[node name="EscapeButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "esc"
+
+[node name="DeleteButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "del"
+
 [node name="AddLineButton" type="Button" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_filter = 1
-text = "Add Line"
+text = "Add Line (L)"
 
 [node name="SaveGameButton" type="Button" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_filter = 1
-text = "Save Game"
+text = "Save game (ctrl + S)"
 
 [node name="LoadGameButton" type="Button" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_filter = 1
-text = "Load Game"
+text = "Load game"
+
+[node name="PlayGameButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "Play game"
+
+[node name="SaveGameFileDialog" type="FileDialog" parent="."]
+title = "Save a Level"
+access = 2
+filters = PackedStringArray("*.res")
+
+[node name="LoadGameFileDialog" type="FileDialog" parent="."]
+auto_translate_mode = 1
+title = "Load a level"
+ok_button_text = "Load"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.res")

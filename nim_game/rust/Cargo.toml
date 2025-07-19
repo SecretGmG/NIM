@@ -7,4 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]  # Compile this crate to a dynamic C library.
 
 [dependencies]
+evaluator = { git = "https://github.com/SecretGmG/impartial_analiser", version = "0.1.0" }
 godot = "0.3.2"
+sorted-vec = "0.8.6"
+taking_game = { git = "https://github.com/SecretGmG/taking_game", version = "0.1.0" }

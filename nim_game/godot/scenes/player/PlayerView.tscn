@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3 uid="uid://ybsn2q260wmr"]
+
+[ext_resource type="Script" uid="uid://mdkikc2sdntg" path="res://scenes/player/player_view.gd" id="1_acrae"]
+
+[node name="PlayerView" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_acrae")
+metadata/_custom_type_script = "uid://mdkikc2sdntg"
+
+[node name="Background" type="ColorRect" parent="."]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+color = Color(0.125911, 0.125911, 0.125911, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -118.0
+offset_right = 118.0
+offset_bottom = 31.0
+grow_horizontal = 2
+
+[node name="EscapeButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "esc"
+
+[node name="MakeMoveButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "Make move"
+
+[node name="MakeBotMoveButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "Make bot bove"
+
+[node name="GoToEditorButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 1
+text = "Editor"
